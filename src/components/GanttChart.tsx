@@ -94,7 +94,10 @@ export function GanttChart() {
     () =>
       scaleBand()
         .domain(parsed.map((a) => a.id))
-        .range([margin.top + headerHeight, height - margin.bottom])
+        .range([
+          0,
+          Math.max(0, height - margin.bottom - (margin.top + headerHeight)),
+        ])
         .padding(0.3),
     [parsed, height]
   );
