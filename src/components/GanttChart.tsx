@@ -55,15 +55,23 @@ export function GanttChart() {
   const [chartWidth, setChartWidth] = useState<number>(800);
   const margin = { top: 16, right: 20, bottom: 20, left: 20 };
 
-  // Initialize and keep extents/view in sync
-  if (parsed.length > 0) {
+  // Keep extents in sync (effect to avoid setState during render)
+  useEffect(() => {
+    if (parsed.length === 0) return;
     const minMs = minDate.getTime();
     const maxMs = maxDate.getTime();
     setExtents(minMs, maxMs);
+  }, [parsed, minDate, maxDate, setExtents]);
+
+  // Initialize view range if not set yet
+  useEffect(() => {
+    if (parsed.length === 0) return;
     if (viewStart === undefined || viewEnd === undefined) {
+      const minMs = minDate.getTime();
+      const maxMs = maxDate.getTime();
       setViewRange(minMs, maxMs);
     }
-  }
+  }, [parsed, viewStart, viewEnd, minDate, maxDate, setViewRange]);
 
   const x = useMemo(() => {
     const domainStart = viewStart !== undefined ? new Date(viewStart) : minDate;
@@ -329,7 +337,12 @@ export function GanttChart() {
         position="relative"
         flex={1}
         ref={containerRef}
-        sx={{ minWidth: 0, boxSizing: "border-box", overflowX: "hidden", overflowY: "auto" }}
+        sx={{
+          minWidth: 0,
+          boxSizing: "border-box",
+          overflowX: "hidden",
+          overflowY: "auto",
+        }}
       >
         <svg
           ref={svgRef}
