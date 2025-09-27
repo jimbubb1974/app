@@ -113,12 +113,15 @@ export function GanttChart() {
   let dragStartX = 0;
   let dragStartY = 0;
   let dragStartView: [number, number] | null = null;
+  let dragStartScrollTop = 0;
 
   function onMouseDown(e: React.MouseEvent<SVGSVGElement>) {
     if (viewStart === undefined || viewEnd === undefined) return;
     dragStartX = e.clientX;
     dragStartY = e.clientY;
     dragStartView = [viewStart, viewEnd];
+    const container = containerRef.current;
+    dragStartScrollTop = container ? container.scrollTop : 0;
     window.addEventListener("mousemove", onMouseMove as any);
     window.addEventListener("mouseup", onMouseUp as any, { once: true });
   }
@@ -148,9 +151,8 @@ export function GanttChart() {
     
     // Handle vertical panning (activities) - scroll the container
     const container = containerRef.current;
-    if (container && Math.abs(dy) > 0) {
-      const currentScrollTop = container.scrollTop;
-      container.scrollTop = currentScrollTop - dy;
+    if (container) {
+      container.scrollTop = dragStartScrollTop - dy;
     }
     
     setViewRange(newStart, newEnd);
