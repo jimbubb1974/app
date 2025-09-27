@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useScheduleStore } from "../state/useScheduleStore";
+import { ExportDirectoryDialog } from "./ExportDirectoryDialog";
 
 type ExportFormat = "svg" | "png" | "pdf" | "json";
 type ExportRange = "current" | "full";
@@ -57,6 +58,8 @@ export function ExportDialog() {
   const propertiesWidth = useScheduleStore((s) => s.propertiesWidth);
   const timescaleTop = useScheduleStore((s) => s.timescaleTop);
   const timescaleBottom = useScheduleStore((s) => s.timescaleBottom);
+  const exportPath = useScheduleStore((s) => s.exportPath);
+  const setExportPath = useScheduleStore((s) => s.setExportPath);
 
   const [options, setOptions] = useState<ExportOptions>({
     format: "png",
@@ -70,6 +73,7 @@ export function ExportDialog() {
     pageSize: "8.5x11",
     orientation: "landscape",
   });
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
 
   const handleFormatChange = (format: ExportFormat) => {
     setOptions((prev) => ({ ...prev, format }));
@@ -112,13 +116,13 @@ export function ExportDialog() {
   const handleExport = async () => {
     try {
       if (options.format === "svg") {
-        await exportSVG(options);
+        await exportSVG(options, exportPath);
       } else if (options.format === "png") {
-        await exportPNG(options);
+        await exportPNG(options, exportPath);
       } else if (options.format === "pdf") {
-        await exportPDF(options);
+        await exportPDF(options, exportPath);
       } else if (options.format === "json") {
-        await exportJSON();
+        await exportJSON(exportPath, options);
       }
       setOpen(false);
     } catch (error) {
@@ -281,15 +285,36 @@ export function ExportDialog() {
             )}
           </Box>
 
-          {/* Filename */}
-          <TextField
-            size="small"
-            fullWidth
-            label="Filename"
-            value={options.filename}
-            onChange={(e) => handleTextChange("filename", e.target.value)}
-            helperText="File extension will be added automatically"
-          />
+          {/* Export Settings */}
+          <Box>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Export Settings
+            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <TextField
+                size="small"
+                fullWidth
+                label="Filename"
+                value={options.filename}
+                onChange={(e) => handleTextChange("filename", e.target.value)}
+                helperText="File extension will be added automatically"
+              />
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => setSettingsDialogOpen(true)}
+              >
+                Settings
+              </Button>
+            </Stack>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 1, display: "block" }}
+            >
+              Directory: {exportPath}
+            </Typography>
+          </Box>
         </Stack>
       </DialogContent>
       <DialogActions>
@@ -298,12 +323,24 @@ export function ExportDialog() {
           Export
         </Button>
       </DialogActions>
+
+      {/* Export Settings Dialog */}
+      <ExportDirectoryDialog
+        open={settingsDialogOpen}
+        onClose={() => setSettingsDialogOpen(false)}
+        onConfirm={(path, filename) => {
+          setExportPath(path);
+          setOptions((prev) => ({ ...prev, filename }));
+          setSettingsDialogOpen(false);
+        }}
+        currentFilename={options.filename}
+      />
     </Dialog>
   );
 }
 
 // Export functions
-async function exportSVG(options: ExportOptions) {
+async function exportSVG(options: ExportOptions, exportPath: string) {
   const svg = document.querySelector(
     'svg[data-export-id="gantt"]'
   ) as SVGSVGElement | null;
@@ -439,14 +476,40 @@ async function exportSVG(options: ExportOptions) {
   });
 
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${options.filename}.svg`;
-  a.click();
+  // Try to save directly to selected directory using File System Access API
+  if ((window as any).exportDirectoryHandle) {
+    try {
+      const fileHandle = await (
+        window as any
+      ).exportDirectoryHandle.getFileHandle(`${options.filename}.svg`, {
+        create: true,
+      });
+      const writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+    } catch (error) {
+      console.error("Failed to save to directory:", error);
+      // Fallback to download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${options.filename}.svg`;
+      a.click();
+      alert(`Could not save to selected directory. File downloaded instead.`);
+    }
+  } else {
+    // Fallback to download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${options.filename}.svg`;
+    a.click();
+    alert(
+      `File will be downloaded to your default download folder.\nTo save to "${exportPath}", move the file after download.`
+    );
+  }
   URL.revokeObjectURL(url);
 }
 
-async function exportPNG(options: ExportOptions) {
+async function exportPNG(options: ExportOptions, exportPath: string) {
   const svg = document.querySelector(
     'svg[data-export-id="gantt"]'
   ) as SVGSVGElement | null;
@@ -614,17 +677,44 @@ async function exportPNG(options: ExportOptions) {
 
   URL.revokeObjectURL(url);
 
-  canvas.toBlob((blob) => {
+  canvas.toBlob(async (blob) => {
     if (!blob) return;
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${options.filename}.png`;
-    link.click();
-    URL.revokeObjectURL(link.href);
+    // Try to save directly to selected directory using File System Access API
+    if ((window as any).exportDirectoryHandle) {
+      try {
+        const fileHandle = await (
+          window as any
+        ).exportDirectoryHandle.getFileHandle(`${options.filename}.png`, {
+          create: true,
+        });
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } catch (error) {
+        console.error("Failed to save to directory:", error);
+        // Fallback to download
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${options.filename}.png`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        alert(`Could not save to selected directory. File downloaded instead.`);
+      }
+    } else {
+      // Fallback to download
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${options.filename}.png`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      alert(
+        `File will be downloaded to your default download folder.\nTo save to "${exportPath}", move the file after download.`
+      );
+    }
   }, "image/png");
 }
 
-async function exportPDF(options: ExportOptions) {
+async function exportPDF(options: ExportOptions, exportPath: string) {
   try {
     const jsPDF = (await import("jspdf")).default;
     const svg = document.querySelector(
@@ -732,7 +822,32 @@ async function exportPDF(options: ExportOptions) {
     }
 
     URL.revokeObjectURL(url);
-    pdf.save(`${options.filename}.pdf`);
+
+    // Try to save directly to selected directory using File System Access API
+    if ((window as any).exportDirectoryHandle) {
+      try {
+        const pdfBlob = pdf.output("blob");
+        const fileHandle = await (
+          window as any
+        ).exportDirectoryHandle.getFileHandle(`${options.filename}.pdf`, {
+          create: true,
+        });
+        const writable = await fileHandle.createWritable();
+        await writable.write(pdfBlob);
+        await writable.close();
+      } catch (error) {
+        console.error("Failed to save to directory:", error);
+        // Fallback to download
+        pdf.save(`${options.filename}.pdf`);
+        alert(`Could not save to selected directory. File downloaded instead.`);
+      }
+    } else {
+      // Fallback to download
+      pdf.save(`${options.filename}.pdf`);
+      alert(
+        `File will be downloaded to your default download folder.\nTo save to "${exportPath}", move the file after download.`
+      );
+    }
   } catch (error) {
     console.error("PDF export error:", error);
     throw error;
@@ -740,7 +855,7 @@ async function exportPDF(options: ExportOptions) {
 }
 
 // Comprehensive JSON export with all customizations
-async function exportJSON() {
+async function exportJSON(exportPath: string, options: ExportOptions) {
   const store = useScheduleStore.getState();
 
   const comprehensiveData = {
@@ -786,10 +901,35 @@ async function exportJSON() {
   const blob = new Blob([jsonString], { type: "application/json" });
   const url = URL.createObjectURL(blob);
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${store.data?.projectName || "project"}-customized.json`;
-  a.click();
-
+  // Try to save directly to selected directory using File System Access API
+  if ((window as any).exportDirectoryHandle) {
+    try {
+      const fileHandle = await (
+        window as any
+      ).exportDirectoryHandle.getFileHandle(`${options.filename}.json`, {
+        create: true,
+      });
+      const writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+    } catch (error) {
+      console.error("Failed to save JSON to directory:", error);
+      // Fallback to download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${options.filename}.json`;
+      a.click();
+      alert(`Could not save to selected directory. File downloaded instead.`);
+    }
+  } else {
+    // Fallback to download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${options.filename}.json`;
+    a.click();
+    alert(
+      `File will be downloaded to your default download folder.\nTo save to "${exportPath}", move the file after download.`
+    );
+  }
   URL.revokeObjectURL(url);
 }

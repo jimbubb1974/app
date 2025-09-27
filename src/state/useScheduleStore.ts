@@ -38,6 +38,8 @@ type ScheduleState = {
     filename: string;
     importedAt: string;
   } | null;
+  // Export settings
+  exportPath: string;
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -84,6 +86,7 @@ type ScheduleState = {
       importedAt: string;
     } | null
   ) => void;
+  setExportPath: (path: string) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -115,6 +118,7 @@ export const useScheduleStore = create<ScheduleState>()(
       selectedActivityId: null,
       selectedActivityIds: [],
       sourceFile: null,
+      exportPath: "./export",
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
       setError: (error) => set({ error }),
@@ -220,6 +224,7 @@ export const useScheduleStore = create<ScheduleState>()(
         });
       },
       setSourceFile: (sourceFile) => set({ sourceFile }),
+      setExportPath: (path) => set({ exportPath: path }),
     }),
     {
       name: "planworks-ui",
@@ -233,6 +238,7 @@ export const useScheduleStore = create<ScheduleState>()(
         timescaleBottom: state.timescaleBottom,
         settings: state.settings,
         sourceFile: state.sourceFile,
+        exportPath: state.exportPath,
       }),
     }
   )
