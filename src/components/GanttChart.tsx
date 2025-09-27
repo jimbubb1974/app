@@ -438,14 +438,10 @@ export function GanttChart() {
 
           {/* Render header last to keep it visually on top of bars */}
           <g transform={`translate(0, ${margin.top})`}>
-            {/* background mask to ensure bars never show through */}
-            <rect
-              x={0}
-              y={0}
-              width={Math.floor(chartWidth)}
-              height={headerHeight}
-              fill="#fff"
-            />
+            {/* mask the gap between menu bar and timescale */}
+            <rect x={0} y={-margin.top} width={Math.floor(chartWidth)} height={margin.top} fill="#fff" />
+            {/* background mask to ensure bars never show through the timescale */}
+            <rect x={0} y={0} width={Math.floor(chartWidth)} height={headerHeight} fill="#fff" />
             {/* Top row (Year or Month) */}
             {headerSegments.top.map((seg, i) => {
               const x1 = x(seg.start);
