@@ -80,6 +80,12 @@ export function GanttChart() {
     }
   }, [parsed, viewStart, viewEnd, minDate, maxDate, setViewRange]);
 
+  // Reset manual vertical scroll when dataset changes
+  useEffect(() => {
+    setVScroll(0);
+    dragStartVScrollRef.current = 0;
+  }, [parsed.length]);
+
   const x = useMemo(() => {
     const domainStart = viewStart !== undefined ? new Date(viewStart) : minDate;
     const domainEnd = viewEnd !== undefined ? new Date(viewEnd) : maxDate;
@@ -400,7 +406,9 @@ export function GanttChart() {
                 width={Math.floor(chartWidth)}
                 height={Math.max(
                   0,
-                  (containerRef.current?.clientHeight ?? height) - margin.top - headerHeight
+                  (containerRef.current?.clientHeight ?? height) -
+                    margin.top -
+                    headerHeight
                 )}
               />
             </clipPath>
@@ -420,6 +428,8 @@ export function GanttChart() {
                 />
               );
             })}
+            {/* solid mask above the timescale to cover any bleed from below */}
+            <rect x={0} y={-margin.top} width={Math.floor(chartWidth)} height={margin.top} fill="#f5f5f5" />
           </g>
 
           {/* Bars with manual vertical offset and clipping */}
