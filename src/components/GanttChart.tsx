@@ -47,7 +47,7 @@ export function GanttChart() {
     return [start, end] as [Date, Date];
   }, [parsed]);
 
-  const DEBUG = true;
+  const DEBUG = false;
 
   const headerHeight = 56; // two-tier header
   const monthRowHeight = 24; // upper row height to keep week lines below months
@@ -141,7 +141,8 @@ export function GanttChart() {
     e.preventDefault();
     e.stopPropagation();
     dragButtonRef.current = e.button; // 0=left, 1=middle, 2=right
-    dragModeRef.current = e.button === 1 || e.shiftKey ? "vertical" : "horizontal";
+    dragModeRef.current =
+      e.button === 1 || e.shiftKey ? "vertical" : "horizontal";
     dragStartXRef.current = e.clientX;
     dragStartYRef.current = e.clientY;
     dragStartViewRef.current = [viewStart, viewEnd];
