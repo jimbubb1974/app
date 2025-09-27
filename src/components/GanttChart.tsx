@@ -93,14 +93,14 @@ function getLabelY(
   }
 }
 
-function getLabelBaseline(activity: Activity): string {
+function getLabelBaseline(activity: Activity): "middle" | "hanging" {
   const position = activity.labelPosition || "right";
   switch (position) {
     case "left":
     case "right":
       return "middle";
     case "top":
-      return "baseline";
+      return "middle";
     case "bottom":
       return "hanging";
     case "bar":
@@ -110,7 +110,7 @@ function getLabelBaseline(activity: Activity): string {
   }
 }
 
-function getLabelAnchor(activity: Activity): string {
+function getLabelAnchor(activity: Activity): "start" | "end" {
   const position = activity.labelPosition || "right";
   switch (position) {
     case "left":
@@ -130,7 +130,6 @@ export function GanttChart() {
   const data = useScheduleStore((s) => s.data);
   const activities: Activity[] = data?.activities ?? [];
   const settings = useScheduleStore((s) => s.settings);
-  const selectedActivityId = useScheduleStore((s) => s.selectedActivityId);
   const selectedActivityIds = useScheduleStore((s) => s.selectedActivityIds);
   const setSelectedActivity = useScheduleStore((s) => s.setSelectedActivity);
   const toggleActivitySelection = useScheduleStore(
@@ -180,7 +179,6 @@ export function GanttChart() {
     parsed.length * settings.activitySpacing + headerHeight + 40
   );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [viewportHeight, setViewportHeight] = useState<number>(400); // reserved for future viewport calculations
   const [vScroll, setVScroll] = useState<number>(0);
   const dragStartVScrollRef = useRef(0);
   const clipId = useMemo(
@@ -251,13 +249,11 @@ export function GanttChart() {
       for (const entry of entries) {
         const cr = entry.contentRect;
         setChartWidth(Math.max(320, Math.floor(cr.width)));
-        setViewportHeight(Math.max(200, Math.floor(cr.height)));
         //
       }
     });
     ro.observe(el);
     setChartWidth(Math.max(320, el.clientWidth));
-    setViewportHeight(Math.max(200, el.clientHeight));
     return () => ro.disconnect();
   }, []);
 

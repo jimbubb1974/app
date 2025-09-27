@@ -1,14 +1,19 @@
 export type Activity = {
   id: string;
   name: string;
-  start: string;
-  finish: string;
+  wbsPath?: string[];
+  start: string; // ISO date string
+  finish: string; // ISO date string
+  durationDays?: number;
+  totalFloatDays?: number;
+  isCritical?: boolean;
+  percentComplete?: number;
+  // Visual customization properties
   customColor?: string;
   customBarHeight?: number;
   customFontSize?: number;
   customFontFamily?: string;
   barStyle?: "solid" | "dashed" | "dotted";
-  showLabel?: boolean;
   labelPosition?: "left" | "right" | "top" | "bottom" | "bar" | "none";
 };
 

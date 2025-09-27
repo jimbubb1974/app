@@ -494,7 +494,6 @@ async function exportSVG(options: ExportOptions, exportPath: string) {
       a.href = url;
       a.download = `${options.filename}.svg`;
       a.click();
-      alert(`Could not save to selected directory. File downloaded instead.`);
     }
   } else {
     // Fallback to download
@@ -502,9 +501,6 @@ async function exportSVG(options: ExportOptions, exportPath: string) {
     a.href = url;
     a.download = `${options.filename}.svg`;
     a.click();
-    alert(
-      `File will be downloaded to your default download folder.\nTo save to "${exportPath}", move the file after download.`
-    );
   }
   URL.revokeObjectURL(url);
 }
