@@ -114,16 +114,21 @@ export function GanttChart() {
   const dragStartYRef = useRef(0);
   const dragStartViewRef = useRef<[number, number] | null>(null);
   const dragStartScrollTopRef = useRef(0);
+  const dragButtonRef = useRef<number>(0);
 
   function onMouseDown(e: React.MouseEvent<SVGSVGElement>) {
     if (viewStart === undefined || viewEnd === undefined) return;
     e.preventDefault();
+    e.stopPropagation();
+    dragButtonRef.current = e.button; // 0=left, 1=middle, 2=right
     dragStartXRef.current = e.clientX;
     dragStartYRef.current = e.clientY;
     dragStartViewRef.current = [viewStart, viewEnd];
     const container = containerRef.current;
     dragStartScrollTopRef.current = container ? container.scrollTop : 0;
-    window.addEventListener("mousemove", onMouseMove as any, { passive: false });
+    window.addEventListener("mousemove", onMouseMove as any, {
+      passive: false,
+    });
     window.addEventListener("mouseup", onMouseUp as any, { once: true });
   }
 
@@ -133,31 +138,32 @@ export function GanttChart() {
     const dx = e.clientX - dragStartXRef.current;
     const dy = e.clientY - dragStartYRef.current;
 
-    // Handle horizontal panning (time)
-    const domain = [
-      new Date(dragStartViewRef.current[0]),
-      new Date(dragStartViewRef.current[1]),
-    ] as const;
-    const tempScale = scaleTime()
-      .domain(domain)
-      .range([
-        margin.left,
-        Math.max(margin.left + 200, chartWidth - margin.right),
-      ]);
-    // Invert pixel delta to ms delta using local scale slope
-    const t0 = tempScale.invert(0).getTime();
-    const t1 = tempScale.invert(dx).getTime();
-    const deltaMs = t0 - t1; // dragging right moves left in time
-    const newStart = dragStartViewRef.current[0] + deltaMs;
-    const newEnd = dragStartViewRef.current[1] + deltaMs;
-
-    // Handle vertical panning (activities) - scroll the container
-    const container = containerRef.current;
-    if (container) {
-      container.scrollTop = dragStartScrollTopRef.current - dy;
+    // Middle mouse: vertical-only panning (scroll activities)
+    if (dragButtonRef.current === 1) {
+      const container = containerRef.current;
+      if (container) container.scrollTop = dragStartScrollTopRef.current - dy;
+      return;
     }
 
-    setViewRange(newStart, newEnd);
+    // Left mouse: horizontal panning (time)
+    if (dragButtonRef.current === 0) {
+      const domain = [
+        new Date(dragStartViewRef.current[0]),
+        new Date(dragStartViewRef.current[1]),
+      ] as const;
+      const tempScale = scaleTime()
+        .domain(domain)
+        .range([
+          margin.left,
+          Math.max(margin.left + 200, chartWidth - margin.right),
+        ]);
+      const t0 = tempScale.invert(0).getTime();
+      const t1 = tempScale.invert(dx).getTime();
+      const deltaMs = t0 - t1; // dragging right moves left in time
+      const newStart = dragStartViewRef.current[0] + deltaMs;
+      const newEnd = dragStartViewRef.current[1] + deltaMs;
+      setViewRange(newStart, newEnd);
+    }
   }
 
   function onMouseUp() {
