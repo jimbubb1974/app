@@ -141,7 +141,12 @@ export function Toolbar() {
       <Button size="small" variant="contained" sx={btnSx}>
         Auto Layout
       </Button>
-      <Button size="small" variant="contained" sx={btnSx} onClick={toggleProperties}>
+      <Button
+        size="small"
+        variant="contained"
+        sx={btnSx}
+        onClick={toggleProperties}
+      >
         Toggle Properties
       </Button>
 

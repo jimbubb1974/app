@@ -1,5 +1,4 @@
 import { Box, IconButton, Typography } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useScheduleStore } from "../state/useScheduleStore";
@@ -45,7 +44,12 @@ export function RightPanel() {
         <Typography variant="subtitle2" fontWeight={700}>
           Properties
         </Typography>
-        <IconButton size="small" onClick={toggle} aria-label="Close properties" sx={{ color: '#fff' }}>
+        <IconButton
+          size="small"
+          onClick={toggle}
+          aria-label="Close properties"
+          sx={{ color: "#fff" }}
+        >
           <ChevronRightIcon fontSize="small" />
         </IconButton>
       </Box>
