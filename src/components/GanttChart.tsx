@@ -11,6 +11,49 @@ function parseISO(date: string): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+// Helper function to determine if a color is light or dark
+function isLightColor(color: string): boolean {
+  // Remove # if present
+  const hex = color.replace("#", "");
+
+  // Convert to RGB
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+
+  // Calculate luminance using relative luminance formula
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  // Return true if luminance is greater than 0.5 (light color)
+  return luminance > 0.5;
+}
+
+// Helper function to get appropriate text color for bar labels
+function getBarLabelColor(activity: Activity): {
+  fill: string;
+  stroke: string;
+  strokeWidth: string;
+} {
+  const barColor =
+    activity.customColor || (activity.isCritical ? "#e74c3c" : "#3498db");
+
+  if (isLightColor(barColor)) {
+    // Light bar - use black text without stroke
+    return {
+      fill: "#000000",
+      stroke: "none",
+      strokeWidth: "0",
+    };
+  } else {
+    // Dark bar - use white text without stroke
+    return {
+      fill: "#ffffff",
+      stroke: "none",
+      strokeWidth: "0",
+    };
+  }
+}
+
 // Helper functions for label positioning
 function getLabelX(activity: Activity, xStart: number, xEnd: number): number {
   const position = activity.labelPosition || "right";
@@ -22,6 +65,8 @@ function getLabelX(activity: Activity, xStart: number, xEnd: number): number {
     case "top":
     case "bottom":
       return xStart; // Left justified to the leftmost side of the bar
+    case "bar":
+      return xStart + 4; // Left justified, inside the bar with small margin
     default:
       return xEnd + 6;
   }
@@ -41,6 +86,8 @@ function getLabelY(
       return yPos - 4; // Above the bar
     case "bottom":
       return yPos + bandwidth + 12; // Below the bar
+    case "bar":
+      return yPos + bandwidth / 2; // Middle of the bar
     default:
       return yPos + bandwidth / 2;
   }
@@ -56,6 +103,8 @@ function getLabelBaseline(activity: Activity): string {
       return "baseline";
     case "bottom":
       return "hanging";
+    case "bar":
+      return "middle";
     default:
       return "middle";
   }
@@ -70,6 +119,8 @@ function getLabelAnchor(activity: Activity): string {
     case "top":
     case "bottom":
       return "start"; // Left justified
+    case "bar":
+      return "start"; // Left justified inside the bar
     default:
       return "start";
   }
@@ -511,19 +562,30 @@ export function GanttChart() {
                       }
                     }}
                   />
-                  {a.showLabel !== false && (
-                    <text
-                      x={getLabelX(a, xStart, xEnd)}
-                      y={getLabelY(a, yPos ?? 0, y.bandwidth())}
-                      dominantBaseline={getLabelBaseline(a)}
-                      textAnchor={getLabelAnchor(a)}
-                      fontSize={a.customFontSize || settings.fontSize}
-                      fontFamily={a.customFontFamily || settings.fontFamily}
-                      fill="#2c3e50"
-                    >
-                      {a.name}
-                    </text>
-                  )}
+                  {a.labelPosition !== "none" &&
+                    (() => {
+                      const isBarLabel = a.labelPosition === "bar";
+                      const textColors = isBarLabel
+                        ? getBarLabelColor(a)
+                        : { fill: "#2c3e50", stroke: "none", strokeWidth: "0" };
+
+                      return (
+                        <text
+                          x={getLabelX(a, xStart, xEnd)}
+                          y={getLabelY(a, yPos ?? 0, y.bandwidth())}
+                          dominantBaseline={getLabelBaseline(a)}
+                          textAnchor={getLabelAnchor(a)}
+                          fontSize={a.customFontSize || settings.fontSize}
+                          fontFamily={a.customFontFamily || settings.fontFamily}
+                          fill={textColors.fill}
+                          stroke={textColors.stroke}
+                          strokeWidth={textColors.strokeWidth}
+                          fontWeight={isBarLabel ? "bold" : "normal"}
+                        >
+                          {a.name}
+                        </text>
+                      );
+                    })()}
                 </g>
               );
             })}

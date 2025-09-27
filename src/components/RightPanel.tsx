@@ -246,6 +246,11 @@ function ActivityProperties({
               <MenuItem value="#1abc9c">Teal</MenuItem>
               <MenuItem value="#e67e22">Dark Orange</MenuItem>
               <MenuItem value="#34495e">Dark Blue</MenuItem>
+              <MenuItem value="#f8f9fa">Light Gray</MenuItem>
+              <MenuItem value="#e9ecef">Light Blue</MenuItem>
+              <MenuItem value="#d4edda">Light Green</MenuItem>
+              <MenuItem value="#fff3cd">Light Yellow</MenuItem>
+              <MenuItem value="#f8d7da">Light Pink</MenuItem>
             </Select>
           </FormControl>
 
@@ -326,39 +331,32 @@ function ActivityProperties({
             </Select>
           </FormControl>
 
-          {/* Show Label */}
+          {/* Label Position */}
           <FormControl size="small" fullWidth>
-            <InputLabel>Show Label</InputLabel>
+            <InputLabel>Label Position</InputLabel>
             <Select
-              label="Show Label"
-              value={activity.showLabel !== false ? "true" : "false"}
-              onChange={(e) => handleShowLabelChange(e.target.value === "true")}
+              label="Label Position"
+              value={activity.labelPosition || "right"}
+              onChange={(e) =>
+                handleLabelPositionChange(
+                  e.target.value as
+                    | "left"
+                    | "right"
+                    | "top"
+                    | "bottom"
+                    | "bar"
+                    | "none"
+                )
+              }
             >
-              <MenuItem value="true">Yes</MenuItem>
-              <MenuItem value="false">No</MenuItem>
+              <MenuItem value="left">Left</MenuItem>
+              <MenuItem value="right">Right</MenuItem>
+              <MenuItem value="top">Top</MenuItem>
+              <MenuItem value="bottom">Bottom</MenuItem>
+              <MenuItem value="bar">Inside Bar</MenuItem>
+              <MenuItem value="none">None</MenuItem>
             </Select>
           </FormControl>
-
-          {/* Label Position */}
-          {activity.showLabel !== false && (
-            <FormControl size="small" fullWidth>
-              <InputLabel>Label Position</InputLabel>
-              <Select
-                label="Label Position"
-                value={activity.labelPosition || "right"}
-                onChange={(e) =>
-                  handleLabelPositionChange(
-                    e.target.value as "left" | "right" | "top" | "bottom"
-                  )
-                }
-              >
-                <MenuItem value="left">Left</MenuItem>
-                <MenuItem value="right">Right</MenuItem>
-                <MenuItem value="top">Top</MenuItem>
-                <MenuItem value="bottom">Bottom</MenuItem>
-              </Select>
-            </FormControl>
-          )}
         </Stack>
       </Box>
 
@@ -487,6 +485,11 @@ function MultiActivityProperties({
               <MenuItem value="#1abc9c">Teal</MenuItem>
               <MenuItem value="#e67e22">Dark Orange</MenuItem>
               <MenuItem value="#34495e">Dark Blue</MenuItem>
+              <MenuItem value="#f8f9fa">Light Gray</MenuItem>
+              <MenuItem value="#e9ecef">Light Blue</MenuItem>
+              <MenuItem value="#d4edda">Light Green</MenuItem>
+              <MenuItem value="#fff3cd">Light Yellow</MenuItem>
+              <MenuItem value="#f8d7da">Light Pink</MenuItem>
             </Select>
           </FormControl>
 
@@ -567,19 +570,6 @@ function MultiActivityProperties({
             </Select>
           </FormControl>
 
-          {/* Show Label */}
-          <FormControl size="small" fullWidth>
-            <InputLabel>Show Label</InputLabel>
-            <Select
-              label="Show Label"
-              value="true"
-              onChange={(e) => handleShowLabelChange(e.target.value === "true")}
-            >
-              <MenuItem value="true">Yes</MenuItem>
-              <MenuItem value="false">No</MenuItem>
-            </Select>
-          </FormControl>
-
           {/* Label Position */}
           <FormControl size="small" fullWidth>
             <InputLabel>Label Position</InputLabel>
@@ -588,7 +578,7 @@ function MultiActivityProperties({
               value="right"
               onChange={(e) =>
                 handleLabelPositionChange(
-                  e.target.value as "left" | "right" | "top" | "bottom"
+                  e.target.value as "left" | "right" | "top" | "bottom" | "bar" | "none"
                 )
               }
             >
@@ -596,6 +586,8 @@ function MultiActivityProperties({
               <MenuItem value="right">Right</MenuItem>
               <MenuItem value="top">Top</MenuItem>
               <MenuItem value="bottom">Bottom</MenuItem>
+              <MenuItem value="bar">Inside Bar</MenuItem>
+              <MenuItem value="none">None</MenuItem>
             </Select>
           </FormControl>
         </Stack>

@@ -9,7 +9,7 @@ export type Activity = {
   customFontFamily?: string;
   barStyle?: "solid" | "dashed" | "dotted";
   showLabel?: boolean;
-  labelPosition?: "left" | "right" | "top" | "bottom";
+  labelPosition?: "left" | "right" | "top" | "bottom" | "bar" | "none";
 };
 
 export type Relationship = {
