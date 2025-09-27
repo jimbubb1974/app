@@ -58,7 +58,12 @@ export function Toolbar() {
       <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
         FILE
       </Typography>
-      <Button size="small" variant="contained" sx={btnSx} onClick={() => inputRef.current?.click()}>
+      <Button
+        size="small"
+        variant="contained"
+        sx={btnSx}
+        onClick={() => inputRef.current?.click()}
+      >
         Import
       </Button>
       <Button size="small" variant="contained" sx={btnSx}>
@@ -75,10 +80,20 @@ export function Toolbar() {
       <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
         VIEW
       </Typography>
-      <Button size="small" variant="contained" sx={btnSx} onClick={() => zoom(0.8)}>
+      <Button
+        size="small"
+        variant="contained"
+        sx={btnSx}
+        onClick={() => zoom(0.8)}
+      >
         Zoom In
       </Button>
-      <Button size="small" variant="contained" sx={btnSx} onClick={() => zoom(1.25)}>
+      <Button
+        size="small"
+        variant="contained"
+        sx={btnSx}
+        onClick={() => zoom(1.25)}
+      >
         Zoom Out
       </Button>
       <Button size="small" variant="contained" sx={btnSx} onClick={fitAll}>

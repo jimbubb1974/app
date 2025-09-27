@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { scaleTime, scaleBand } from "d3-scale";
 import { extent } from "d3-array";
 import { timeDay } from "d3-time";
@@ -46,7 +46,7 @@ export function GanttChart() {
   }, [parsed]);
 
   const height = Math.max(300, parsed.length * 28 + 80);
-  const width = 1200;
+  const [chartWidth, setChartWidth] = useState<number>(800);
   const margin = { top: 40, right: 20, bottom: 20, left: 20 };
 
   // Initialize and keep extents/view in sync
@@ -64,8 +64,8 @@ export function GanttChart() {
     const domainEnd = viewEnd !== undefined ? new Date(viewEnd) : maxDate;
     return scaleTime()
       .domain([domainStart, domainEnd])
-      .range([margin.left, width - margin.right]);
-  }, [minDate, maxDate, viewStart, viewEnd]);
+      .range([margin.left, Math.max(margin.left + 200, chartWidth - margin.right)]);
+  }, [minDate, maxDate, viewStart, viewEnd, chartWidth]);
   const y = useMemo(
     () =>
       scaleBand()
@@ -77,6 +77,21 @@ export function GanttChart() {
 
   // Simple drag-to-pan interaction
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const cr = entry.contentRect;
+        setChartWidth(Math.max(320, cr.width));
+      }
+    });
+    ro.observe(el);
+    setChartWidth(Math.max(320, el.clientWidth));
+    return () => ro.disconnect();
+  }, []);
   let dragStartX = 0;
   let dragStartView: [number, number] | null = null;
 
@@ -97,7 +112,7 @@ export function GanttChart() {
     ] as const;
     const tempScale = scaleTime()
       .domain(domain)
-      .range([margin.left, width - margin.right]);
+      .range([margin.left, Math.max(margin.left + 200, chartWidth - margin.right)]);
     // Invert pixel delta to ms delta using local scale slope
     const t0 = tempScale.invert(0).getTime();
     const t1 = tempScale.invert(dx).getTime();
@@ -127,19 +142,19 @@ export function GanttChart() {
           Project Schedule
         </Typography>
       </Box>
-      <Box position="relative" flex={1} overflow="auto">
+      <Box position="relative" flex={1} overflowX="hidden" overflowY="auto" ref={containerRef}>
         <svg
           ref={svgRef}
-          width={width}
+          width={chartWidth}
           height={height}
           onMouseDown={onMouseDown}
-          style={{ cursor: "grab" }}
+          style={{ cursor: "grab", display: 'block' }}
         >
           {/* Timeline header (simple) */}
           <g transform={`translate(0, ${margin.top})`}>
             <line
               x1={margin.left}
-              x2={width - margin.right}
+              x2={Math.max(margin.left + 200, chartWidth - margin.right)}
               y1={0}
               y2={0}
               stroke="#34495e"
