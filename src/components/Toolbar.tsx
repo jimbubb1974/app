@@ -1,6 +1,7 @@
 import { Box, Button, Divider, Typography } from "@mui/material";
-import { useRef } from "react";
 import { useScheduleStore } from "../state/useScheduleStore";
+import { useRef } from "react";
+// toggle handled here too so user can collapse/expand from toolbar in future
 import { parseXer } from "../parsers/xer";
 import { parseJson } from "../parsers/json";
 
@@ -11,6 +12,7 @@ export function Toolbar() {
   const setError = useScheduleStore((s) => s.setError);
   const fitAll = useScheduleStore((s) => s.fitAll);
   const zoom = useScheduleStore((s) => s.zoom);
+  const toggleProperties = useScheduleStore((s) => s.toggleProperties);
 
   async function handleImport(file: File) {
     setStatus("loading");
@@ -138,6 +140,9 @@ export function Toolbar() {
       </Button>
       <Button size="small" variant="contained" sx={btnSx}>
         Auto Layout
+      </Button>
+      <Button size="small" variant="contained" sx={btnSx} onClick={toggleProperties}>
+        Toggle Properties
       </Button>
 
       <input

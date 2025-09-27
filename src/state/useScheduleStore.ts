@@ -10,6 +10,8 @@ type ScheduleState = {
   dataMax?: number;
   viewStart?: number;
   viewEnd?: number;
+  // UI state
+  propertiesOpen: boolean;
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -19,6 +21,8 @@ type ScheduleState = {
   fitAll: () => void;
   zoom: (factor: number) => void; // <1 zoom in, >1 zoom out
   panMs: (deltaMs: number) => void;
+  setPropertiesOpen: (open: boolean) => void;
+  toggleProperties: () => void;
 };
 
 export const useScheduleStore = create<ScheduleState>((set, get) => ({
@@ -29,6 +33,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
   dataMax: undefined,
   viewStart: undefined,
   viewEnd: undefined,
+  propertiesOpen: true,
   setData: (data) => set({ data }),
   setStatus: (status) => set({ status }),
   setError: (error) => set({ error }),
@@ -52,4 +57,6 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
     if (viewStart === undefined || viewEnd === undefined) return;
     set({ viewStart: viewStart + deltaMs, viewEnd: viewEnd + deltaMs });
   },
+  setPropertiesOpen: (open) => set({ propertiesOpen: open }),
+  toggleProperties: () => set((s) => ({ propertiesOpen: !s.propertiesOpen })),
 }));
