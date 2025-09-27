@@ -47,7 +47,7 @@ export function GanttChart() {
     return [start, end] as [Date, Date];
   }, [parsed]);
 
-  const DEBUG = false;
+  const DEBUG = true;
 
   const headerHeight = 56; // two-tier header
   const monthRowHeight = 24; // upper row height to keep week lines below months
@@ -141,7 +141,7 @@ export function GanttChart() {
     e.preventDefault();
     e.stopPropagation();
     dragButtonRef.current = e.button; // 0=left, 1=middle, 2=right
-    dragModeRef.current = "horizontal"; // disable vertical panning for now
+    dragModeRef.current = e.button === 1 || e.shiftKey ? "vertical" : "horizontal";
     dragStartXRef.current = e.clientX;
     dragStartYRef.current = e.clientY;
     dragStartViewRef.current = [viewStart, viewEnd];
@@ -184,31 +184,15 @@ export function GanttChart() {
 
     // Vertical-only panning (middle mouse OR Shift+left)
     if (dragModeRef.current === "vertical") {
-      const container = containerRef.current;
-      const svg = svgRef.current;
-      const visibleTop = margin.top + headerHeight;
-      const visibleHeight = Math.max(
-        0,
-        (container?.clientHeight ?? 0) - visibleTop - margin.bottom
-      );
-      const contentHeight = Math.max(0, height - visibleTop - margin.bottom);
-      const maxScroll = Math.max(0, contentHeight - visibleHeight);
-      const next = Math.max(
-        0,
-        Math.min(maxScroll, dragStartVScrollRef.current - dy)
-      );
+      // Simple approach: just update vertical offset based on mouse movement
+      const next = dragStartVScrollRef.current - dy;
       if (DEBUG) {
         // eslint-disable-next-line no-console
         console.log("vertical scroll", {
           from: vScroll,
           to: next,
-          maxScroll,
-          clientHeight: container?.clientHeight,
-          scrollHeight: container?.scrollHeight,
-          svgHeight: svg?.getBoundingClientRect().height,
-          visibleTop,
-          visibleHeight,
-          contentHeight,
+          dy,
+          dragStart: dragStartVScrollRef.current,
         });
       }
       setVScroll(next);
