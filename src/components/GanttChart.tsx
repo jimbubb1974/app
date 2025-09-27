@@ -188,15 +188,24 @@ export function GanttChart() {
 
     // Vertical-only panning (middle mouse OR Shift+left)
     if (dragModeRef.current === "vertical") {
-      // Simple approach: just update vertical offset based on mouse movement
-      const next = dragStartVScrollRef.current - dy;
+      const container = containerRef.current;
+      const headerOffset = margin.top + headerHeight;
+      const visibleHeight = Math.max(
+        0,
+        (container?.clientHeight ?? height) - headerOffset - margin.bottom
+      );
+      const contentHeight = y.range()[1];
+      const maxScroll = Math.max(0, contentHeight - visibleHeight);
+      const unclamped = dragStartVScrollRef.current - dy;
+      const next = Math.max(0, Math.min(maxScroll, unclamped));
       if (DEBUG) {
         // eslint-disable-next-line no-console
         console.log("vertical scroll", {
           from: vScroll,
           to: next,
-          dy,
-          dragStart: dragStartVScrollRef.current,
+          visibleHeight,
+          contentHeight,
+          maxScroll,
         });
       }
       setVScroll(next);
@@ -382,7 +391,7 @@ export function GanttChart() {
           onWheel={onWheel}
           style={{ cursor: "grab", display: "block" }}
         >
-          {/* clip to visible chart area for manual vertical scroll */}
+          {/* clip to visible chart area for manual vertical scroll (exclude gap above header) */}
           <defs>
             <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
               <rect
@@ -391,9 +400,7 @@ export function GanttChart() {
                 width={Math.floor(chartWidth)}
                 height={Math.max(
                   0,
-                  (containerRef.current?.clientHeight ?? height) -
-                    margin.top -
-                    headerHeight
+                  (containerRef.current?.clientHeight ?? height) - margin.top - headerHeight
                 )}
               />
             </clipPath>
@@ -418,7 +425,7 @@ export function GanttChart() {
           {/* Bars with manual vertical offset and clipping */}
           <g
             clipPath={`url(#${clipId})`}
-            transform={`translate(0, ${margin.top + headerHeight - vScroll})`}
+            transform={`translate(0, ${margin.top + headerHeight - Math.floor(vScroll)})`}
             style={{ pointerEvents: "none" }}
           >
             {parsed.map((a, i) => {
