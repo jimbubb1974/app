@@ -707,7 +707,6 @@ async function exportPDF(options: ExportOptions) {
     const chartX = (pdfWidth - chartWidth) / 2;
     const chartY = margin + (options.includeHeader ? 0.3 : 0);
 
-
     pdf.addImage(canvas, "PNG", chartX, chartY, chartWidth, chartHeight);
 
     // Add footer if enabled
