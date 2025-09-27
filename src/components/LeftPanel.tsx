@@ -59,7 +59,11 @@ export function LeftPanel() {
         justifyContent="center"
         sx={{ boxSizing: "border-box" }}
       >
-        <IconButton size="small" onClick={toggle} aria-label="Open activity list">
+        <IconButton
+          size="small"
+          onClick={toggle}
+          aria-label="Open activity list"
+        >
           <ChevronRightIcon fontSize="small" />
         </IconButton>
       </Box>
@@ -87,7 +91,12 @@ export function LeftPanel() {
         <Typography variant="subtitle2" fontWeight={700}>
           Activity List
         </Typography>
-        <IconButton size="small" onClick={toggle} aria-label="Close activity list" sx={{ color: '#fff' }}>
+        <IconButton
+          size="small"
+          onClick={toggle}
+          aria-label="Close activity list"
+          sx={{ color: "#fff" }}
+        >
           <ChevronLeftIcon fontSize="small" />
         </IconButton>
       </Box>

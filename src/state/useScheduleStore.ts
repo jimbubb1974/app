@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import type { LoadStatus, ProjectData } from "../types/schedule";
 
 type ScheduleState = {
@@ -32,7 +33,9 @@ type ScheduleState = {
   setLeftWidth: (width: number) => void;
 };
 
-export const useScheduleStore = create<ScheduleState>((set, get) => ({
+export const useScheduleStore = create<ScheduleState>()(
+  persist(
+    (set, get) => ({
   data: null,
   status: "idle",
   error: undefined,
@@ -75,4 +78,16 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
   toggleLeft: () => set((s) => ({ leftOpen: !s.leftOpen })),
   setLeftWidth: (width) =>
     set({ leftWidth: Math.max(200, Math.min(520, Math.round(width))) }),
-}));
+    }),
+    {
+      name: "planworks-ui",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        propertiesOpen: state.propertiesOpen,
+        propertiesWidth: state.propertiesWidth,
+        leftOpen: state.leftOpen,
+        leftWidth: state.leftWidth,
+      }),
+    }
+  )
+);
