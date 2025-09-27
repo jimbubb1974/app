@@ -46,6 +46,7 @@ export function GanttChart() {
   }, [parsed]);
 
   const headerHeight = 56; // two-tier header
+  const monthRowHeight = 24; // upper row height to keep week lines below months
   const height = Math.max(300, parsed.length * 28 + headerHeight + 40);
   const [chartWidth, setChartWidth] = useState<number>(800);
   const margin = { top: 16, right: 20, bottom: 20, left: 20 };
@@ -198,12 +199,16 @@ export function GanttChart() {
         let j = i;
         while (
           j + 1 < weeks.length &&
-          `${weeks[j + 1].start.getFullYear()}-${weeks[j + 1].start.getMonth()}` === monthKey
+          `${weeks[j + 1].start.getFullYear()}-${weeks[j + 1].start.getMonth()}` ===
+            monthKey
         ) {
           j += 1;
         }
         const segEnd = weeks[j].end;
-        const label = first.start.toLocaleString(undefined, { month: "long", year: "numeric" });
+        const label = first.start.toLocaleString(undefined, {
+          month: "long",
+          year: "numeric",
+        });
         months.push({ start: segStart, end: segEnd, label });
         i = j + 1;
       }
@@ -286,7 +291,7 @@ export function GanttChart() {
                 <g key={`w-${i}`}>
                   <text
                     x={cx}
-                    y={36}
+                    y={monthRowHeight + 12}
                     textAnchor="middle"
                     fill="#7f8c8d"
                     fontSize={11}
@@ -294,7 +299,7 @@ export function GanttChart() {
                     {seg.label}
                   </text>
                   {/* grid line down the chart at week boundaries */}
-                  <line x1={x1} x2={x1} y1={0} y2={height} stroke="#eee" />
+                  <line x1={x1} x2={x1} y1={monthRowHeight} y2={height} stroke="#eee" />
                 </g>
               );
             })}
