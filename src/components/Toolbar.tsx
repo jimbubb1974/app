@@ -104,7 +104,12 @@ export function Toolbar() {
       <Button size="small" variant="contained" sx={btnSx} onClick={fitAll}>
         Fit All
       </Button>
-      <Button size="small" variant="contained" sx={btnSx} onClick={() => setRangeOpen(true)}>
+      <Button
+        size="small"
+        variant="contained"
+        sx={btnSx}
+        onClick={() => setRangeOpen(true)}
+      >
         Set Range
       </Button>
       <Button
