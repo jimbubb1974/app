@@ -88,7 +88,7 @@ export function GanttChart() {
     const ro = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const cr = entry.contentRect;
-        setChartWidth(Math.max(320, cr.width));
+        setChartWidth(Math.max(320, Math.floor(cr.width)));
       }
     });
     ro.observe(el);
@@ -189,6 +189,7 @@ export function GanttChart() {
         overflowX="hidden"
         overflowY="auto"
         ref={containerRef}
+        sx={{ minWidth: 0, boxSizing: 'border-box' }}
       >
         <svg
           ref={svgRef}

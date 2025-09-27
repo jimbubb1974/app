@@ -16,6 +16,7 @@ export function RightPanel() {
         display="flex"
         alignItems="center"
         justifyContent="center"
+        sx={{ boxSizing: 'border-box' }}
       >
         <IconButton size="small" onClick={toggle} aria-label="Open properties">
           <ChevronLeftIcon fontSize="small" />
@@ -31,6 +32,7 @@ export function RightPanel() {
       display="flex"
       flexDirection="column"
       borderLeft="2px solid #bdc3c7"
+      sx={{ boxSizing: 'border-box' }}
     >
       <Box
         px={1.5}
