@@ -124,7 +124,8 @@ export function GanttChart() {
     e.preventDefault();
     e.stopPropagation();
     dragButtonRef.current = e.button; // 0=left, 1=middle, 2=right
-    dragModeRef.current = e.button === 1 || e.shiftKey ? "vertical" : "horizontal";
+    dragModeRef.current =
+      e.button === 1 || e.shiftKey ? "vertical" : "horizontal";
     dragStartXRef.current = e.clientX;
     dragStartYRef.current = e.clientY;
     dragStartViewRef.current = [viewStart, viewEnd];
@@ -327,10 +328,8 @@ export function GanttChart() {
       <Box
         position="relative"
         flex={1}
-        overflowX="hidden"
-        overflowY="auto"
         ref={containerRef}
-        sx={{ minWidth: 0, boxSizing: "border-box" }}
+        sx={{ minWidth: 0, boxSizing: "border-box", overflowX: "hidden", overflowY: "auto" }}
       >
         <svg
           ref={svgRef}
