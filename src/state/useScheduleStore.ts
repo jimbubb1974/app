@@ -29,6 +29,8 @@ type ScheduleState = {
     fontFamily: string;
     barHeight: number;
   };
+  // Activity selection
+  selectedActivityId: string | null;
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -55,6 +57,8 @@ type ScheduleState = {
     fontFamily: string;
     barHeight: number;
   }) => void;
+  setSelectedActivity: (id: string | null) => void;
+  updateActivityProperty: (id: string, property: keyof Activity, value: any) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -83,6 +87,7 @@ export const useScheduleStore = create<ScheduleState>()(
         fontFamily: "Arial, sans-serif",
         barHeight: 20,
       },
+      selectedActivityId: null,
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
       setError: (error) => set({ error }),
@@ -127,6 +132,22 @@ export const useScheduleStore = create<ScheduleState>()(
       setExportOpen: (open) => set({ exportOpen: open }),
       setSettingsOpen: (open) => set({ settingsOpen: open }),
       setSettings: (settings) => set({ settings }),
+      setSelectedActivity: (id) => set({ selectedActivityId: id }),
+      updateActivityProperty: (id, property, value) => {
+        const state = get();
+        if (!state.data) return;
+        
+        const updatedActivities = state.data.activities.map(activity => 
+          activity.id === id ? { ...activity, [property]: value } : activity
+        );
+        
+        set({
+          data: {
+            ...state.data,
+            activities: updatedActivities
+          }
+        });
+      },
     }),
     {
       name: "planworks-ui",

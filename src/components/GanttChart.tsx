@@ -15,6 +15,8 @@ export function GanttChart() {
   const data = useScheduleStore((s) => s.data);
   const activities: Activity[] = data?.activities ?? [];
   const settings = useScheduleStore((s) => s.settings);
+  const selectedActivityId = useScheduleStore((s) => s.selectedActivityId);
+  const setSelectedActivity = useScheduleStore((s) => s.setSelectedActivity);
 
   //
 
@@ -396,24 +398,31 @@ export function GanttChart() {
               const barWidth = Math.max(2, xEnd - xStart);
               return (
                 <g key={`${a.id}-${i}`}>
-                  <rect
-                    x={xStart}
-                    y={yPos + (y.bandwidth() - settings.barHeight) / 2}
-                    width={barWidth}
-                    height={settings.barHeight}
-                    rx={4}
-                    fill={a.isCritical ? "#e74c3c" : "#3498db"}
-                  />
-                  <text
-                    x={xEnd + 6}
-                    y={(yPos ?? 0) + y.bandwidth() / 2}
-                    dominantBaseline="middle"
-                    fontSize={settings.fontSize}
-                    fontFamily={settings.fontFamily}
-                    fill="#2c3e50"
-                  >
-                    {a.name}
-                  </text>
+                       <rect
+                         x={xStart}
+                         y={yPos + (y.bandwidth() - (a.customBarHeight || settings.barHeight)) / 2}
+                         width={barWidth}
+                         height={a.customBarHeight || settings.barHeight}
+                         rx={4}
+                         fill={a.customColor || (a.isCritical ? "#e74c3c" : "#3498db")}
+                         stroke={selectedActivityId === a.id ? "#2c3e50" : (a.barStyle === "dashed" || a.barStyle === "dotted" ? a.customColor || (a.isCritical ? "#e74c3c" : "#3498db") : "none")}
+                         strokeWidth={selectedActivityId === a.id ? 3 : (a.barStyle === "dashed" || a.barStyle === "dotted" ? 2 : 0)}
+                         strokeDasharray={a.barStyle === "dashed" ? "5,5" : a.barStyle === "dotted" ? "2,2" : "none"}
+                         style={{ cursor: "pointer" }}
+                         onClick={() => setSelectedActivity(a.id)}
+                       />
+                  {a.showLabel !== false && (
+                    <text
+                      x={xEnd + 6}
+                      y={(yPos ?? 0) + y.bandwidth() / 2}
+                      dominantBaseline="middle"
+                      fontSize={a.customFontSize || settings.fontSize}
+                      fontFamily={a.customFontFamily || settings.fontFamily}
+                      fill="#2c3e50"
+                    >
+                      {a.name}
+                    </text>
+                  )}
                 </g>
               );
             })}

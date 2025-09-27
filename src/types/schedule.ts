@@ -8,6 +8,13 @@ export type Activity = {
   totalFloatDays?: number;
   isCritical?: boolean;
   percentComplete?: number;
+  // Visual customization properties
+  customColor?: string;
+  customBarHeight?: number;
+  customFontSize?: number;
+  customFontFamily?: string;
+  barStyle?: "solid" | "dashed" | "dotted";
+  showLabel?: boolean;
 };
 
 export type Relationship = {
