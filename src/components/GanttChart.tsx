@@ -167,19 +167,6 @@ export function GanttChart() {
   const headerSegments = useMemo(() => {
     const start = viewStart !== undefined ? new Date(viewStart) : minDate;
     const end = viewEnd !== undefined ? new Date(viewEnd) : maxDate;
-    // Months
-    const months: { start: Date; end: Date; label: string }[] = [];
-    let m = new Date(start.getFullYear(), start.getMonth(), 1);
-    const monthEnd = new Date(end.getFullYear(), end.getMonth() + 1, 1);
-    while (m < monthEnd) {
-      const next = new Date(m.getFullYear(), m.getMonth() + 1, 1);
-      months.push({
-        start: new Date(Math.max(m.getTime(), start.getTime())),
-        end: new Date(Math.min(next.getTime(), end.getTime())),
-        label: m.toLocaleString(undefined, { month: "long", year: "numeric" }),
-      });
-      m = next;
-    }
     // Weeks (Sunday-based)
     const weeks: { start: Date; end: Date; label: string }[] = [];
     const w0 = new Date(start);
@@ -192,9 +179,34 @@ export function GanttChart() {
       weeks.push({
         start: new Date(Math.max(ws.getTime(), start.getTime())),
         end: new Date(Math.min(we.getTime(), end.getTime())),
-        label: ws.toLocaleDateString(undefined, { month: "numeric", day: "numeric" }),
+        label: ws.toLocaleDateString(undefined, {
+          month: "numeric",
+          day: "numeric",
+        }),
       });
       ws = we;
+    }
+    // Month groupings aligned to full week boundaries (a week belongs to the
+    // month in which the week starts)
+    const months: { start: Date; end: Date; label: string }[] = [];
+    if (weeks.length > 0) {
+      let i = 0;
+      while (i < weeks.length) {
+        const first = weeks[i];
+        const monthKey = `${first.start.getFullYear()}-${first.start.getMonth()}`;
+        const segStart = first.start;
+        let j = i;
+        while (
+          j + 1 < weeks.length &&
+          `${weeks[j + 1].start.getFullYear()}-${weeks[j + 1].start.getMonth()}` === monthKey
+        ) {
+          j += 1;
+        }
+        const segEnd = weeks[j].end;
+        const label = first.start.toLocaleString(undefined, { month: "long", year: "numeric" });
+        months.push({ start: segStart, end: segEnd, label });
+        i = j + 1;
+      }
     }
     return { months, weeks };
   }, [viewStart, viewEnd, minDate, maxDate]);
@@ -245,10 +257,23 @@ export function GanttChart() {
               const cx = (x1 + x2) / 2;
               return (
                 <g key={`m-${i}`}>
-                  <text x={cx} y={14} textAnchor="middle" fill="#2c3e50" fontSize={12} fontWeight={600}>
+                  <text
+                    x={cx}
+                    y={14}
+                    textAnchor="middle"
+                    fill="#2c3e50"
+                    fontSize={12}
+                    fontWeight={600}
+                  >
                     {seg.label}
                   </text>
-                  <line x1={x2} x2={x2} y1={0} y2={headerHeight} stroke="#bdc3c7" />
+                  <line
+                    x1={x2}
+                    x2={x2}
+                    y1={0}
+                    y2={headerHeight}
+                    stroke="#bdc3c7"
+                  />
                 </g>
               );
             })}
@@ -259,7 +284,13 @@ export function GanttChart() {
               const cx = (x1 + x2) / 2;
               return (
                 <g key={`w-${i}`}>
-                  <text x={cx} y={36} textAnchor="middle" fill="#7f8c8d" fontSize={11}>
+                  <text
+                    x={cx}
+                    y={36}
+                    textAnchor="middle"
+                    fill="#7f8c8d"
+                    fontSize={11}
+                  >
                     {seg.label}
                   </text>
                   {/* grid line down the chart at week boundaries */}
@@ -270,7 +301,10 @@ export function GanttChart() {
             {/* baseline under header */}
             <line
               x1={margin.left}
-              x2={Math.max(margin.left + 200, Math.floor(chartWidth) - margin.right)}
+              x2={Math.max(
+                margin.left + 200,
+                Math.floor(chartWidth) - margin.right
+              )}
               y1={headerHeight}
               y2={headerHeight}
               stroke="#34495e"
