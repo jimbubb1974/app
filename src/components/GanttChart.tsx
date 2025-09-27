@@ -52,6 +52,8 @@ export function GanttChart() {
   const headerHeight = 56; // two-tier header
   const monthRowHeight = 24; // upper row height to keep week lines below months
   const height = Math.max(300, parsed.length * 28 + headerHeight + 40);
+  const [viewportHeight, setViewportHeight] = useState<number>(400);
+  const [yOffset, setYOffset] = useState<number>(0);
   const [chartWidth, setChartWidth] = useState<number>(800);
   const margin = { top: 16, right: 20, bottom: 20, left: 20 };
 
@@ -103,10 +105,12 @@ export function GanttChart() {
       for (const entry of entries) {
         const cr = entry.contentRect;
         setChartWidth(Math.max(320, Math.floor(cr.width)));
+        setViewportHeight(Math.max(200, Math.floor(cr.height)));
       }
     });
     ro.observe(el);
     setChartWidth(Math.max(320, el.clientWidth));
+    setViewportHeight(Math.max(200, el.clientHeight));
     return () => ro.disconnect();
   }, []);
 
@@ -176,6 +180,7 @@ export function GanttChart() {
     // Vertical-only panning (middle mouse OR Shift+left)
     if (dragModeRef.current === "vertical") {
       const container = containerRef.current;
+      const svg = svgRef.current;
       if (container) {
         const maxScroll = container.scrollHeight - container.clientHeight;
         const next = Math.max(
@@ -188,6 +193,9 @@ export function GanttChart() {
             from: container.scrollTop,
             to: next,
             maxScroll,
+            clientHeight: container.clientHeight,
+            scrollHeight: container.scrollHeight,
+            svgHeight: svg?.getBoundingClientRect().height,
           });
         }
         container.scrollTop = next;
