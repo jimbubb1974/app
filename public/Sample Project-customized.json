@@ -1,0 +1,178 @@
+{
+  "projectName": "Sample Project",
+  "sourceFile": {
+    "type": "JSON",
+    "filename": "sample.json",
+    "importedAt": "2025-09-27T19:34:52.478Z"
+  },
+  "activities": [
+    {
+      "id": "A1",
+      "name": "Foundation",
+      "start": "2025-01-05",
+      "finish": "2025-01-20",
+      "wbsPath": [
+        "DESIGN"
+      ],
+      "isCritical": true
+    },
+    {
+      "id": "A2",
+      "name": "Design",
+      "start": "2025-01-20",
+      "finish": "2025-02-05",
+      "wbsPath": [
+        "DESIGN"
+      ]
+    },
+    {
+      "id": "A3",
+      "name": "Permits",
+      "start": "2025-01-10",
+      "finish": "2025-01-18",
+      "wbsPath": [
+        "DESIGN"
+      ]
+    },
+    {
+      "id": "B1",
+      "name": "Site Work",
+      "start": "2025-02-01",
+      "finish": "2025-02-10",
+      "wbsPath": [
+        "CONSTRUCTION"
+      ]
+    },
+    {
+      "id": "B2",
+      "name": "Construction",
+      "start": "2025-02-10",
+      "finish": "2025-03-05",
+      "wbsPath": [
+        "CONSTRUCTION"
+      ],
+      "isCritical": true
+    },
+    {
+      "id": "B3",
+      "name": "Concrete",
+      "start": "2025-02-12",
+      "finish": "2025-02-25",
+      "wbsPath": [
+        "CONSTRUCTION"
+      ]
+    },
+    {
+      "id": "B4",
+      "name": "Framing",
+      "start": "2025-02-20",
+      "finish": "2025-03-10",
+      "wbsPath": [
+        "CONSTRUCTION"
+      ]
+    },
+    {
+      "id": "C1",
+      "name": "Electrical",
+      "start": "2025-03-01",
+      "finish": "2025-03-15",
+      "wbsPath": [
+        "MEP"
+      ]
+    },
+    {
+      "id": "C2",
+      "name": "Plumbing",
+      "start": "2025-03-05",
+      "finish": "2025-03-18",
+      "wbsPath": [
+        "MEP"
+      ]
+    },
+    {
+      "id": "C3",
+      "name": "HVAC",
+      "start": "2025-03-10",
+      "finish": "2025-03-25",
+      "wbsPath": [
+        "MEP"
+      ]
+    },
+    {
+      "id": "D1",
+      "name": "Drywall",
+      "start": "2025-03-20",
+      "finish": "2025-03-30",
+      "wbsPath": [
+        "FINISHES"
+      ]
+    },
+    {
+      "id": "D2",
+      "name": "Flooring",
+      "start": "2025-03-25",
+      "finish": "2025-04-05",
+      "wbsPath": [
+        "FINISHES"
+      ]
+    },
+    {
+      "id": "D3",
+      "name": "Painting",
+      "start": "2025-03-28",
+      "finish": "2025-04-03",
+      "wbsPath": [
+        "FINISHES"
+      ]
+    },
+    {
+      "id": "D4",
+      "name": "Final Finish",
+      "start": "2025-04-02",
+      "finish": "2025-04-15",
+      "wbsPath": [
+        "FINISHES"
+      ],
+      "isCritical": true,
+      "customColor": "#f39c12"
+    }
+  ],
+  "relationships": [],
+  "layout": {
+    "panels": {
+      "leftPanel": {
+        "open": false,
+        "width": 280
+      },
+      "rightPanel": {
+        "open": true,
+        "width": 300
+      }
+    },
+    "timescale": {
+      "top": "year",
+      "bottom": "month"
+    },
+    "viewRange": {
+      "start": 1734955200000,
+      "end": 1745755200000
+    }
+  },
+  "visualSettings": {
+    "global": {
+      "activitySpacing": 24,
+      "fontSize": 12,
+      "fontFamily": "Arial, sans-serif",
+      "barHeight": 20
+    },
+    "defaults": {
+      "barColor": "#3498db",
+      "barStyle": "solid",
+      "showLabels": true
+    }
+  },
+  "customizations": {
+    "lastModified": "2025-09-27T19:35:22.324Z",
+    "version": "1.0"
+  }
+}

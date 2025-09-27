@@ -19,7 +19,7 @@ import {
 import { useState } from "react";
 import { useScheduleStore } from "../state/useScheduleStore";
 
-type ExportFormat = "svg" | "png" | "pdf";
+type ExportFormat = "svg" | "png" | "pdf" | "json";
 type ExportRange = "current" | "full";
 type PageSize = "8.5x11" | "11x17";
 type Orientation = "portrait" | "landscape";
@@ -49,6 +49,14 @@ export function ExportDialog() {
   const viewEnd = useScheduleStore((s) => s.viewEnd);
   const dataMin = useScheduleStore((s) => s.dataMin);
   const dataMax = useScheduleStore((s) => s.dataMax);
+  const sourceFile = useScheduleStore((s) => s.sourceFile);
+  const settings = useScheduleStore((s) => s.settings);
+  const leftOpen = useScheduleStore((s) => s.leftOpen);
+  const leftWidth = useScheduleStore((s) => s.leftWidth);
+  const propertiesOpen = useScheduleStore((s) => s.propertiesOpen);
+  const propertiesWidth = useScheduleStore((s) => s.propertiesWidth);
+  const timescaleTop = useScheduleStore((s) => s.timescaleTop);
+  const timescaleBottom = useScheduleStore((s) => s.timescaleBottom);
 
   const [options, setOptions] = useState<ExportOptions>({
     format: "png",
@@ -109,6 +117,8 @@ export function ExportDialog() {
         await exportPNG(options);
       } else if (options.format === "pdf") {
         await exportPDF(options);
+      } else if (options.format === "json") {
+        await exportJSON();
       }
       setOpen(false);
     } catch (error) {
@@ -145,6 +155,9 @@ export function ExportDialog() {
               <MenuItem value="svg">SVG (Vector)</MenuItem>
               <MenuItem value="png">PNG (Raster)</MenuItem>
               <MenuItem value="pdf">PDF (Document)</MenuItem>
+              <MenuItem value="json">
+                JSON (Project with Customizations)
+              </MenuItem>
             </Select>
           </FormControl>
 
@@ -724,4 +737,59 @@ async function exportPDF(options: ExportOptions) {
     console.error("PDF export error:", error);
     throw error;
   }
+}
+
+// Comprehensive JSON export with all customizations
+async function exportJSON() {
+  const store = useScheduleStore.getState();
+
+  const comprehensiveData = {
+    projectName: store.data?.projectName || "Project Schedule",
+    sourceFile: store.sourceFile,
+    activities: store.data?.activities || [],
+    relationships: store.data?.relationships || [],
+    layout: {
+      panels: {
+        leftPanel: {
+          open: store.leftOpen,
+          width: store.leftWidth,
+        },
+        rightPanel: {
+          open: store.propertiesOpen,
+          width: store.propertiesWidth,
+        },
+      },
+      timescale: {
+        top: store.timescaleTop,
+        bottom: store.timescaleBottom,
+      },
+      viewRange: {
+        start: store.viewStart,
+        end: store.viewEnd,
+      },
+    },
+    visualSettings: {
+      global: store.settings,
+      defaults: {
+        barColor: "#3498db",
+        barStyle: "solid",
+        showLabels: true,
+      },
+    },
+    customizations: {
+      lastModified: new Date().toISOString(),
+      version: "1.0",
+    },
+  };
+
+  const jsonString = JSON.stringify(comprehensiveData, null, 2);
+  const blob = new Blob([jsonString], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${store.data?.projectName || "project"}-customized.json`;
+  a.click();
+
+  URL.revokeObjectURL(url);
 }

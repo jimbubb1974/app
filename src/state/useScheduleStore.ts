@@ -31,6 +31,12 @@ type ScheduleState = {
   };
   // Activity selection
   selectedActivityId: string | null;
+  // Source file tracking
+  sourceFile: {
+    type: "XER" | "JSON" | "unknown";
+    filename: string;
+    importedAt: string;
+  } | null;
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -63,6 +69,13 @@ type ScheduleState = {
     property: keyof Activity,
     value: any
   ) => void;
+  setSourceFile: (
+    sourceFile: {
+      type: "XER" | "JSON" | "unknown";
+      filename: string;
+      importedAt: string;
+    } | null
+  ) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -92,6 +105,7 @@ export const useScheduleStore = create<ScheduleState>()(
         barHeight: 20,
       },
       selectedActivityId: null,
+      sourceFile: null,
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
       setError: (error) => set({ error }),
@@ -152,6 +166,7 @@ export const useScheduleStore = create<ScheduleState>()(
           },
         });
       },
+      setSourceFile: (sourceFile) => set({ sourceFile }),
     }),
     {
       name: "planworks-ui",
@@ -164,6 +179,7 @@ export const useScheduleStore = create<ScheduleState>()(
         timescaleTop: state.timescaleTop,
         timescaleBottom: state.timescaleBottom,
         settings: state.settings,
+        sourceFile: state.sourceFile,
       }),
     }
   )

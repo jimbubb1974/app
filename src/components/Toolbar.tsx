@@ -18,6 +18,7 @@ export function Toolbar() {
   const setRangeOpen = useScheduleStore((s) => s.setRangeOpen);
   const setExportOpen = useScheduleStore((s) => s.setExportOpen);
   const setSettingsOpen = useScheduleStore((s) => s.setSettingsOpen);
+  const setSourceFile = useScheduleStore((s) => s.setSourceFile);
 
   async function handleImport(file: File) {
     setStatus("loading");
@@ -34,6 +35,12 @@ export function Toolbar() {
         data = await parseJson(file);
       }
       setData(data);
+      // Track source file
+      setSourceFile({
+        type: ext === "xer" || ext === "txt" ? "XER" : "JSON",
+        filename: file.name,
+        importedAt: new Date().toISOString(),
+      });
       // Auto-fit to dataset on import
       const dates: number[] = [];
       for (const a of data.activities ?? []) {
