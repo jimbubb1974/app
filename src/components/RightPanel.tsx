@@ -6,6 +6,8 @@ import { useScheduleStore } from "../state/useScheduleStore";
 export function RightPanel() {
   const open = useScheduleStore((s) => s.propertiesOpen);
   const toggle = useScheduleStore((s) => s.toggleProperties);
+  const width = useScheduleStore((s) => s.propertiesWidth);
+  const setWidth = useScheduleStore((s) => s.setPropertiesWidth);
 
   if (!open) {
     return (
@@ -27,12 +29,12 @@ export function RightPanel() {
 
   return (
     <Box
-      width={300}
+      width={width}
       bgcolor="#ecf0f1"
       display="flex"
       flexDirection="column"
       borderLeft="2px solid #bdc3c7"
-      sx={{ boxSizing: "border-box" }}
+      sx={{ boxSizing: "border-box", position: 'relative' }}
     >
       <Box
         px={1.5}
@@ -55,6 +57,31 @@ export function RightPanel() {
           <ChevronRightIcon fontSize="small" />
         </IconButton>
       </Box>
+      {/* Resizer handle */}
+      <Box
+        onMouseDown={(e) => {
+          const startX = e.clientX;
+          const startW = width;
+          function onMove(ev: MouseEvent) {
+            setWidth(startW + (startX - ev.clientX));
+          }
+          function onUp() {
+            window.removeEventListener("mousemove", onMove);
+            window.removeEventListener("mouseup", onUp);
+          }
+          window.addEventListener("mousemove", onMove);
+          window.addEventListener("mouseup", onUp, { once: true });
+        }}
+        sx={{
+          position: "absolute",
+          left: -4,
+          top: 0,
+          bottom: 0,
+          width: 8,
+          cursor: "col-resize",
+          zIndex: 2,
+        }}
+      />
       <Box p={2}>
         <Typography variant="body2" color="text.secondary">
           Tier 2 properties will appear here.
