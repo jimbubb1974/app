@@ -39,19 +39,19 @@ export function SettingsDialog() {
   });
 
   const handleSpacingChange = (value: number) => {
-    setLocalSettings(prev => ({ ...prev, activitySpacing: value }));
+    setLocalSettings((prev) => ({ ...prev, activitySpacing: value }));
   };
 
   const handleFontSizeChange = (value: number) => {
-    setLocalSettings(prev => ({ ...prev, fontSize: value }));
+    setLocalSettings((prev) => ({ ...prev, fontSize: value }));
   };
 
   const handleFontFamilyChange = (fontFamily: string) => {
-    setLocalSettings(prev => ({ ...prev, fontFamily }));
+    setLocalSettings((prev) => ({ ...prev, fontFamily }));
   };
 
   const handleBarHeightChange = (value: number) => {
-    setLocalSettings(prev => ({ ...prev, barHeight: value }));
+    setLocalSettings((prev) => ({ ...prev, barHeight: value }));
   };
 
   const handleApply = () => {
@@ -126,7 +126,7 @@ export function SettingsDialog() {
             <Typography variant="h6" gutterBottom>
               Font Settings
             </Typography>
-            
+
             <Stack spacing={3}>
               {/* Font Family */}
               <FormControl size="small" fullWidth>
@@ -138,8 +138,12 @@ export function SettingsDialog() {
                 >
                   <MenuItem value="Arial, sans-serif">Arial</MenuItem>
                   <MenuItem value="Helvetica, sans-serif">Helvetica</MenuItem>
-                  <MenuItem value="'Times New Roman', serif">Times New Roman</MenuItem>
-                  <MenuItem value="'Courier New', monospace">Courier New</MenuItem>
+                  <MenuItem value="'Times New Roman', serif">
+                    Times New Roman
+                  </MenuItem>
+                  <MenuItem value="'Courier New', monospace">
+                    Courier New
+                  </MenuItem>
                   <MenuItem value="'Segoe UI', sans-serif">Segoe UI</MenuItem>
                   <MenuItem value="'Calibri', sans-serif">Calibri</MenuItem>
                   <MenuItem value="'Georgia', serif">Georgia</MenuItem>
@@ -154,7 +158,9 @@ export function SettingsDialog() {
                 <Box px={2}>
                   <Slider
                     value={localSettings.fontSize}
-                    onChange={(_, value) => handleFontSizeChange(value as number)}
+                    onChange={(_, value) =>
+                      handleFontSizeChange(value as number)
+                    }
                     min={8}
                     max={20}
                     step={1}
@@ -179,7 +185,7 @@ export function SettingsDialog() {
             <Typography variant="h6" gutterBottom>
               Bar Settings
             </Typography>
-            
+
             <Box>
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 Bar Height
@@ -187,7 +193,9 @@ export function SettingsDialog() {
               <Box px={2}>
                 <Slider
                   value={localSettings.barHeight}
-                  onChange={(_, value) => handleBarHeightChange(value as number)}
+                  onChange={(_, value) =>
+                    handleBarHeightChange(value as number)
+                  }
                   min={12}
                   max={32}
                   step={2}

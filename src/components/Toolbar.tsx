@@ -108,7 +108,12 @@ export function Toolbar() {
       <Button size="small" variant="contained" sx={btnSx}>
         Save Config
       </Button>
-      <Button size="small" variant="contained" sx={btnSx} onClick={() => setSettingsOpen(true)}>
+      <Button
+        size="small"
+        variant="contained"
+        sx={btnSx}
+        onClick={() => setSettingsOpen(true)}
+      >
         Settings
       </Button>
       <Divider
