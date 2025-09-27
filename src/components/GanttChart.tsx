@@ -384,11 +384,11 @@ export function GanttChart() {
             <clipPath id={clipId}>
               <rect
                 x={0}
-                y={margin.top}
+                y={margin.top + headerHeight}
                 width={Math.floor(chartWidth)}
                 height={Math.max(
                   0,
-                  (containerRef.current?.clientHeight ?? height) - margin.top
+                  (containerRef.current?.clientHeight ?? height) - margin.top - headerHeight
                 )}
               />
             </clipPath>
