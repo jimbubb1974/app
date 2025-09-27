@@ -15,6 +15,8 @@ import {
   Switch,
   FormControlLabel,
   Divider,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useState } from "react";
 import { useScheduleStore } from "../state/useScheduleStore";
@@ -74,6 +76,9 @@ export function ExportDialog() {
     orientation: "landscape",
   });
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const setSuccessNotification = useScheduleStore(
+    (s) => s.setSuccessNotification
+  );
 
   const handleFormatChange = (format: ExportFormat) => {
     setOptions((prev) => ({ ...prev, format }));
@@ -115,19 +120,42 @@ export function ExportDialog() {
 
   const handleExport = async () => {
     try {
+      const fileExtension = options.format === "json" ? "json" : options.format;
+      const fullFilename = `${options.filename}.${fileExtension}`;
+
+      let actualSaveLocation = "Downloads folder";
+
       if (options.format === "svg") {
-        await exportSVG(options, exportPath);
+        console.log("Calling exportSVG...");
+        actualSaveLocation = await exportSVG(options, exportPath);
+        console.log("exportSVG returned:", actualSaveLocation);
       } else if (options.format === "png") {
-        await exportPNG(options, exportPath);
+        console.log("Calling exportPNG...");
+        actualSaveLocation = await exportPNG(options, exportPath);
+        console.log("exportPNG returned:", actualSaveLocation);
       } else if (options.format === "pdf") {
-        await exportPDF(options, exportPath);
+        console.log("Calling exportPDF...");
+        actualSaveLocation = await exportPDF(options, exportPath);
+        console.log("exportPDF returned:", actualSaveLocation);
       } else if (options.format === "json") {
-        await exportJSON(exportPath, options);
+        console.log("Calling exportJSON...");
+        actualSaveLocation = await exportJSON(exportPath, options);
+        console.log("exportJSON returned:", actualSaveLocation);
       }
+
+      // Show success notification with actual save location
+      console.log(
+        "Export completed, actual save location:",
+        actualSaveLocation
+      );
+      setSuccessNotification({
+        open: true,
+        message: `File saved: ${fullFilename} in ${actualSaveLocation}`,
+      });
+
       setOpen(false);
     } catch (error) {
       console.error("Export failed:", error);
-      alert("Export failed. Please try again.");
     }
   };
 
@@ -340,11 +368,14 @@ export function ExportDialog() {
 }
 
 // Export functions
-async function exportSVG(options: ExportOptions, exportPath: string) {
+async function exportSVG(
+  options: ExportOptions,
+  exportPath: string
+): Promise<string> {
   const svg = document.querySelector(
     'svg[data-export-id="gantt"]'
   ) as SVGSVGElement | null;
-  if (!svg) return;
+  if (!svg) return "Downloads folder";
 
   const clone = svg.cloneNode(true) as SVGSVGElement;
 
@@ -477,7 +508,20 @@ async function exportSVG(options: ExportOptions, exportPath: string) {
 
   const url = URL.createObjectURL(blob);
   // Try to save directly to selected directory using File System Access API
+  console.log(
+    "SVG Export - Checking for directory handle:",
+    (window as any).exportDirectoryHandle
+  );
+  console.log(
+    "Directory handle type:",
+    typeof (window as any).exportDirectoryHandle
+  );
+  console.log(
+    "Directory handle name:",
+    (window as any).exportDirectoryHandle?.name
+  );
   if ((window as any).exportDirectoryHandle) {
+    console.log("SVG Export: Directory handle exists, attempting to save...");
     try {
       const fileHandle = await (
         window as any
@@ -487,6 +531,10 @@ async function exportSVG(options: ExportOptions, exportPath: string) {
       const writable = await fileHandle.createWritable();
       await writable.write(blob);
       await writable.close();
+      // File saved successfully - return the actual directory name
+      const result = (window as any).exportDirectoryHandle.name || exportPath;
+      console.log("SVG Export: Successfully saved to directory:", result);
+      return result;
     } catch (error) {
       console.error("Failed to save to directory:", error);
       // Fallback to download
@@ -494,22 +542,28 @@ async function exportSVG(options: ExportOptions, exportPath: string) {
       a.href = url;
       a.download = `${options.filename}.svg`;
       a.click();
+      return "Downloads folder";
     }
   } else {
+    console.log("SVG Export: No directory handle, falling back to download");
     // Fallback to download
     const a = document.createElement("a");
     a.href = url;
     a.download = `${options.filename}.svg`;
     a.click();
+    return "Downloads folder";
   }
   URL.revokeObjectURL(url);
 }
 
-async function exportPNG(options: ExportOptions, exportPath: string) {
+async function exportPNG(
+  options: ExportOptions,
+  exportPath: string
+): Promise<string> {
   const svg = document.querySelector(
     'svg[data-export-id="gantt"]'
   ) as SVGSVGElement | null;
-  if (!svg) return;
+  if (!svg) return "Downloads folder";
 
   // Create a clone and embed font styles
   const svgClone = svg.cloneNode(true) as SVGSVGElement;
@@ -673,50 +727,64 @@ async function exportPNG(options: ExportOptions, exportPath: string) {
 
   URL.revokeObjectURL(url);
 
-  canvas.toBlob(async (blob) => {
-    if (!blob) return;
-    // Try to save directly to selected directory using File System Access API
-    if ((window as any).exportDirectoryHandle) {
-      try {
-        const fileHandle = await (
-          window as any
-        ).exportDirectoryHandle.getFileHandle(`${options.filename}.png`, {
-          create: true,
-        });
-        const writable = await fileHandle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-      } catch (error) {
-        console.error("Failed to save to directory:", error);
+  return new Promise<string>((resolve) => {
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        resolve("Downloads folder");
+        return;
+      }
+      // Try to save directly to selected directory using File System Access API
+      if ((window as any).exportDirectoryHandle) {
+        try {
+          const fileHandle = await (
+            window as any
+          ).exportDirectoryHandle.getFileHandle(`${options.filename}.png`, {
+            create: true,
+          });
+          const writable = await fileHandle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          // File saved successfully - return the actual directory name
+          const result =
+            (window as any).exportDirectoryHandle.name || exportPath;
+          console.log("PNG saved successfully to directory:", result);
+          resolve(result);
+        } catch (error) {
+          console.error("Failed to save to directory:", error);
+          // Fallback to download
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `${options.filename}.png`;
+          link.click();
+          URL.revokeObjectURL(link.href);
+          resolve("Downloads folder");
+        }
+      } else {
+        console.log(
+          "PNG Export: No directory handle, falling back to download"
+        );
         // Fallback to download
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = `${options.filename}.png`;
         link.click();
         URL.revokeObjectURL(link.href);
-        alert(`Could not save to selected directory. File downloaded instead.`);
+        resolve("Downloads folder");
       }
-    } else {
-      // Fallback to download
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `${options.filename}.png`;
-      link.click();
-      URL.revokeObjectURL(link.href);
-      alert(
-        `File will be downloaded to your default download folder.\nTo save to "${exportPath}", move the file after download.`
-      );
-    }
-  }, "image/png");
+    }, "image/png");
+  });
 }
 
-async function exportPDF(options: ExportOptions, exportPath: string) {
+async function exportPDF(
+  options: ExportOptions,
+  exportPath: string
+): Promise<string> {
   try {
     const jsPDF = (await import("jspdf")).default;
     const svg = document.querySelector(
       'svg[data-export-id="gantt"]'
     ) as SVGSVGElement | null;
-    if (!svg) return;
+    if (!svg) return "Downloads folder";
 
     // Create a clone and embed font styles
     const svgClone = svg.cloneNode(true) as SVGSVGElement;
@@ -831,18 +899,18 @@ async function exportPDF(options: ExportOptions, exportPath: string) {
         const writable = await fileHandle.createWritable();
         await writable.write(pdfBlob);
         await writable.close();
+        // File saved successfully - return the actual directory name
+        return (window as any).exportDirectoryHandle.name || exportPath;
       } catch (error) {
         console.error("Failed to save to directory:", error);
         // Fallback to download
         pdf.save(`${options.filename}.pdf`);
-        alert(`Could not save to selected directory. File downloaded instead.`);
+        return "Downloads folder";
       }
     } else {
       // Fallback to download
       pdf.save(`${options.filename}.pdf`);
-      alert(
-        `File will be downloaded to your default download folder.\nTo save to "${exportPath}", move the file after download.`
-      );
+      return "Downloads folder";
     }
   } catch (error) {
     console.error("PDF export error:", error);
@@ -851,7 +919,10 @@ async function exportPDF(options: ExportOptions, exportPath: string) {
 }
 
 // Comprehensive JSON export with all customizations
-async function exportJSON(exportPath: string, options: ExportOptions) {
+async function exportJSON(
+  exportPath: string,
+  options: ExportOptions
+): Promise<string> {
   const store = useScheduleStore.getState();
 
   const comprehensiveData = {
@@ -908,6 +979,8 @@ async function exportJSON(exportPath: string, options: ExportOptions) {
       const writable = await fileHandle.createWritable();
       await writable.write(blob);
       await writable.close();
+      // File saved successfully - return the actual directory name
+      return (window as any).exportDirectoryHandle.name || exportPath;
     } catch (error) {
       console.error("Failed to save JSON to directory:", error);
       // Fallback to download
@@ -915,7 +988,7 @@ async function exportJSON(exportPath: string, options: ExportOptions) {
       a.href = url;
       a.download = `${options.filename}.json`;
       a.click();
-      alert(`Could not save to selected directory. File downloaded instead.`);
+      return "Downloads folder";
     }
   } else {
     // Fallback to download
@@ -923,9 +996,7 @@ async function exportJSON(exportPath: string, options: ExportOptions) {
     a.href = url;
     a.download = `${options.filename}.json`;
     a.click();
-    alert(
-      `File will be downloaded to your default download folder.\nTo save to "${exportPath}", move the file after download.`
-    );
+    return "Downloads folder";
   }
   URL.revokeObjectURL(url);
 }

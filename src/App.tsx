@@ -1,5 +1,5 @@
 import "./App.css";
-import { Box } from "@mui/material";
+import { Box, Snackbar, Alert } from "@mui/material";
 import { AppLayout } from "./components/AppLayout";
 import { Toolbar } from "./components/Toolbar";
 import { LeftPanel } from "./components/LeftPanel";
@@ -10,8 +10,14 @@ import { TimescaleDialog } from "./components/TimescaleDialog";
 import { RangeDialog } from "./components/RangeDialog";
 import { ExportDialog } from "./components/ExportDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
+import { useScheduleStore } from "./state/useScheduleStore";
 
 function App() {
+  const successNotification = useScheduleStore((s) => s.successNotification);
+  const setSuccessNotification = useScheduleStore(
+    (s) => s.setSuccessNotification
+  );
+
   return (
     <AppLayout>
       <Toolbar />
@@ -30,6 +36,22 @@ function App() {
       <RangeDialog />
       <ExportDialog />
       <SettingsDialog />
+
+      {/* Global Success Notification */}
+      <Snackbar
+        open={successNotification.open}
+        autoHideDuration={3000}
+        onClose={() => setSuccessNotification({ open: false, message: "" })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSuccessNotification({ open: false, message: "" })}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {successNotification.message}
+        </Alert>
+      </Snackbar>
     </AppLayout>
   );
 }

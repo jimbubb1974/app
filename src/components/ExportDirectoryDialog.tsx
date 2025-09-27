@@ -35,14 +35,21 @@ export function ExportDirectoryDialog({
     try {
       // Use the File System Access API if available (modern browsers)
       if ("showDirectoryPicker" in window) {
+        console.log("File System Access API is available");
         const directoryHandle = await (window as any).showDirectoryPicker({
           mode: "readwrite",
           startIn: "documents",
         });
+        console.log("Directory selected:", directoryHandle);
         // Store the directory handle for later use
         (window as any).exportDirectoryHandle = directoryHandle;
         setSelectedPath(directoryHandle.name);
+        console.log(
+          "Directory handle stored:",
+          (window as any).exportDirectoryHandle
+        );
       } else {
+        console.log("File System Access API not available, using fallback");
         // Fallback: use a simple prompt for directory path
         const path = prompt("Enter export directory path:", selectedPath);
         if (path) {
@@ -50,6 +57,7 @@ export function ExportDirectoryDialog({
         }
       }
     } catch (error) {
+      console.log("Directory selection failed:", error);
       // Directory selection cancelled or failed - silently handle
     }
   };

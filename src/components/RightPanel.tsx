@@ -659,8 +659,8 @@ function ColorPickerDialog({
           {/* Predefined Colors Tab */}
           {tab === 0 && (
             <Grid container spacing={1}>
-              {PREDEFINED_COLORS.map((color) => (
-                <Grid item xs={4} sm={3} key={color.value}>
+              {PREDEFINED_COLORS.map((color, index) => (
+                <Grid item xs={4} sm={3} key={`color-${index}-${color.value}`}>
                   <Paper
                     sx={{
                       p: 1,

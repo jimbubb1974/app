@@ -40,6 +40,11 @@ type ScheduleState = {
   } | null;
   // Export settings
   exportPath: string;
+  // Success notification
+  successNotification: {
+    open: boolean;
+    message: string;
+  };
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -87,6 +92,10 @@ type ScheduleState = {
     } | null
   ) => void;
   setExportPath: (path: string) => void;
+  setSuccessNotification: (notification: {
+    open: boolean;
+    message: string;
+  }) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -119,6 +128,7 @@ export const useScheduleStore = create<ScheduleState>()(
       selectedActivityIds: [],
       sourceFile: null,
       exportPath: "./export",
+      successNotification: { open: false, message: "" },
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
       setError: (error) => set({ error }),
@@ -225,6 +235,8 @@ export const useScheduleStore = create<ScheduleState>()(
       },
       setSourceFile: (sourceFile) => set({ sourceFile }),
       setExportPath: (path) => set({ exportPath: path }),
+      setSuccessNotification: (notification) =>
+        set({ successNotification: notification }),
     }),
     {
       name: "planworks-ui",
