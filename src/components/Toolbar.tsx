@@ -54,6 +54,7 @@ export function Toolbar() {
       bgcolor="#2c3e50"
       color="#fff"
       boxShadow={1}
+      sx={{ minWidth: 0 }}
     >
       <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
         FILE

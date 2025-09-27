@@ -64,7 +64,10 @@ export function GanttChart() {
     const domainEnd = viewEnd !== undefined ? new Date(viewEnd) : maxDate;
     return scaleTime()
       .domain([domainStart, domainEnd])
-      .range([margin.left, Math.max(margin.left + 200, chartWidth - margin.right)]);
+      .range([
+        margin.left,
+        Math.max(margin.left + 200, chartWidth - margin.right),
+      ]);
   }, [minDate, maxDate, viewStart, viewEnd, chartWidth]);
   const y = useMemo(
     () =>
@@ -92,6 +95,17 @@ export function GanttChart() {
     setChartWidth(Math.max(320, el.clientWidth));
     return () => ro.disconnect();
   }, []);
+
+  // Fallback to window resize listener in case ResizeObserver misses layout changes
+  useEffect(() => {
+    function measure() {
+      const el = containerRef.current;
+      if (!el) return;
+      setChartWidth(Math.max(320, el.clientWidth));
+    }
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
   let dragStartX = 0;
   let dragStartView: [number, number] | null = null;
 
@@ -112,7 +126,10 @@ export function GanttChart() {
     ] as const;
     const tempScale = scaleTime()
       .domain(domain)
-      .range([margin.left, Math.max(margin.left + 200, chartWidth - margin.right)]);
+      .range([
+        margin.left,
+        Math.max(margin.left + 200, chartWidth - margin.right),
+      ]);
     // Invert pixel delta to ms delta using local scale slope
     const t0 = tempScale.invert(0).getTime();
     const t1 = tempScale.invert(dx).getTime();
@@ -128,7 +145,7 @@ export function GanttChart() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" flex={1} bgcolor="#fff">
+    <Box display="flex" flexDirection="column" flex={1} bgcolor="#fff" sx={{ minWidth: 0 }}>
       <Box
         display="flex"
         alignItems="center"
@@ -142,13 +159,19 @@ export function GanttChart() {
           Project Schedule
         </Typography>
       </Box>
-      <Box position="relative" flex={1} overflowX="hidden" overflowY="auto" ref={containerRef}>
+      <Box
+        position="relative"
+        flex={1}
+        overflowX="hidden"
+        overflowY="auto"
+        ref={containerRef}
+      >
         <svg
           ref={svgRef}
           width={chartWidth}
           height={height}
           onMouseDown={onMouseDown}
-          style={{ cursor: "grab", display: 'block' }}
+          style={{ cursor: "grab", display: "block" }}
         >
           {/* Timeline header (simple) */}
           <g transform={`translate(0, ${margin.top})`}>
