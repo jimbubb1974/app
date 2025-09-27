@@ -389,7 +389,7 @@ export function GanttChart() {
           <g
             {...(DISABLE_CLIP ? {} : ({ clipPath: `url(#${clipId})` } as any))}
             transform={`translate(0, ${margin.top + headerHeight - Math.floor(vScroll)})`}
-            style={{ pointerEvents: "none" }}
+            style={{ pointerEvents: "auto" }}
           >
             {parsed.map((a, i) => {
               const yPos = y(a.id) ?? 0;

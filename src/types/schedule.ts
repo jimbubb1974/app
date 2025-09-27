@@ -1,14 +1,8 @@
 export type Activity = {
   id: string;
   name: string;
-  wbsPath?: string[];
-  start: string; // ISO date string
-  finish: string; // ISO date string
-  durationDays?: number;
-  totalFloatDays?: number;
-  isCritical?: boolean;
-  percentComplete?: number;
-  // Visual customization properties
+  start: string;
+  finish: string;
   customColor?: string;
   customBarHeight?: number;
   customFontSize?: number;

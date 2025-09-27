@@ -15,7 +15,7 @@ import {
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useScheduleStore } from "../state/useScheduleStore";
-import { Activity } from "../types/schedule";
+import type { Activity } from "../types/schedule";
 
 export function RightPanel() {
   const open = useScheduleStore((s) => s.propertiesOpen);
