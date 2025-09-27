@@ -91,8 +91,13 @@ export function GanttChart() {
   function onMouseMove(e: MouseEvent) {
     if (!dragStartView) return;
     const dx = e.clientX - dragStartX;
-    const domain = [new Date(dragStartView[0]), new Date(dragStartView[1])] as const;
-    const tempScale = scaleTime().domain(domain).range([margin.left, width - margin.right]);
+    const domain = [
+      new Date(dragStartView[0]),
+      new Date(dragStartView[1]),
+    ] as const;
+    const tempScale = scaleTime()
+      .domain(domain)
+      .range([margin.left, width - margin.right]);
     // Invert pixel delta to ms delta using local scale slope
     const t0 = tempScale.invert(0).getTime();
     const t1 = tempScale.invert(dx).getTime();
@@ -113,8 +118,8 @@ export function GanttChart() {
         display="flex"
         alignItems="center"
         justifyContent="space-between"
-        px={2}
-        py={1}
+        px={1.5}
+        py={0.75}
         bgcolor="#ecf0f1"
         borderBottom="1px solid #bdc3c7"
       >
@@ -123,7 +128,13 @@ export function GanttChart() {
         </Typography>
       </Box>
       <Box position="relative" flex={1} overflow="auto">
-        <svg ref={svgRef} width={width} height={height} onMouseDown={onMouseDown} style={{ cursor: 'grab' }}>
+        <svg
+          ref={svgRef}
+          width={width}
+          height={height}
+          onMouseDown={onMouseDown}
+          style={{ cursor: "grab" }}
+        >
           {/* Timeline header (simple) */}
           <g transform={`translate(0, ${margin.top})`}>
             <line

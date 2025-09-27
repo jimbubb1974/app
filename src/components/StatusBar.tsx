@@ -9,7 +9,7 @@ export function StatusBar() {
       display="flex"
       justifyContent="space-between"
       alignItems="center"
-      px={2}
+      px={1.5}
       py={0.5}
       bgcolor="#34495e"
       color="#fff"

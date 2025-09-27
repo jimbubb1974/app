@@ -51,8 +51,8 @@ export function LeftPanel() {
       borderRight="2px solid #bdc3c7"
     >
       <Box
-        px={2}
-        py={1}
+        px={1.5}
+        py={0.75}
         bgcolor="#34495e"
         color="#fff"
         display="flex"
