@@ -53,7 +53,9 @@ export function GanttChart() {
   const monthRowHeight = 24; // upper row height to keep week lines below months
   const height = Math.max(300, parsed.length * 28 + headerHeight + 40);
   const [viewportHeight, setViewportHeight] = useState<number>(400);
-  const [yOffset, setYOffset] = useState<number>(0);
+  const [vScroll, setVScroll] = useState<number>(0);
+  const dragStartVScrollRef = useRef(0);
+  const clipId = useMemo(() => `gclip-${Math.random().toString(36).slice(2)}`, []);
   const [chartWidth, setChartWidth] = useState<number>(800);
   const margin = { top: 16, right: 20, bottom: 20, left: 20 };
 
@@ -143,6 +145,7 @@ export function GanttChart() {
     dragStartViewRef.current = [viewStart, viewEnd];
     const container = containerRef.current;
     dragStartScrollTopRef.current = container ? container.scrollTop : 0;
+    dragStartVScrollRef.current = vScroll;
     if (DEBUG) {
       // eslint-disable-next-line no-console
       console.log("onMouseDown", {
@@ -181,25 +184,26 @@ export function GanttChart() {
     if (dragModeRef.current === "vertical") {
       const container = containerRef.current;
       const svg = svgRef.current;
-      if (container) {
-        const maxScroll = container.scrollHeight - container.clientHeight;
-        const next = Math.max(
-          0,
-          Math.min(maxScroll, dragStartScrollTopRef.current - dy)
-        );
-        if (DEBUG) {
-          // eslint-disable-next-line no-console
-          console.log("vertical scroll", {
-            from: container.scrollTop,
-            to: next,
-            maxScroll,
-            clientHeight: container.clientHeight,
-            scrollHeight: container.scrollHeight,
-            svgHeight: svg?.getBoundingClientRect().height,
-          });
-        }
-        container.scrollTop = next;
+      const visibleTop = margin.top + headerHeight;
+      const visibleHeight = Math.max(0, (container?.clientHeight ?? 0) - visibleTop - margin.bottom);
+      const contentHeight = Math.max(0, height - visibleTop - margin.bottom);
+      const maxScroll = Math.max(0, contentHeight - visibleHeight);
+      const next = Math.max(0, Math.min(maxScroll, dragStartVScrollRef.current - dy));
+      if (DEBUG) {
+        // eslint-disable-next-line no-console
+        console.log("vertical scroll", {
+          from: vScroll,
+          to: next,
+          maxScroll,
+          clientHeight: container?.clientHeight,
+          scrollHeight: container?.scrollHeight,
+          svgHeight: svg?.getBoundingClientRect().height,
+          visibleTop,
+          visibleHeight,
+          contentHeight,
+        });
       }
+      setVScroll(next);
       return;
     }
 
@@ -382,6 +386,17 @@ export function GanttChart() {
           onWheel={onWheel}
           style={{ cursor: "grab", display: "block" }}
         >
+          {/* clip to visible chart area for manual vertical scroll */}
+          <defs>
+            <clipPath id={clipId}>
+              <rect
+                x={0}
+                y={margin.top}
+                width={Math.floor(chartWidth)}
+                height={Math.max(0, (containerRef.current?.clientHeight ?? height) - margin.top)}
+              />
+            </clipPath>
+          </defs>
           {/* Two-tier timeline header */}
           <g transform={`translate(0, ${margin.top})`}>
             {/* Top row (Year or Month) */}
@@ -452,34 +467,36 @@ export function GanttChart() {
             />
           </g>
 
-          {/* Bars */}
-          {parsed.map((a, i) => {
-            const yPos = y(a.id) ?? 0;
-            const xStart = x(a.startDate);
-            const xEnd = x(a.finishDate);
-            const barWidth = Math.max(2, xEnd - xStart);
-            return (
-              <g key={`${a.id}-${i}`}>
-                <rect
-                  x={xStart}
-                  y={yPos}
-                  width={barWidth}
-                  height={y.bandwidth()}
-                  rx={4}
-                  fill={a.isCritical ? "#e74c3c" : "#3498db"}
-                />
-                <text
-                  x={xEnd + 6}
-                  y={(yPos ?? 0) + y.bandwidth() / 2}
-                  dominantBaseline="middle"
-                  fontSize={11}
-                  fill="#2c3e50"
-                >
-                  {a.name}
-                </text>
-              </g>
-            );
-          })}
+          {/* Bars with manual vertical offset and clipping */}
+          <g clipPath={`url(#${clipId})`} transform={`translate(0, ${-vScroll})`}>
+            {parsed.map((a, i) => {
+              const yPos = y(a.id) ?? 0;
+              const xStart = x(a.startDate);
+              const xEnd = x(a.finishDate);
+              const barWidth = Math.max(2, xEnd - xStart);
+              return (
+                <g key={`${a.id}-${i}`}>
+                  <rect
+                    x={xStart}
+                    y={yPos}
+                    width={barWidth}
+                    height={y.bandwidth()}
+                    rx={4}
+                    fill={a.isCritical ? "#e74c3c" : "#3498db"}
+                  />
+                  <text
+                    x={xEnd + 6}
+                    y={(yPos ?? 0) + y.bandwidth() / 2}
+                    dominantBaseline="middle"
+                    fontSize={11}
+                    fill="#2c3e50"
+                  >
+                    {a.name}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
         </svg>
       </Box>
     </Box>
