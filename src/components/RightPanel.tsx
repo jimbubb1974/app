@@ -44,6 +44,7 @@ export function RightPanel() {
         display="flex"
         alignItems="center"
         justifyContent="space-between"
+        sx={{ position: "sticky", top: 0, zIndex: 3 }}
       >
         <Typography variant="subtitle2" fontWeight={700}>
           Properties

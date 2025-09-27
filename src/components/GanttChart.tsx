@@ -451,15 +451,7 @@ export function GanttChart() {
           </g>
 
           {/* Render header last to keep it visually on top of bars */}
-          <g transform={`translate(0, ${margin.top})`}>
-            {/* mask the gap between menu bar and timescale */}
-            <rect
-              x={0}
-              y={-margin.top}
-              width={Math.floor(chartWidth)}
-              height={margin.top}
-              fill="#fff"
-            />
+          <g transform={`translate(0, ${margin.top})`} style={{ pointerEvents: "none" }}>
             {/* background mask to ensure bars never show through the timescale */}
             <rect
               x={0}
@@ -512,7 +504,13 @@ export function GanttChart() {
                     {seg.label}
                   </text>
                   {/* separator inside header only (avoid overlaying bars) */}
-                  <line x1={x1} x2={x1} y1={monthRowHeight} y2={headerHeight} stroke="#eee" />
+                  <line
+                    x1={x1}
+                    x2={x1}
+                    y1={monthRowHeight}
+                    y2={headerHeight}
+                    stroke="#eee"
+                  />
                 </g>
               );
             })}

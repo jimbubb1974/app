@@ -72,7 +72,15 @@ export function Toolbar() {
       bgcolor="#2c3e50"
       color="#fff"
       boxShadow={1}
-      sx={{ minWidth: 0, width: "100%", overflowX: "hidden" }}
+      sx={{
+        minWidth: 0,
+        width: "100%",
+        overflowX: "auto",
+        overflowY: "hidden",
+        position: "sticky",
+        top: 0,
+        zIndex: 5,
+      }}
     >
       <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
         FILE
