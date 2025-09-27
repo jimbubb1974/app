@@ -398,19 +398,45 @@ export function GanttChart() {
               const barWidth = Math.max(2, xEnd - xStart);
               return (
                 <g key={`${a.id}-${i}`}>
-                       <rect
-                         x={xStart}
-                         y={yPos + (y.bandwidth() - (a.customBarHeight || settings.barHeight)) / 2}
-                         width={barWidth}
-                         height={a.customBarHeight || settings.barHeight}
-                         rx={4}
-                         fill={a.customColor || (a.isCritical ? "#e74c3c" : "#3498db")}
-                         stroke={selectedActivityId === a.id ? "#2c3e50" : (a.barStyle === "dashed" || a.barStyle === "dotted" ? a.customColor || (a.isCritical ? "#e74c3c" : "#3498db") : "none")}
-                         strokeWidth={selectedActivityId === a.id ? 3 : (a.barStyle === "dashed" || a.barStyle === "dotted" ? 2 : 0)}
-                         strokeDasharray={a.barStyle === "dashed" ? "5,5" : a.barStyle === "dotted" ? "2,2" : "none"}
-                         style={{ cursor: "pointer" }}
-                         onClick={() => setSelectedActivity(a.id)}
-                       />
+                  <rect
+                    x={xStart}
+                    y={
+                      yPos +
+                      (y.bandwidth() -
+                        (a.customBarHeight || settings.barHeight)) /
+                        2
+                    }
+                    width={barWidth}
+                    height={a.customBarHeight || settings.barHeight}
+                    rx={4}
+                    fill={
+                      a.customColor || (a.isCritical ? "#e74c3c" : "#3498db")
+                    }
+                    stroke={
+                      selectedActivityId === a.id
+                        ? "#2c3e50"
+                        : a.barStyle === "dashed" || a.barStyle === "dotted"
+                          ? a.customColor ||
+                            (a.isCritical ? "#e74c3c" : "#3498db")
+                          : "none"
+                    }
+                    strokeWidth={
+                      selectedActivityId === a.id
+                        ? 3
+                        : a.barStyle === "dashed" || a.barStyle === "dotted"
+                          ? 2
+                          : 0
+                    }
+                    strokeDasharray={
+                      a.barStyle === "dashed"
+                        ? "5,5"
+                        : a.barStyle === "dotted"
+                          ? "2,2"
+                          : "none"
+                    }
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setSelectedActivity(a.id)}
+                  />
                   {a.showLabel !== false && (
                     <text
                       x={xEnd + 6}

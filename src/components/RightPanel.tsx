@@ -1,16 +1,16 @@
-import { 
-  Box, 
-  IconButton, 
-  Typography, 
-  TextField, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem, 
-  Stack, 
+import {
+  Box,
+  IconButton,
+  Typography,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Stack,
   Divider,
   Button,
-  Chip
+  Chip,
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -24,7 +24,9 @@ export function RightPanel() {
   const setWidth = useScheduleStore((s) => s.setPropertiesWidth);
   const selectedActivityId = useScheduleStore((s) => s.selectedActivityId);
   const data = useScheduleStore((s) => s.data);
-  const updateActivityProperty = useScheduleStore((s) => s.updateActivityProperty);
+  const updateActivityProperty = useScheduleStore(
+    (s) => s.updateActivityProperty
+  );
   const setSelectedActivity = useScheduleStore((s) => s.setSelectedActivity);
 
   if (!open) {
@@ -103,9 +105,11 @@ export function RightPanel() {
       />
       <Box p={2} sx={{ overflowY: "auto", flex: 1 }}>
         {selectedActivityId && data ? (
-          <ActivityProperties 
-            activity={data.activities.find(a => a.id === selectedActivityId)!}
-            onUpdate={(property, value) => updateActivityProperty(selectedActivityId, property, value)}
+          <ActivityProperties
+            activity={data.activities.find((a) => a.id === selectedActivityId)!}
+            onUpdate={(property, value) =>
+              updateActivityProperty(selectedActivityId, property, value)
+            }
             onClose={() => setSelectedActivity(null)}
           />
         ) : (
@@ -129,38 +133,42 @@ interface ActivityPropertiesProps {
   onClose: () => void;
 }
 
-function ActivityProperties({ activity, onUpdate, onClose }: ActivityPropertiesProps) {
+function ActivityProperties({
+  activity,
+  onUpdate,
+  onClose,
+}: ActivityPropertiesProps) {
   const handleColorChange = (color: string) => {
-    onUpdate('customColor', color);
+    onUpdate("customColor", color);
   };
 
   const handleBarHeightChange = (height: number) => {
-    onUpdate('customBarHeight', height);
+    onUpdate("customBarHeight", height);
   };
 
   const handleFontSizeChange = (size: number) => {
-    onUpdate('customFontSize', size);
+    onUpdate("customFontSize", size);
   };
 
   const handleFontFamilyChange = (family: string) => {
-    onUpdate('customFontFamily', family);
+    onUpdate("customFontFamily", family);
   };
 
   const handleBarStyleChange = (style: "solid" | "dashed" | "dotted") => {
-    onUpdate('barStyle', style);
+    onUpdate("barStyle", style);
   };
 
   const handleShowLabelChange = (show: boolean) => {
-    onUpdate('showLabel', show);
+    onUpdate("showLabel", show);
   };
 
   const handleReset = () => {
-    onUpdate('customColor', undefined);
-    onUpdate('customBarHeight', undefined);
-    onUpdate('customFontSize', undefined);
-    onUpdate('customFontFamily', undefined);
-    onUpdate('barStyle', undefined);
-    onUpdate('showLabel', undefined);
+    onUpdate("customColor", undefined);
+    onUpdate("customBarHeight", undefined);
+    onUpdate("customFontSize", undefined);
+    onUpdate("customFontFamily", undefined);
+    onUpdate("barStyle", undefined);
+    onUpdate("showLabel", undefined);
   };
 
   return (
@@ -175,7 +183,11 @@ function ActivityProperties({ activity, onUpdate, onClose }: ActivityPropertiesP
             <Chip label="Critical" color="error" size="small" />
           )}
           {activity.percentComplete && (
-            <Chip label={`${activity.percentComplete}% Complete`} color="primary" size="small" />
+            <Chip
+              label={`${activity.percentComplete}% Complete`}
+              color="primary"
+              size="small"
+            />
           )}
         </Stack>
       </Box>
@@ -187,15 +199,19 @@ function ActivityProperties({ activity, onUpdate, onClose }: ActivityPropertiesP
         <Typography variant="subtitle1" gutterBottom>
           Visual Properties
         </Typography>
-        
+
         <Stack spacing={2}>
           {/* Color */}
           <FormControl size="small" fullWidth>
             <InputLabel>Bar Color</InputLabel>
             <Select
               label="Bar Color"
-              value={activity.customColor || 'default'}
-              onChange={(e) => handleColorChange(e.target.value === 'default' ? undefined : e.target.value)}
+              value={activity.customColor || "default"}
+              onChange={(e) =>
+                handleColorChange(
+                  e.target.value === "default" ? undefined : e.target.value
+                )
+              }
             >
               <MenuItem value="default">Default (Blue)</MenuItem>
               <MenuItem value="#e74c3c">Red</MenuItem>
@@ -211,13 +227,15 @@ function ActivityProperties({ activity, onUpdate, onClose }: ActivityPropertiesP
           {/* Bar Height */}
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              Bar Height: {activity.customBarHeight || 'Default'}px
+              Bar Height: {activity.customBarHeight || "Default"}px
             </Typography>
             <TextField
               size="small"
               type="number"
-              value={activity.customBarHeight || ''}
-              onChange={(e) => handleBarHeightChange(Number(e.target.value) || undefined)}
+              value={activity.customBarHeight || ""}
+              onChange={(e) =>
+                handleBarHeightChange(Number(e.target.value) || undefined)
+              }
               placeholder="Default"
               inputProps={{ min: 8, max: 40 }}
               fullWidth
@@ -229,8 +247,12 @@ function ActivityProperties({ activity, onUpdate, onClose }: ActivityPropertiesP
             <InputLabel>Bar Style</InputLabel>
             <Select
               label="Bar Style"
-              value={activity.barStyle || 'solid'}
-              onChange={(e) => handleBarStyleChange(e.target.value as "solid" | "dashed" | "dotted")}
+              value={activity.barStyle || "solid"}
+              onChange={(e) =>
+                handleBarStyleChange(
+                  e.target.value as "solid" | "dashed" | "dotted"
+                )
+              }
             >
               <MenuItem value="solid">Solid</MenuItem>
               <MenuItem value="dashed">Dashed</MenuItem>
@@ -241,13 +263,15 @@ function ActivityProperties({ activity, onUpdate, onClose }: ActivityPropertiesP
           {/* Font Size */}
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              Label Font Size: {activity.customFontSize || 'Default'}px
+              Label Font Size: {activity.customFontSize || "Default"}px
             </Typography>
             <TextField
               size="small"
               type="number"
-              value={activity.customFontSize || ''}
-              onChange={(e) => handleFontSizeChange(Number(e.target.value) || undefined)}
+              value={activity.customFontSize || ""}
+              onChange={(e) =>
+                handleFontSizeChange(Number(e.target.value) || undefined)
+              }
               placeholder="Default"
               inputProps={{ min: 8, max: 24 }}
               fullWidth
@@ -259,13 +283,19 @@ function ActivityProperties({ activity, onUpdate, onClose }: ActivityPropertiesP
             <InputLabel>Label Font</InputLabel>
             <Select
               label="Label Font"
-              value={activity.customFontFamily || 'default'}
-              onChange={(e) => handleFontFamilyChange(e.target.value === 'default' ? undefined : e.target.value)}
+              value={activity.customFontFamily || "default"}
+              onChange={(e) =>
+                handleFontFamilyChange(
+                  e.target.value === "default" ? undefined : e.target.value
+                )
+              }
             >
               <MenuItem value="default">Default</MenuItem>
               <MenuItem value="Arial, sans-serif">Arial</MenuItem>
               <MenuItem value="Helvetica, sans-serif">Helvetica</MenuItem>
-              <MenuItem value="'Times New Roman', serif">Times New Roman</MenuItem>
+              <MenuItem value="'Times New Roman', serif">
+                Times New Roman
+              </MenuItem>
               <MenuItem value="'Courier New', monospace">Courier New</MenuItem>
               <MenuItem value="'Segoe UI', sans-serif">Segoe UI</MenuItem>
             </Select>
@@ -276,8 +306,8 @@ function ActivityProperties({ activity, onUpdate, onClose }: ActivityPropertiesP
             <InputLabel>Show Label</InputLabel>
             <Select
               label="Show Label"
-              value={activity.showLabel !== false ? 'true' : 'false'}
-              onChange={(e) => handleShowLabelChange(e.target.value === 'true')}
+              value={activity.showLabel !== false ? "true" : "false"}
+              onChange={(e) => handleShowLabelChange(e.target.value === "true")}
             >
               <MenuItem value="true">Yes</MenuItem>
               <MenuItem value="false">No</MenuItem>
@@ -290,20 +320,10 @@ function ActivityProperties({ activity, onUpdate, onClose }: ActivityPropertiesP
 
       {/* Actions */}
       <Stack direction="row" spacing={1}>
-        <Button 
-          variant="outlined" 
-          size="small" 
-          onClick={handleReset}
-          fullWidth
-        >
+        <Button variant="outlined" size="small" onClick={handleReset} fullWidth>
           Reset to Default
         </Button>
-        <Button 
-          variant="outlined" 
-          size="small" 
-          onClick={onClose}
-          fullWidth
-        >
+        <Button variant="outlined" size="small" onClick={onClose} fullWidth>
           Close
         </Button>
       </Stack>

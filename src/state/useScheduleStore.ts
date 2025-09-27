@@ -58,7 +58,11 @@ type ScheduleState = {
     barHeight: number;
   }) => void;
   setSelectedActivity: (id: string | null) => void;
-  updateActivityProperty: (id: string, property: keyof Activity, value: any) => void;
+  updateActivityProperty: (
+    id: string,
+    property: keyof Activity,
+    value: any
+  ) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -136,16 +140,16 @@ export const useScheduleStore = create<ScheduleState>()(
       updateActivityProperty: (id, property, value) => {
         const state = get();
         if (!state.data) return;
-        
-        const updatedActivities = state.data.activities.map(activity => 
+
+        const updatedActivities = state.data.activities.map((activity) =>
           activity.id === id ? { ...activity, [property]: value } : activity
         );
-        
+
         set({
           data: {
             ...state.data,
-            activities: updatedActivities
-          }
+            activities: updatedActivities,
+          },
         });
       },
     }),

@@ -127,6 +127,7 @@ export function ExportDialog() {
       disableEnforceFocus
       disableAutoFocus
       disableRestoreFocus
+      disableScrollLock
     >
       <DialogTitle>Export Chart</DialogTitle>
       <DialogContent>
@@ -706,21 +707,6 @@ async function exportPDF(options: ExportOptions) {
     const chartX = (pdfWidth - chartWidth) / 2;
     const chartY = margin + (options.includeHeader ? 0.3 : 0);
 
-    // Debug positioning
-    console.log("PDF positioning:", {
-      pageSize: options.pageSize,
-      orientation: options.orientation,
-      pdfWidth,
-      pdfHeight,
-      margin,
-      contentWidth,
-      contentHeight,
-      chartWidth,
-      chartX,
-      chartY,
-      scale,
-      calculatedCenter: (pdfWidth - chartWidth) / 2,
-    });
 
     pdf.addImage(canvas, "PNG", chartX, chartY, chartWidth, chartHeight);
 

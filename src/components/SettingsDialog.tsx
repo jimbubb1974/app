@@ -89,6 +89,7 @@ export function SettingsDialog() {
       disableEnforceFocus
       disableAutoFocus
       disableRestoreFocus
+      disableScrollLock
     >
       <DialogTitle>Visual Settings</DialogTitle>
       <DialogContent>
