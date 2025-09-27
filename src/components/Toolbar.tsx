@@ -14,6 +14,7 @@ export function Toolbar() {
   const zoom = useScheduleStore((s) => s.zoom);
   const toggleProperties = useScheduleStore((s) => s.toggleProperties);
   const setTimescaleOpen = useScheduleStore((s) => s.setTimescaleOpen);
+  const setViewRange = useScheduleStore((s) => s.setViewRange);
 
   async function handleImport(file: File) {
     setStatus("loading");
@@ -30,6 +31,19 @@ export function Toolbar() {
         data = await parseJson(file);
       }
       setData(data);
+      // Auto-fit to dataset on import
+      const dates: number[] = [];
+      for (const a of data.activities ?? []) {
+        const s = new Date(a.start).getTime();
+        const e = new Date(a.finish).getTime();
+        if (!isNaN(s)) dates.push(s);
+        if (!isNaN(e)) dates.push(e);
+      }
+      if (dates.length >= 2) {
+        const min = Math.min(...dates);
+        const max = Math.max(...dates);
+        setViewRange(min, max);
+      }
       setStatus("loaded");
     } catch (e: any) {
       setStatus("error");
@@ -84,6 +98,11 @@ export function Toolbar() {
       <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
         VIEW
       </Typography>
+      {/* Manual view range controls (Tier 2 lightweight) */}
+      {/* Future: move into a proper datepicker; keep simple buttons for now */}
+      <Button size="small" variant="contained" sx={btnSx} onClick={fitAll}>
+        Fit All
+      </Button>
       <Button
         size="small"
         variant="contained"
@@ -99,9 +118,6 @@ export function Toolbar() {
         onClick={() => zoom(1.25)}
       >
         Zoom Out
-      </Button>
-      <Button size="small" variant="contained" sx={btnSx} onClick={fitAll}>
-        Fit All
       </Button>
       <Divider
         flexItem
