@@ -384,7 +384,7 @@ export function GanttChart() {
         >
           {/* clip to visible chart area for manual vertical scroll */}
           <defs>
-            <clipPath id={clipId}>
+            <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
               <rect
                 x={0}
                 y={margin.top + headerHeight}
@@ -472,6 +472,7 @@ export function GanttChart() {
           <g
             clipPath={`url(#${clipId})`}
             transform={`translate(0, ${margin.top + headerHeight - vScroll})`}
+            style={{ pointerEvents: "none" }}
           >
             {parsed.map((a, i) => {
               const yPos = y(a.id) ?? 0;
