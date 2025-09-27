@@ -144,6 +144,24 @@ export function GanttChart() {
     window.removeEventListener("mousemove", onMouseMove as any);
   }
 
+  function onWheel(e: React.WheelEvent<SVGSVGElement>) {
+    // Zoom only when Ctrl or Shift is held to preserve normal vertical scrolling
+    if (!e.ctrlKey && !e.shiftKey) return;
+    e.preventDefault();
+    if (viewStart === undefined || viewEnd === undefined) return;
+    const factor = e.deltaY < 0 ? 0.85 : 1.15;
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const centerDate = x.invert(mouseX);
+    const center = centerDate.getTime();
+    const half = ((viewEnd - viewStart) / 2) * factor;
+    const newStart = center - half;
+    const newEnd = center + half;
+    setViewRange(newStart, newEnd);
+  }
+
   return (
     <Box
       display="flex"
@@ -177,6 +195,7 @@ export function GanttChart() {
           width={chartWidth}
           height={height}
           onMouseDown={onMouseDown}
+          onWheel={onWheel}
           style={{ cursor: "grab", display: "block" }}
         >
           {/* Timeline header (simple) */}
