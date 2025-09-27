@@ -398,75 +398,8 @@ export function GanttChart() {
               />
             </clipPath>
           </defs>
-          {/* Two-tier timeline header */}
-          <g transform={`translate(0, ${margin.top})`}>
-            {/* Top row (Year or Month) */}
-            {headerSegments.top.map((seg, i) => {
-              const x1 = x(seg.start);
-              const x2 = x(seg.end);
-              const cx = (x1 + x2) / 2;
-              return (
-                <g key={`m-${i}`}>
-                  <text
-                    x={cx}
-                    y={14}
-                    textAnchor="middle"
-                    fill="#2c3e50"
-                    fontSize={12}
-                    fontWeight={600}
-                  >
-                    {seg.label}
-                  </text>
-                  <line
-                    x1={x2}
-                    x2={x2}
-                    y1={0}
-                    y2={headerHeight}
-                    stroke="#bdc3c7"
-                  />
-                </g>
-              );
-            })}
-            {/* Bottom row (Month or Week) */}
-            {headerSegments.bottom.map((seg, i) => {
-              const x1 = x(seg.start);
-              const x2 = x(seg.end);
-              const cx = (x1 + x2) / 2;
-              return (
-                <g key={`w-${i}`}>
-                  <text
-                    x={cx}
-                    y={monthRowHeight + 12}
-                    textAnchor="middle"
-                    fill="#7f8c8d"
-                    fontSize={11}
-                  >
-                    {seg.label}
-                  </text>
-                  {/* grid line down the chart at week boundaries */}
-                  <line
-                    x1={x1}
-                    x2={x1}
-                    y1={monthRowHeight}
-                    y2={height}
-                    stroke="#eee"
-                  />
-                </g>
-              );
-            })}
-            {/* baseline under header */}
-            <line
-              x1={margin.left}
-              x2={Math.max(
-                margin.left + 200,
-                Math.floor(chartWidth) - margin.right
-              )}
-              y1={headerHeight}
-              y2={headerHeight}
-              stroke="#34495e"
-              strokeWidth={2}
-            />
-          </g>
+          {/* Two-tier timeline header placeholder (rendered later on top) */}
+          <g transform={`translate(0, ${margin.top})`} />
 
           {/* Bars with manual vertical offset and clipping */}
           <g
@@ -501,6 +434,84 @@ export function GanttChart() {
                 </g>
               );
             })}
+          </g>
+
+          {/* Render header last to keep it visually on top of bars */}
+          <g transform={`translate(0, ${margin.top})`}>
+            {/* background mask to ensure bars never show through */}
+            <rect
+              x={0}
+              y={0}
+              width={Math.floor(chartWidth)}
+              height={headerHeight}
+              fill="#fff"
+            />
+            {/* Top row (Year or Month) */}
+            {headerSegments.top.map((seg, i) => {
+              const x1 = x(seg.start);
+              const x2 = x(seg.end);
+              const cx = (x1 + x2) / 2;
+              return (
+                <g key={`m2-${i}`}>
+                  <text
+                    x={cx}
+                    y={14}
+                    textAnchor="middle"
+                    fill="#2c3e50"
+                    fontSize={12}
+                    fontWeight={600}
+                  >
+                    {seg.label}
+                  </text>
+                  <line
+                    x1={x2}
+                    x2={x2}
+                    y1={0}
+                    y2={headerHeight}
+                    stroke="#bdc3c7"
+                  />
+                </g>
+              );
+            })}
+            {/* Bottom row (Month or Week) */}
+            {headerSegments.bottom.map((seg, i) => {
+              const x1 = x(seg.start);
+              const x2 = x(seg.end);
+              const cx = (x1 + x2) / 2;
+              return (
+                <g key={`w2-${i}`}>
+                  <text
+                    x={cx}
+                    y={monthRowHeight + 12}
+                    textAnchor="middle"
+                    fill="#7f8c8d"
+                    fontSize={11}
+                  >
+                    {seg.label}
+                  </text>
+                  {/* grid line down the chart at week boundaries */}
+                  <line
+                    x1={x1}
+                    x2={x1}
+                    y1={monthRowHeight}
+                    y2={height}
+                    stroke="#eee"
+                  />
+                </g>
+              );
+            })}
+            {/* baseline under header */}
+            <line
+              x1={margin.left}
+              x2={Math.max(
+                margin.left + 200,
+                Math.floor(chartWidth) - margin.right
+              )}
+              y1={headerHeight}
+              y2={headerHeight}
+              stroke="#34495e"
+              strokeWidth={2}
+            />
           </g>
         </svg>
       </Box>
