@@ -36,48 +36,51 @@ type ScheduleState = {
 export const useScheduleStore = create<ScheduleState>()(
   persist(
     (set, get) => ({
-  data: null,
-  status: "idle",
-  error: undefined,
-  dataMin: undefined,
-  dataMax: undefined,
-  viewStart: undefined,
-  viewEnd: undefined,
-  propertiesOpen: true,
-  propertiesWidth: 300,
-  leftOpen: true,
-  leftWidth: 280,
-  setData: (data) => set({ data }),
-  setStatus: (status) => set({ status }),
-  setError: (error) => set({ error }),
-  setExtents: (min, max) => set({ dataMin: min, dataMax: max }),
-  setViewRange: (start, end) => set({ viewStart: start, viewEnd: end }),
-  fitAll: () => {
-    const { dataMin, dataMax } = get();
-    if (dataMin !== undefined && dataMax !== undefined) {
-      set({ viewStart: dataMin, viewEnd: dataMax });
-    }
-  },
-  zoom: (factor) => {
-    const { viewStart, viewEnd } = get();
-    if (viewStart === undefined || viewEnd === undefined) return;
-    const center = (viewStart + viewEnd) / 2;
-    const half = ((viewEnd - viewStart) / 2) * factor;
-    set({ viewStart: center - half, viewEnd: center + half });
-  },
-  panMs: (deltaMs) => {
-    const { viewStart, viewEnd } = get();
-    if (viewStart === undefined || viewEnd === undefined) return;
-    set({ viewStart: viewStart + deltaMs, viewEnd: viewEnd + deltaMs });
-  },
-  setPropertiesOpen: (open) => set({ propertiesOpen: open }),
-  toggleProperties: () => set((s) => ({ propertiesOpen: !s.propertiesOpen })),
-  setPropertiesWidth: (width) =>
-    set({ propertiesWidth: Math.max(220, Math.min(560, Math.round(width))) }),
-  setLeftOpen: (open) => set({ leftOpen: open }),
-  toggleLeft: () => set((s) => ({ leftOpen: !s.leftOpen })),
-  setLeftWidth: (width) =>
-    set({ leftWidth: Math.max(200, Math.min(520, Math.round(width))) }),
+      data: null,
+      status: "idle",
+      error: undefined,
+      dataMin: undefined,
+      dataMax: undefined,
+      viewStart: undefined,
+      viewEnd: undefined,
+      propertiesOpen: true,
+      propertiesWidth: 300,
+      leftOpen: true,
+      leftWidth: 280,
+      setData: (data) => set({ data }),
+      setStatus: (status) => set({ status }),
+      setError: (error) => set({ error }),
+      setExtents: (min, max) => set({ dataMin: min, dataMax: max }),
+      setViewRange: (start, end) => set({ viewStart: start, viewEnd: end }),
+      fitAll: () => {
+        const { dataMin, dataMax } = get();
+        if (dataMin !== undefined && dataMax !== undefined) {
+          set({ viewStart: dataMin, viewEnd: dataMax });
+        }
+      },
+      zoom: (factor) => {
+        const { viewStart, viewEnd } = get();
+        if (viewStart === undefined || viewEnd === undefined) return;
+        const center = (viewStart + viewEnd) / 2;
+        const half = ((viewEnd - viewStart) / 2) * factor;
+        set({ viewStart: center - half, viewEnd: center + half });
+      },
+      panMs: (deltaMs) => {
+        const { viewStart, viewEnd } = get();
+        if (viewStart === undefined || viewEnd === undefined) return;
+        set({ viewStart: viewStart + deltaMs, viewEnd: viewEnd + deltaMs });
+      },
+      setPropertiesOpen: (open) => set({ propertiesOpen: open }),
+      toggleProperties: () =>
+        set((s) => ({ propertiesOpen: !s.propertiesOpen })),
+      setPropertiesWidth: (width) =>
+        set({
+          propertiesWidth: Math.max(220, Math.min(560, Math.round(width))),
+        }),
+      setLeftOpen: (open) => set({ leftOpen: open }),
+      toggleLeft: () => set((s) => ({ leftOpen: !s.leftOpen })),
+      setLeftWidth: (width) =>
+        set({ leftWidth: Math.max(200, Math.min(520, Math.round(width))) }),
     }),
     {
       name: "planworks-ui",

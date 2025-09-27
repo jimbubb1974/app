@@ -45,9 +45,10 @@ export function GanttChart() {
     return [start, end] as [Date, Date];
   }, [parsed]);
 
-  const height = Math.max(300, parsed.length * 28 + 80);
+  const headerHeight = 56; // two-tier header
+  const height = Math.max(300, parsed.length * 28 + headerHeight + 40);
   const [chartWidth, setChartWidth] = useState<number>(800);
-  const margin = { top: 40, right: 20, bottom: 20, left: 20 };
+  const margin = { top: 16, right: 20, bottom: 20, left: 20 };
 
   // Initialize and keep extents/view in sync
   if (parsed.length > 0) {
@@ -73,7 +74,7 @@ export function GanttChart() {
     () =>
       scaleBand()
         .domain(parsed.map((a) => a.id))
-        .range([margin.top + 40, height - margin.bottom])
+        .range([margin.top + headerHeight, height - margin.bottom])
         .padding(0.3),
     [parsed, height]
   );
@@ -162,6 +163,42 @@ export function GanttChart() {
     setViewRange(newStart, newEnd);
   }
 
+  // Build two-tier header segments (months and weeks)
+  const headerSegments = useMemo(() => {
+    const start = viewStart !== undefined ? new Date(viewStart) : minDate;
+    const end = viewEnd !== undefined ? new Date(viewEnd) : maxDate;
+    // Months
+    const months: { start: Date; end: Date; label: string }[] = [];
+    let m = new Date(start.getFullYear(), start.getMonth(), 1);
+    const monthEnd = new Date(end.getFullYear(), end.getMonth() + 1, 1);
+    while (m < monthEnd) {
+      const next = new Date(m.getFullYear(), m.getMonth() + 1, 1);
+      months.push({
+        start: new Date(Math.max(m.getTime(), start.getTime())),
+        end: new Date(Math.min(next.getTime(), end.getTime())),
+        label: m.toLocaleString(undefined, { month: "long", year: "numeric" }),
+      });
+      m = next;
+    }
+    // Weeks (Sunday-based)
+    const weeks: { start: Date; end: Date; label: string }[] = [];
+    const w0 = new Date(start);
+    w0.setHours(0, 0, 0, 0);
+    w0.setDate(w0.getDate() - w0.getDay()); // back to Sunday
+    let ws = w0;
+    while (ws < end) {
+      const we = new Date(ws);
+      we.setDate(we.getDate() + 7);
+      weeks.push({
+        start: new Date(Math.max(ws.getTime(), start.getTime())),
+        end: new Date(Math.min(we.getTime(), end.getTime())),
+        label: ws.toLocaleDateString(undefined, { month: "numeric", day: "numeric" }),
+      });
+      ws = we;
+    }
+    return { months, weeks };
+  }, [viewStart, viewEnd, minDate, maxDate]);
+
   return (
     <Box
       display="flex"
@@ -199,24 +236,46 @@ export function GanttChart() {
           onWheel={onWheel}
           style={{ cursor: "grab", display: "block" }}
         >
-          {/* Timeline header (simple) */}
+          {/* Two-tier timeline header */}
           <g transform={`translate(0, ${margin.top})`}>
+            {/* Month row */}
+            {headerSegments.months.map((seg, i) => {
+              const x1 = x(seg.start);
+              const x2 = x(seg.end);
+              const cx = (x1 + x2) / 2;
+              return (
+                <g key={`m-${i}`}>
+                  <text x={cx} y={14} textAnchor="middle" fill="#2c3e50" fontSize={12} fontWeight={600}>
+                    {seg.label}
+                  </text>
+                  <line x1={x2} x2={x2} y1={0} y2={headerHeight} stroke="#bdc3c7" />
+                </g>
+              );
+            })}
+            {/* Week row */}
+            {headerSegments.weeks.map((seg, i) => {
+              const x1 = x(seg.start);
+              const x2 = x(seg.end);
+              const cx = (x1 + x2) / 2;
+              return (
+                <g key={`w-${i}`}>
+                  <text x={cx} y={36} textAnchor="middle" fill="#7f8c8d" fontSize={11}>
+                    {seg.label}
+                  </text>
+                  {/* grid line down the chart at week boundaries */}
+                  <line x1={x1} x2={x1} y1={0} y2={height} stroke="#eee" />
+                </g>
+              );
+            })}
+            {/* baseline under header */}
             <line
               x1={margin.left}
-              x2={Math.max(margin.left + 200, chartWidth - margin.right)}
-              y1={0}
-              y2={0}
+              x2={Math.max(margin.left + 200, Math.floor(chartWidth) - margin.right)}
+              y1={headerHeight}
+              y2={headerHeight}
               stroke="#34495e"
               strokeWidth={2}
             />
-            {x.ticks(10).map((t, i) => (
-              <g key={i} transform={`translate(${x(t)}, 0)`}>
-                <line y1={0} y2={height} stroke="#eee" />
-                <text y={-8} textAnchor="middle" fill="#2c3e50" fontSize={12}>
-                  {t.toLocaleDateString()}
-                </text>
-              </g>
-            ))}
           </g>
 
           {/* Bars */}
