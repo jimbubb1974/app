@@ -398,8 +398,22 @@ export function GanttChart() {
               />
             </clipPath>
           </defs>
-          {/* Two-tier timeline header placeholder (rendered later on top) */}
-          <g transform={`translate(0, ${margin.top})`} />
+          {/* Draw grid lines behind bars (weeks/months) before bars layer */}
+          <g transform={`translate(0, ${margin.top})`}>
+            {headerSegments.bottom.map((seg, i) => {
+              const x1 = x(seg.start);
+              return (
+                <line
+                  key={`grid-${i}`}
+                  x1={x1}
+                  x2={x1}
+                  y1={monthRowHeight}
+                  y2={height}
+                  stroke="#eee"
+                />
+              );
+            })}
+          </g>
 
           {/* Bars with manual vertical offset and clipping */}
           <g
@@ -439,9 +453,21 @@ export function GanttChart() {
           {/* Render header last to keep it visually on top of bars */}
           <g transform={`translate(0, ${margin.top})`}>
             {/* mask the gap between menu bar and timescale */}
-            <rect x={0} y={-margin.top} width={Math.floor(chartWidth)} height={margin.top} fill="#fff" />
+            <rect
+              x={0}
+              y={-margin.top}
+              width={Math.floor(chartWidth)}
+              height={margin.top}
+              fill="#fff"
+            />
             {/* background mask to ensure bars never show through the timescale */}
-            <rect x={0} y={0} width={Math.floor(chartWidth)} height={headerHeight} fill="#fff" />
+            <rect
+              x={0}
+              y={0}
+              width={Math.floor(chartWidth)}
+              height={headerHeight}
+              fill="#fff"
+            />
             {/* Top row (Year or Month) */}
             {headerSegments.top.map((seg, i) => {
               const x1 = x(seg.start);
@@ -485,14 +511,8 @@ export function GanttChart() {
                   >
                     {seg.label}
                   </text>
-                  {/* grid line down the chart at week boundaries */}
-                  <line
-                    x1={x1}
-                    x2={x1}
-                    y1={monthRowHeight}
-                    y2={height}
-                    stroke="#eee"
-                  />
+                  {/* separator inside header only (avoid overlaying bars) */}
+                  <line x1={x1} x2={x1} y1={monthRowHeight} y2={headerHeight} stroke="#eee" />
                 </g>
               );
             })}
