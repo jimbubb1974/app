@@ -66,7 +66,7 @@ export function GanttChart() {
       .domain([domainStart, domainEnd])
       .range([
         margin.left,
-        Math.max(margin.left + 200, chartWidth - margin.right),
+        Math.max(margin.left + 200, Math.floor(chartWidth) - margin.right),
       ]);
   }, [minDate, maxDate, viewStart, viewEnd, chartWidth]);
   const y = useMemo(
@@ -189,11 +189,11 @@ export function GanttChart() {
         overflowX="hidden"
         overflowY="auto"
         ref={containerRef}
-        sx={{ minWidth: 0, boxSizing: 'border-box' }}
+        sx={{ minWidth: 0, boxSizing: "border-box" }}
       >
         <svg
           ref={svgRef}
-          width={chartWidth}
+          width={Math.floor(chartWidth)}
           height={height}
           onMouseDown={onMouseDown}
           onWheel={onWheel}

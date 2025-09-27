@@ -8,7 +8,7 @@ export function AppLayout({ children }: PropsWithChildren) {
       flexDirection="column"
       height="100vh"
       bgcolor="#f5f5f5"
-      sx={{ minWidth: 0 }}
+      sx={{ minWidth: 0, width: '100%', overflowX: 'hidden' }}
     >
       {children}
     </Box>

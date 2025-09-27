@@ -49,7 +49,7 @@ export function LeftPanel() {
       display="flex"
       flexDirection="column"
       borderRight="2px solid #bdc3c7"
-      sx={{ boxSizing: 'border-box' }}
+      sx={{ boxSizing: "border-box" }}
     >
       <Box
         px={1.5}

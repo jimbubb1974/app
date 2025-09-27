@@ -11,7 +11,12 @@ function App() {
   return (
     <AppLayout>
       <Toolbar />
-      <Box display="flex" flex={1} bgcolor="#fff" sx={{ minWidth: 0, boxSizing: 'border-box' }}>
+      <Box
+        display="flex"
+        flex={1}
+        bgcolor="#fff"
+        sx={{ minWidth: 0, boxSizing: "border-box" }}
+      >
         <LeftPanel />
         <GanttChart />
         <RightPanel />
