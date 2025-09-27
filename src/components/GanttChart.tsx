@@ -11,6 +11,70 @@ function parseISO(date: string): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+// Helper functions for label positioning
+function getLabelX(activity: Activity, xStart: number, xEnd: number): number {
+  const position = activity.labelPosition || "right";
+  switch (position) {
+    case "left":
+      return xStart - 6; // Right justified, against the bar
+    case "right":
+      return xEnd + 6; // Left justified, close to the bar
+    case "top":
+    case "bottom":
+      return xStart; // Left justified to the leftmost side of the bar
+    default:
+      return xEnd + 6;
+  }
+}
+
+function getLabelY(
+  activity: Activity,
+  yPos: number,
+  bandwidth: number
+): number {
+  const position = activity.labelPosition || "right";
+  switch (position) {
+    case "left":
+    case "right":
+      return yPos + bandwidth / 2; // Middle of the bar
+    case "top":
+      return yPos - 4; // Above the bar
+    case "bottom":
+      return yPos + bandwidth + 12; // Below the bar
+    default:
+      return yPos + bandwidth / 2;
+  }
+}
+
+function getLabelBaseline(activity: Activity): string {
+  const position = activity.labelPosition || "right";
+  switch (position) {
+    case "left":
+    case "right":
+      return "middle";
+    case "top":
+      return "baseline";
+    case "bottom":
+      return "hanging";
+    default:
+      return "middle";
+  }
+}
+
+function getLabelAnchor(activity: Activity): string {
+  const position = activity.labelPosition || "right";
+  switch (position) {
+    case "left":
+      return "end"; // Right justified
+    case "right":
+    case "top":
+    case "bottom":
+      return "start"; // Left justified
+    default:
+      return "start";
+  }
+}
+
 export function GanttChart() {
   const data = useScheduleStore((s) => s.data);
   const activities: Activity[] = data?.activities ?? [];
@@ -449,9 +513,10 @@ export function GanttChart() {
                   />
                   {a.showLabel !== false && (
                     <text
-                      x={xEnd + 6}
-                      y={(yPos ?? 0) + y.bandwidth() / 2}
-                      dominantBaseline="middle"
+                      x={getLabelX(a, xStart, xEnd)}
+                      y={getLabelY(a, yPos ?? 0, y.bandwidth())}
+                      dominantBaseline={getLabelBaseline(a)}
+                      textAnchor={getLabelAnchor(a)}
                       fontSize={a.customFontSize || settings.fontSize}
                       fontFamily={a.customFontFamily || settings.fontFamily}
                       fill="#2c3e50"

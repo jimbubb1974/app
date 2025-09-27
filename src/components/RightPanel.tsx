@@ -180,6 +180,12 @@ function ActivityProperties({
     onUpdate("showLabel", show);
   };
 
+  const handleLabelPositionChange = (
+    position: "left" | "right" | "top" | "bottom"
+  ) => {
+    onUpdate("labelPosition", position);
+  };
+
   const handleReset = () => {
     onUpdate("customColor", undefined);
     onUpdate("customBarHeight", undefined);
@@ -187,6 +193,7 @@ function ActivityProperties({
     onUpdate("customFontFamily", undefined);
     onUpdate("barStyle", undefined);
     onUpdate("showLabel", undefined);
+    onUpdate("labelPosition", undefined);
   };
 
   return (
@@ -331,6 +338,27 @@ function ActivityProperties({
               <MenuItem value="false">No</MenuItem>
             </Select>
           </FormControl>
+
+          {/* Label Position */}
+          {activity.showLabel !== false && (
+            <FormControl size="small" fullWidth>
+              <InputLabel>Label Position</InputLabel>
+              <Select
+                label="Label Position"
+                value={activity.labelPosition || "right"}
+                onChange={(e) =>
+                  handleLabelPositionChange(
+                    e.target.value as "left" | "right" | "top" | "bottom"
+                  )
+                }
+              >
+                <MenuItem value="left">Left</MenuItem>
+                <MenuItem value="right">Right</MenuItem>
+                <MenuItem value="top">Top</MenuItem>
+                <MenuItem value="bottom">Bottom</MenuItem>
+              </Select>
+            </FormControl>
+          )}
         </Stack>
       </Box>
 
@@ -384,6 +412,12 @@ function MultiActivityProperties({
     onUpdate("showLabel", show);
   };
 
+  const handleLabelPositionChange = (
+    position: "left" | "right" | "top" | "bottom"
+  ) => {
+    onUpdate("labelPosition", position);
+  };
+
   const handleReset = () => {
     onUpdate("customColor", undefined);
     onUpdate("customBarHeight", undefined);
@@ -391,6 +425,7 @@ function MultiActivityProperties({
     onUpdate("customFontFamily", undefined);
     onUpdate("barStyle", undefined);
     onUpdate("showLabel", undefined);
+    onUpdate("labelPosition", undefined);
   };
 
   return (
@@ -542,6 +577,25 @@ function MultiActivityProperties({
             >
               <MenuItem value="true">Yes</MenuItem>
               <MenuItem value="false">No</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Label Position */}
+          <FormControl size="small" fullWidth>
+            <InputLabel>Label Position</InputLabel>
+            <Select
+              label="Label Position"
+              value="right"
+              onChange={(e) =>
+                handleLabelPositionChange(
+                  e.target.value as "left" | "right" | "top" | "bottom"
+                )
+              }
+            >
+              <MenuItem value="left">Left</MenuItem>
+              <MenuItem value="right">Right</MenuItem>
+              <MenuItem value="top">Top</MenuItem>
+              <MenuItem value="bottom">Bottom</MenuItem>
             </Select>
           </FormControl>
         </Stack>
