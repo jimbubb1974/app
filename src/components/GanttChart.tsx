@@ -47,6 +47,8 @@ export function GanttChart() {
     return [start, end] as [Date, Date];
   }, [parsed]);
 
+  const DEBUG = true;
+
   const headerHeight = 56; // two-tier header
   const monthRowHeight = 24; // upper row height to keep week lines below months
   const height = Math.max(300, parsed.length * 28 + headerHeight + 40);
@@ -126,6 +128,17 @@ export function GanttChart() {
     dragStartViewRef.current = [viewStart, viewEnd];
     const container = containerRef.current;
     dragStartScrollTopRef.current = container ? container.scrollTop : 0;
+    if (DEBUG) {
+      // eslint-disable-next-line no-console
+      console.log("onMouseDown", {
+        button: e.button,
+        x: e.clientX,
+        y: e.clientY,
+        viewStart,
+        viewEnd,
+        scrollTop: dragStartScrollTopRef.current,
+      });
+    }
     window.addEventListener("mousemove", onMouseMove as any, {
       passive: false,
     });
@@ -137,11 +150,26 @@ export function GanttChart() {
     e.preventDefault();
     const dx = e.clientX - dragStartXRef.current;
     const dy = e.clientY - dragStartYRef.current;
+    if (DEBUG) {
+      // eslint-disable-next-line no-console
+      console.log("onMouseMove", {
+        button: dragButtonRef.current,
+        dx,
+        dy,
+      });
+    }
 
     // Middle mouse: vertical-only panning (scroll activities)
     if (dragButtonRef.current === 1) {
       const container = containerRef.current;
-      if (container) container.scrollTop = dragStartScrollTopRef.current - dy;
+      if (container) {
+        const next = dragStartScrollTopRef.current - dy;
+        if (DEBUG) {
+          // eslint-disable-next-line no-console
+          console.log("vertical scroll", { from: container.scrollTop, to: next });
+        }
+        container.scrollTop = next;
+      }
       return;
     }
 
@@ -162,12 +190,20 @@ export function GanttChart() {
       const deltaMs = t0 - t1; // dragging right moves left in time
       const newStart = dragStartViewRef.current[0] + deltaMs;
       const newEnd = dragStartViewRef.current[1] + deltaMs;
+      if (DEBUG) {
+        // eslint-disable-next-line no-console
+        console.log("horizontal pan", { newStart, newEnd });
+      }
       setViewRange(newStart, newEnd);
     }
   }
 
   function onMouseUp() {
     dragStartViewRef.current = null;
+    if (DEBUG) {
+      // eslint-disable-next-line no-console
+      console.log("onMouseUp");
+    }
     window.removeEventListener("mousemove", onMouseMove as any);
   }
 
@@ -296,6 +332,17 @@ export function GanttChart() {
           width={Math.floor(chartWidth)}
           height={height}
           onMouseDown={onMouseDown}
+          onAuxClick={(e) => {
+            // Capture middle click to prevent browser auto-scroll and log it
+            if (e.button === 1) {
+              e.preventDefault();
+              e.stopPropagation();
+              if (DEBUG) {
+                // eslint-disable-next-line no-console
+                console.log("onAuxClick middle", { x: e.clientX, y: e.clientY });
+              }
+            }
+          }}
           onWheel={onWheel}
           style={{ cursor: "grab", display: "block" }}
         >
