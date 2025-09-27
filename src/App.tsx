@@ -6,6 +6,7 @@ import { LeftPanel } from "./components/LeftPanel";
 import { GanttChart } from "./components/GanttChart";
 import { RightPanel } from "./components/RightPanel";
 import { StatusBar } from "./components/StatusBar";
+import { TimescaleDialog } from "./components/TimescaleDialog";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <RightPanel />
       </Box>
       <StatusBar />
+      <TimescaleDialog />
     </AppLayout>
   );
 }

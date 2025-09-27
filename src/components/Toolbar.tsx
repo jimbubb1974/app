@@ -13,6 +13,7 @@ export function Toolbar() {
   const fitAll = useScheduleStore((s) => s.fitAll);
   const zoom = useScheduleStore((s) => s.zoom);
   const toggleProperties = useScheduleStore((s) => s.toggleProperties);
+  const setTimescaleOpen = useScheduleStore((s) => s.setTimescaleOpen);
 
   async function handleImport(file: File) {
     setStatus("loading");
@@ -115,6 +116,9 @@ export function Toolbar() {
       </Button>
       <Button size="small" variant="contained" sx={btnSx}>
         Labels
+      </Button>
+      <Button size="small" variant="contained" sx={btnSx} onClick={() => setTimescaleOpen(true)}>
+        Timescale
       </Button>
       <Divider
         flexItem

@@ -164,7 +164,7 @@ export function GanttChart() {
     setViewRange(newStart, newEnd);
   }
 
-  // Build two-tier header segments (months and weeks)
+  // Build two-tier header segments (configurable)
   const headerSegments = useMemo(() => {
     const start = viewStart !== undefined ? new Date(viewStart) : minDate;
     const end = viewEnd !== undefined ? new Date(viewEnd) : maxDate;
@@ -187,8 +187,7 @@ export function GanttChart() {
       });
       ws = we;
     }
-    // Month groupings aligned to full week boundaries (a week belongs to the
-    // month in which the week starts)
+    // Month groupings aligned to full week boundaries (week belongs to the month it starts in)
     const months: { start: Date; end: Date; label: string }[] = [];
     if (weeks.length > 0) {
       let i = 0;
@@ -213,8 +212,27 @@ export function GanttChart() {
         i = j + 1;
       }
     }
-    return { months, weeks };
-  }, [viewStart, viewEnd, minDate, maxDate]);
+    // Years from months
+    const years: { start: Date; end: Date; label: string }[] = [];
+    if (months.length > 0) {
+      let i = 0;
+      while (i < months.length) {
+        const y = months[i].start.getFullYear();
+        const segStart = months[i].start;
+        let j = i;
+        while (j + 1 < months.length && months[j + 1].start.getFullYear() === y) {
+          j += 1;
+        }
+        const segEnd = months[j].end;
+        years.push({ start: segStart, end: segEnd, label: String(y) });
+        i = j + 1;
+      }
+    }
+    // Choose rows based on settings
+    const top = (tsTop === 'year') ? years : months;
+    const bottom = (tsBottom === 'month') ? months : weeks;
+    return { top, bottom };
+  }, [viewStart, viewEnd, minDate, maxDate, tsTop, tsBottom]);
 
   return (
     <Box
@@ -255,8 +273,8 @@ export function GanttChart() {
         >
           {/* Two-tier timeline header */}
           <g transform={`translate(0, ${margin.top})`}>
-            {/* Month row */}
-            {headerSegments.months.map((seg, i) => {
+            {/* Top row (Year or Month) */}
+            {headerSegments.top.map((seg, i) => {
               const x1 = x(seg.start);
               const x2 = x(seg.end);
               const cx = (x1 + x2) / 2;
@@ -282,8 +300,8 @@ export function GanttChart() {
                 </g>
               );
             })}
-            {/* Week row */}
-            {headerSegments.weeks.map((seg, i) => {
+            {/* Bottom row (Month or Week) */}
+            {headerSegments.bottom.map((seg, i) => {
               const x1 = x(seg.start);
               const x2 = x(seg.end);
               const cx = (x1 + x2) / 2;
@@ -299,7 +317,13 @@ export function GanttChart() {
                     {seg.label}
                   </text>
                   {/* grid line down the chart at week boundaries */}
-                  <line x1={x1} x2={x1} y1={monthRowHeight} y2={height} stroke="#eee" />
+                  <line
+                    x1={x1}
+                    x2={x1}
+                    y1={monthRowHeight}
+                    y2={height}
+                    stroke="#eee"
+                  />
                 </g>
               );
             })}
