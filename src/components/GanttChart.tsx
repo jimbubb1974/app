@@ -32,6 +32,8 @@ export function GanttChart() {
   const setViewRange = useScheduleStore((s) => s.setViewRange);
   const viewStart = useScheduleStore((s) => s.viewStart);
   const viewEnd = useScheduleStore((s) => s.viewEnd);
+  const tsTop = useScheduleStore((s) => s.timescaleTop);
+  const tsBottom = useScheduleStore((s) => s.timescaleBottom);
 
   const [minDate, maxDate] = useMemo(() => {
     const ex = extent(parsed.flatMap((a) => [a.startDate, a.finishDate]));
@@ -220,7 +222,10 @@ export function GanttChart() {
         const y = months[i].start.getFullYear();
         const segStart = months[i].start;
         let j = i;
-        while (j + 1 < months.length && months[j + 1].start.getFullYear() === y) {
+        while (
+          j + 1 < months.length &&
+          months[j + 1].start.getFullYear() === y
+        ) {
           j += 1;
         }
         const segEnd = months[j].end;
@@ -229,8 +234,8 @@ export function GanttChart() {
       }
     }
     // Choose rows based on settings
-    const top = (tsTop === 'year') ? years : months;
-    const bottom = (tsBottom === 'month') ? months : weeks;
+    const top = tsTop === "year" ? years : months;
+    const bottom = tsBottom === "month" ? months : weeks;
     return { top, bottom };
   }, [viewStart, viewEnd, minDate, maxDate, tsTop, tsBottom]);
 

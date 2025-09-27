@@ -117,7 +117,12 @@ export function Toolbar() {
       <Button size="small" variant="contained" sx={btnSx}>
         Labels
       </Button>
-      <Button size="small" variant="contained" sx={btnSx} onClick={() => setTimescaleOpen(true)}>
+      <Button
+        size="small"
+        variant="contained"
+        sx={btnSx}
+        onClick={() => setTimescaleOpen(true)}
+      >
         Timescale
       </Button>
       <Divider

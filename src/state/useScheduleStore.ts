@@ -17,8 +17,8 @@ type ScheduleState = {
   leftOpen: boolean;
   leftWidth: number; // px
   // Timescale settings
-  timescaleTop: 'month' | 'year';
-  timescaleBottom: 'week' | 'month';
+  timescaleTop: "month" | "year";
+  timescaleBottom: "week" | "month";
   timescaleOpen: boolean;
   // Setters
   setData: (data: ProjectData) => void;
@@ -35,7 +35,7 @@ type ScheduleState = {
   setLeftOpen: (open: boolean) => void;
   toggleLeft: () => void;
   setLeftWidth: (width: number) => void;
-  setTimescale: (top: 'month' | 'year', bottom: 'week' | 'month') => void;
+  setTimescale: (top: "month" | "year", bottom: "week" | "month") => void;
   setTimescaleOpen: (open: boolean) => void;
 };
 
@@ -53,8 +53,8 @@ export const useScheduleStore = create<ScheduleState>()(
       propertiesWidth: 300,
       leftOpen: true,
       leftWidth: 280,
-      timescaleTop: 'month',
-      timescaleBottom: 'week',
+      timescaleTop: "month",
+      timescaleBottom: "week",
       timescaleOpen: false,
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
@@ -90,10 +90,11 @@ export const useScheduleStore = create<ScheduleState>()(
       toggleLeft: () => set((s) => ({ leftOpen: !s.leftOpen })),
       setLeftWidth: (width) =>
         set({ leftWidth: Math.max(200, Math.min(520, Math.round(width))) }),
-      setTimescale: (top, bottom) => set({
-        timescaleTop: top,
-        timescaleBottom: bottom,
-      }),
+      setTimescale: (top, bottom) =>
+        set({
+          timescaleTop: top,
+          timescaleBottom: bottom,
+        }),
       setTimescaleOpen: (open) => set({ timescaleOpen: open }),
     }),
     {
