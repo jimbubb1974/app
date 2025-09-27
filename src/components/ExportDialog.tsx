@@ -21,6 +21,8 @@ import { useScheduleStore } from "../state/useScheduleStore";
 
 type ExportFormat = "svg" | "png" | "pdf";
 type ExportRange = "current" | "full";
+type PageSize = "8.5x11" | "11x17";
+type Orientation = "portrait" | "landscape";
 
 interface ExportOptions {
   format: ExportFormat;
@@ -31,6 +33,8 @@ interface ExportOptions {
   headerText: string;
   footerText: string;
   filename: string;
+  pageSize: PageSize;
+  orientation: Orientation;
 }
 
 export function ExportDialog() {
@@ -51,6 +55,8 @@ export function ExportDialog() {
     headerText: data?.projectName || "Project Schedule",
     footerText: `Generated on ${new Date().toLocaleDateString()}`,
     filename: "gantt-chart",
+    pageSize: "8.5x11",
+    orientation: "landscape",
   });
 
   const handleFormatChange = (format: ExportFormat) => {
@@ -170,6 +176,45 @@ export function ExportDialog() {
             />
           </Box>
 
+          {/* PDF Page Options - only show when PDF is selected */}
+          {options.format === "pdf" && (
+            <>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Page Size</InputLabel>
+                <Select
+                  label="Page Size"
+                  value={options.pageSize}
+                  onChange={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      pageSize: e.target.value as PageSize,
+                    }))
+                  }
+                >
+                  <MenuItem value="8.5x11">8.5" × 11" (Letter)</MenuItem>
+                  <MenuItem value="11x17">11" × 17" (Tabloid)</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl size="small" fullWidth>
+                <InputLabel>Orientation</InputLabel>
+                <Select
+                  label="Orientation"
+                  value={options.orientation}
+                  onChange={(e) =>
+                    setOptions((prev) => ({
+                      ...prev,
+                      orientation: e.target.value as Orientation,
+                    }))
+                  }
+                >
+                  <MenuItem value="portrait">Portrait</MenuItem>
+                  <MenuItem value="landscape">Landscape</MenuItem>
+                </Select>
+              </FormControl>
+            </>
+          )}
+
           <Divider />
 
           {/* Header Options */}
@@ -248,6 +293,16 @@ async function exportSVG(options: ExportOptions) {
 
   const clone = svg.cloneNode(true) as SVGSVGElement;
 
+  // Remove the rectangle above the timescale (the gap filler)
+  // Look for rectangles with negative y values (above the timescale)
+  const allRects = clone.querySelectorAll("rect");
+  allRects.forEach((rect) => {
+    const y = rect.getAttribute("y");
+    if (y && parseFloat(y) < 0) {
+      rect.remove();
+    }
+  });
+
   // Capture and embed all font styles
   const textElements = clone.querySelectorAll("text");
   const originalTextElements = svg.querySelectorAll("text");
@@ -313,10 +368,13 @@ async function exportSVG(options: ExportOptions) {
       clone.appendChild(footerGroup);
     }
 
-    // Shift existing content down if header is present
+    // Shift ALL content down if header is present to make room for the title
     if (options.includeHeader) {
-      const existingGroups = clone.querySelectorAll("g");
-      existingGroups.forEach((group) => {
+      // Shift the timescale header groups
+      const timescaleGroups = clone.querySelectorAll(
+        'g[transform*="translate(0, 16)"]'
+      );
+      timescaleGroups.forEach((group) => {
         if (group.getAttribute("transform")) {
           const currentTransform = group.getAttribute("transform") || "";
           group.setAttribute(
@@ -327,7 +385,30 @@ async function exportSVG(options: ExportOptions) {
             )
           );
         } else {
-          group.setAttribute("transform", `translate(0, 30)`);
+          group.setAttribute("transform", `translate(0, 46)`); // 16 + 30
+        }
+      });
+
+      // Shift the bars group and other content
+      const barsGroup = clone.querySelector('g[transform*="translate(0, 72)"]'); // The bars group
+      const otherGroups = clone.querySelectorAll(
+        'g:not([transform*="translate(0, 16)"])'
+      ); // Not the header groups
+
+      [barsGroup, ...otherGroups].forEach((group) => {
+        if (group && !group.querySelector("text[text-anchor='middle']")) {
+          if (group.getAttribute("transform")) {
+            const currentTransform = group.getAttribute("transform") || "";
+            group.setAttribute(
+              "transform",
+              currentTransform.replace(
+                /translate\(([^,]+),\s*([^)]+)\)/,
+                (match, x, y) => `translate(${x}, ${parseFloat(y) + 30})`
+              )
+            );
+          } else {
+            group.setAttribute("transform", `translate(0, 30)`);
+          }
         }
       });
     }
@@ -355,6 +436,17 @@ async function exportPNG(options: ExportOptions) {
 
   // Create a clone and embed font styles
   const svgClone = svg.cloneNode(true) as SVGSVGElement;
+
+  // Remove the rectangle above the timescale (the gap filler)
+  // Look for rectangles with negative y values (above the timescale)
+  const allRects = svgClone.querySelectorAll("rect");
+  allRects.forEach((rect) => {
+    const y = rect.getAttribute("y");
+    if (y && parseFloat(y) < 0) {
+      rect.remove();
+    }
+  });
+
   const textElements = svgClone.querySelectorAll("text");
   const originalTextElements = svg.querySelectorAll("text");
 
@@ -422,10 +514,13 @@ async function exportPNG(options: ExportOptions) {
       svgClone.appendChild(footerGroup);
     }
 
-    // Shift existing content down if header is present
+    // Shift ALL content down if header is present to make room for the title
     if (options.includeHeader) {
-      const existingGroups = svgClone.querySelectorAll("g");
-      existingGroups.forEach((group) => {
+      // Shift the timescale header groups
+      const timescaleGroups = svgClone.querySelectorAll(
+        'g[transform*="translate(0, 16)"]'
+      );
+      timescaleGroups.forEach((group) => {
         if (group.getAttribute("transform")) {
           const currentTransform = group.getAttribute("transform") || "";
           group.setAttribute(
@@ -436,7 +531,32 @@ async function exportPNG(options: ExportOptions) {
             )
           );
         } else {
-          group.setAttribute("transform", `translate(0, 30)`);
+          group.setAttribute("transform", `translate(0, 46)`); // 16 + 30
+        }
+      });
+
+      // Shift the bars group and other content
+      const barsGroup = svgClone.querySelector(
+        'g[transform*="translate(0, 72)"]'
+      ); // The bars group
+      const otherGroups = svgClone.querySelectorAll(
+        'g:not([transform*="translate(0, 16)"])'
+      ); // Not the header groups
+
+      [barsGroup, ...otherGroups].forEach((group) => {
+        if (group && !group.querySelector("text[text-anchor='middle']")) {
+          if (group.getAttribute("transform")) {
+            const currentTransform = group.getAttribute("transform") || "";
+            group.setAttribute(
+              "transform",
+              currentTransform.replace(
+                /translate\(([^,]+),\s*([^)]+)\)/,
+                (match, x, y) => `translate(${x}, ${parseFloat(y) + 30})`
+              )
+            );
+          } else {
+            group.setAttribute("transform", `translate(0, 30)`);
+          }
         }
       });
     }
@@ -538,9 +658,18 @@ async function exportPDF(options: ExportOptions) {
     ctx.fillRect(0, 0, width, height);
     ctx.drawImage(img, 0, 0, width, height);
 
-    // Calculate PDF dimensions (A4 with margins)
-    const pdfWidth = 8.5; // inches
-    const pdfHeight = 11; // inches
+    // Calculate PDF dimensions based on selected page size and orientation
+    const isLandscape = options.orientation === "landscape";
+    const baseWidth = options.pageSize === "8.5x11" ? 8.5 : 11;
+    const baseHeight = options.pageSize === "8.5x11" ? 11 : 17;
+
+    const pdfWidth = isLandscape
+      ? Math.max(baseWidth, baseHeight)
+      : Math.min(baseWidth, baseHeight);
+    const pdfHeight = isLandscape
+      ? Math.min(baseWidth, baseHeight)
+      : Math.max(baseWidth, baseHeight);
+
     const margin = 0.75; // 0.75 inch margins on all sides
     const contentWidth = pdfWidth - margin * 2;
     const contentHeight = pdfHeight - margin * 2;
@@ -552,9 +681,9 @@ async function exportPDF(options: ExportOptions) {
     );
 
     const pdf = new jsPDF({
-      orientation: width > height ? "landscape" : "portrait",
+      orientation: options.orientation,
       unit: "in",
-      format: "a4",
+      format: options.pageSize === "8.5x11" ? "a4" : "a3",
     });
 
     // Add header if enabled
@@ -565,14 +694,29 @@ async function exportPDF(options: ExportOptions) {
       });
     }
 
-    // Add the chart - centered with margins
+    // Add the chart - centered horizontally, positioned at top
     const chartWidth = (width / 96) * scale;
     const chartHeight = (height / 96) * scale;
-    const chartX = margin + (contentWidth - chartWidth) / 2;
-    const chartY =
-      margin +
-      (options.includeHeader ? 0.3 : 0) +
-      (contentHeight - chartHeight) / 2;
+
+    // Ensure proper horizontal centering
+    const chartX = (pdfWidth - chartWidth) / 2;
+    const chartY = margin + (options.includeHeader ? 0.3 : 0);
+
+    // Debug positioning
+    console.log("PDF positioning:", {
+      pageSize: options.pageSize,
+      orientation: options.orientation,
+      pdfWidth,
+      pdfHeight,
+      margin,
+      contentWidth,
+      contentHeight,
+      chartWidth,
+      chartX,
+      chartY,
+      scale,
+      calculatedCenter: (pdfWidth - chartWidth) / 2,
+    });
 
     pdf.addImage(canvas, "PNG", chartX, chartY, chartWidth, chartHeight);
 
