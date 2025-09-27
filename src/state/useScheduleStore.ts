@@ -20,6 +20,7 @@ type ScheduleState = {
   timescaleTop: "month" | "year";
   timescaleBottom: "week" | "month";
   timescaleOpen: boolean;
+  rangeOpen: boolean;
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -37,6 +38,7 @@ type ScheduleState = {
   setLeftWidth: (width: number) => void;
   setTimescale: (top: "month" | "year", bottom: "week" | "month") => void;
   setTimescaleOpen: (open: boolean) => void;
+  setRangeOpen: (open: boolean) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -56,6 +58,7 @@ export const useScheduleStore = create<ScheduleState>()(
       timescaleTop: "month",
       timescaleBottom: "week",
       timescaleOpen: false,
+      rangeOpen: false,
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
       setError: (error) => set({ error }),
@@ -96,6 +99,7 @@ export const useScheduleStore = create<ScheduleState>()(
           timescaleBottom: bottom,
         }),
       setTimescaleOpen: (open) => set({ timescaleOpen: open }),
+      setRangeOpen: (open) => set({ rangeOpen: open }),
     }),
     {
       name: "planworks-ui",

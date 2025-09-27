@@ -7,6 +7,7 @@ import { GanttChart } from "./components/GanttChart";
 import { RightPanel } from "./components/RightPanel";
 import { StatusBar } from "./components/StatusBar";
 import { TimescaleDialog } from "./components/TimescaleDialog";
+import { RangeDialog } from "./components/RangeDialog";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
       </Box>
       <StatusBar />
       <TimescaleDialog />
+      <RangeDialog />
     </AppLayout>
   );
 }

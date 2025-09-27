@@ -15,6 +15,7 @@ export function Toolbar() {
   const toggleProperties = useScheduleStore((s) => s.toggleProperties);
   const setTimescaleOpen = useScheduleStore((s) => s.setTimescaleOpen);
   const setViewRange = useScheduleStore((s) => s.setViewRange);
+  const setRangeOpen = useScheduleStore((s) => s.setRangeOpen);
 
   async function handleImport(file: File) {
     setStatus("loading");
@@ -102,6 +103,9 @@ export function Toolbar() {
       {/* Future: move into a proper datepicker; keep simple buttons for now */}
       <Button size="small" variant="contained" sx={btnSx} onClick={fitAll}>
         Fit All
+      </Button>
+      <Button size="small" variant="contained" sx={btnSx} onClick={() => setRangeOpen(true)}>
+        Set Range
       </Button>
       <Button
         size="small"
