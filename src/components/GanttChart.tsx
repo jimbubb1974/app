@@ -145,7 +145,13 @@ export function GanttChart() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" flex={1} bgcolor="#fff" sx={{ minWidth: 0 }}>
+    <Box
+      display="flex"
+      flexDirection="column"
+      flex={1}
+      bgcolor="#fff"
+      sx={{ minWidth: 0 }}
+    >
       <Box
         display="flex"
         alignItems="center"
