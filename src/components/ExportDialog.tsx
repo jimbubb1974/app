@@ -1,0 +1,594 @@
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Stack,
+  Box,
+  Typography,
+  Switch,
+  FormControlLabel,
+  Divider,
+} from "@mui/material";
+import { useState } from "react";
+import { useScheduleStore } from "../state/useScheduleStore";
+
+type ExportFormat = "svg" | "png" | "pdf";
+type ExportRange = "current" | "full";
+
+interface ExportOptions {
+  format: ExportFormat;
+  range: ExportRange;
+  scale: number;
+  includeHeader: boolean;
+  includeFooter: boolean;
+  headerText: string;
+  footerText: string;
+  filename: string;
+}
+
+export function ExportDialog() {
+  const open = useScheduleStore((s) => s.exportOpen);
+  const setOpen = useScheduleStore((s) => s.setExportOpen);
+  const data = useScheduleStore((s) => s.data);
+  const viewStart = useScheduleStore((s) => s.viewStart);
+  const viewEnd = useScheduleStore((s) => s.viewEnd);
+  const dataMin = useScheduleStore((s) => s.dataMin);
+  const dataMax = useScheduleStore((s) => s.dataMax);
+
+  const [options, setOptions] = useState<ExportOptions>({
+    format: "png",
+    range: "current",
+    scale: 2,
+    includeHeader: true,
+    includeFooter: true,
+    headerText: data?.projectName || "Project Schedule",
+    footerText: `Generated on ${new Date().toLocaleDateString()}`,
+    filename: "gantt-chart",
+  });
+
+  const handleFormatChange = (format: ExportFormat) => {
+    setOptions((prev) => ({ ...prev, format }));
+  };
+
+  const handleRangeChange = (range: ExportRange) => {
+    setOptions((prev) => ({ ...prev, range }));
+  };
+
+  const handleScaleChange = (scale: number) => {
+    setOptions((prev) => ({ ...prev, scale: Math.max(1, Math.min(4, scale)) }));
+  };
+
+  const handleTextChange = (field: keyof ExportOptions, value: string) => {
+    setOptions((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleToggle = (field: keyof ExportOptions) => {
+    setOptions((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const getViewRangeText = () => {
+    if (options.range === "current") {
+      if (viewStart && viewEnd) {
+        const start = new Date(viewStart).toLocaleDateString();
+        const end = new Date(viewEnd).toLocaleDateString();
+        return `${start} - ${end}`;
+      }
+      return "Current view";
+    } else {
+      if (dataMin && dataMax) {
+        const start = new Date(dataMin).toLocaleDateString();
+        const end = new Date(dataMax).toLocaleDateString();
+        return `${start} - ${end}`;
+      }
+      return "Full schedule";
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      if (options.format === "svg") {
+        await exportSVG(options);
+      } else if (options.format === "png") {
+        await exportPNG(options);
+      } else if (options.format === "pdf") {
+        await exportPDF(options);
+      }
+      setOpen(false);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Export failed. Please try again.");
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={() => setOpen(false)}
+      maxWidth="sm"
+      fullWidth
+      disablePortal
+      disableEnforceFocus
+      disableAutoFocus
+      disableRestoreFocus
+    >
+      <DialogTitle>Export Chart</DialogTitle>
+      <DialogContent>
+        <Stack spacing={3} mt={1}>
+          {/* File Format */}
+          <FormControl size="small" fullWidth>
+            <InputLabel>File Format</InputLabel>
+            <Select
+              label="File Format"
+              value={options.format}
+              onChange={(e) =>
+                handleFormatChange(e.target.value as ExportFormat)
+              }
+            >
+              <MenuItem value="svg">SVG (Vector)</MenuItem>
+              <MenuItem value="png">PNG (Raster)</MenuItem>
+              <MenuItem value="pdf">PDF (Document)</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Export Range */}
+          <FormControl size="small" fullWidth>
+            <InputLabel>Export Range</InputLabel>
+            <Select
+              label="Export Range"
+              value={options.range}
+              onChange={(e) => handleRangeChange(e.target.value as ExportRange)}
+            >
+              <MenuItem value="current">
+                Current View ({getViewRangeText()})
+              </MenuItem>
+              <MenuItem value="full">
+                Full Schedule ({getViewRangeText()})
+              </MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Quality/Scale */}
+          <Box>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Quality (Scale Factor)
+            </Typography>
+            <TextField
+              size="small"
+              type="number"
+              value={options.scale}
+              onChange={(e) => handleScaleChange(Number(e.target.value))}
+              inputProps={{ min: 1, max: 4, step: 0.5 }}
+              helperText="Higher values = better quality, larger file size"
+              sx={{ width: 120 }}
+            />
+          </Box>
+
+          <Divider />
+
+          {/* Header Options */}
+          <Box>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={options.includeHeader}
+                  onChange={() => handleToggle("includeHeader")}
+                />
+              }
+              label="Include Header"
+            />
+            {options.includeHeader && (
+              <TextField
+                size="small"
+                fullWidth
+                label="Header Text"
+                value={options.headerText}
+                onChange={(e) => handleTextChange("headerText", e.target.value)}
+                sx={{ mt: 1 }}
+              />
+            )}
+          </Box>
+
+          {/* Footer Options */}
+          <Box>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={options.includeFooter}
+                  onChange={() => handleToggle("includeFooter")}
+                />
+              }
+              label="Include Footer"
+            />
+            {options.includeFooter && (
+              <TextField
+                size="small"
+                fullWidth
+                label="Footer Text"
+                value={options.footerText}
+                onChange={(e) => handleTextChange("footerText", e.target.value)}
+                sx={{ mt: 1 }}
+              />
+            )}
+          </Box>
+
+          {/* Filename */}
+          <TextField
+            size="small"
+            fullWidth
+            label="Filename"
+            value={options.filename}
+            onChange={(e) => handleTextChange("filename", e.target.value)}
+            helperText="File extension will be added automatically"
+          />
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpen(false)}>Cancel</Button>
+        <Button onClick={handleExport} variant="contained">
+          Export
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+// Export functions
+async function exportSVG(options: ExportOptions) {
+  const svg = document.querySelector(
+    'svg[data-export-id="gantt"]'
+  ) as SVGSVGElement | null;
+  if (!svg) return;
+
+  const clone = svg.cloneNode(true) as SVGSVGElement;
+
+  // Capture and embed all font styles
+  const textElements = clone.querySelectorAll("text");
+  const originalTextElements = svg.querySelectorAll("text");
+
+  textElements.forEach((textEl, index) => {
+    const originalText = originalTextElements[index];
+    if (originalText) {
+      const computedStyle = getComputedStyle(originalText as Element);
+      textEl.setAttribute("font-family", computedStyle.fontFamily);
+      textEl.setAttribute("font-size", computedStyle.fontSize);
+      textEl.setAttribute("font-weight", computedStyle.fontWeight);
+      textEl.setAttribute("font-style", computedStyle.fontStyle);
+    }
+  });
+
+  // Add header and footer if enabled
+  if (options.includeHeader || options.includeFooter) {
+    const width = svg.width.baseVal.value;
+    const height = svg.height.baseVal.value;
+    const headerHeight = options.includeHeader ? 30 : 0;
+    const footerHeight = options.includeFooter ? 30 : 0;
+
+    // Adjust SVG dimensions
+    clone.setAttribute("width", String(width));
+    clone.setAttribute("height", String(height + headerHeight + footerHeight));
+
+    // Add header
+    if (options.includeHeader) {
+      const headerGroup = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "g"
+      );
+      const headerText = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      );
+      headerText.setAttribute("x", String(width / 2));
+      headerText.setAttribute("y", "20");
+      headerText.setAttribute("text-anchor", "middle");
+      headerText.setAttribute("font-size", "16");
+      headerText.setAttribute("font-weight", "bold");
+      headerText.textContent = options.headerText;
+      headerGroup.appendChild(headerText);
+      clone.insertBefore(headerGroup, clone.firstChild);
+    }
+
+    // Add footer
+    if (options.includeFooter) {
+      const footerGroup = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "g"
+      );
+      const footerText = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      );
+      footerText.setAttribute("x", String(width / 2));
+      footerText.setAttribute("y", String(height + headerHeight + 20));
+      footerText.setAttribute("text-anchor", "middle");
+      footerText.setAttribute("font-size", "12");
+      footerText.textContent = options.footerText;
+      footerGroup.appendChild(footerText);
+      clone.appendChild(footerGroup);
+    }
+
+    // Shift existing content down if header is present
+    if (options.includeHeader) {
+      const existingGroups = clone.querySelectorAll("g");
+      existingGroups.forEach((group) => {
+        if (group.getAttribute("transform")) {
+          const currentTransform = group.getAttribute("transform") || "";
+          group.setAttribute(
+            "transform",
+            currentTransform.replace(
+              /translate\(([^,]+),\s*([^)]+)\)/,
+              (match, x, y) => `translate(${x}, ${parseFloat(y) + 30})`
+            )
+          );
+        } else {
+          group.setAttribute("transform", `translate(0, 30)`);
+        }
+      });
+    }
+  }
+
+  const serializer = new XMLSerializer();
+  const source = serializer.serializeToString(clone);
+  const blob = new Blob([`<?xml version="1.0" standalone="no"?>\n${source}`], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${options.filename}.svg`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function exportPNG(options: ExportOptions) {
+  const svg = document.querySelector(
+    'svg[data-export-id="gantt"]'
+  ) as SVGSVGElement | null;
+  if (!svg) return;
+
+  // Create a clone and embed font styles
+  const svgClone = svg.cloneNode(true) as SVGSVGElement;
+  const textElements = svgClone.querySelectorAll("text");
+  const originalTextElements = svg.querySelectorAll("text");
+
+  textElements.forEach((textEl, index) => {
+    const originalText = originalTextElements[index];
+    if (originalText) {
+      const computedStyle = getComputedStyle(originalText as Element);
+      textEl.setAttribute("font-family", computedStyle.fontFamily);
+      textEl.setAttribute("font-size", computedStyle.fontSize);
+      textEl.setAttribute("font-weight", computedStyle.fontWeight);
+      textEl.setAttribute("font-style", computedStyle.fontStyle);
+    }
+  });
+
+  // Add header and footer if enabled (same logic as SVG)
+  if (options.includeHeader || options.includeFooter) {
+    const width = svg.width.baseVal.value;
+    const height = svg.height.baseVal.value;
+    const headerHeight = options.includeHeader ? 30 : 0;
+    const footerHeight = options.includeFooter ? 30 : 0;
+
+    // Adjust SVG dimensions
+    svgClone.setAttribute("width", String(width));
+    svgClone.setAttribute(
+      "height",
+      String(height + headerHeight + footerHeight)
+    );
+
+    // Add header
+    if (options.includeHeader) {
+      const headerGroup = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "g"
+      );
+      const headerText = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      );
+      headerText.setAttribute("x", String(width / 2));
+      headerText.setAttribute("y", "20");
+      headerText.setAttribute("text-anchor", "middle");
+      headerText.setAttribute("font-size", "16");
+      headerText.setAttribute("font-weight", "bold");
+      headerText.textContent = options.headerText;
+      headerGroup.appendChild(headerText);
+      svgClone.insertBefore(headerGroup, svgClone.firstChild);
+    }
+
+    // Add footer
+    if (options.includeFooter) {
+      const footerGroup = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "g"
+      );
+      const footerText = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      );
+      footerText.setAttribute("x", String(width / 2));
+      footerText.setAttribute("y", String(height + headerHeight + 20));
+      footerText.setAttribute("text-anchor", "middle");
+      footerText.setAttribute("font-size", "12");
+      footerText.textContent = options.footerText;
+      footerGroup.appendChild(footerText);
+      svgClone.appendChild(footerGroup);
+    }
+
+    // Shift existing content down if header is present
+    if (options.includeHeader) {
+      const existingGroups = svgClone.querySelectorAll("g");
+      existingGroups.forEach((group) => {
+        if (group.getAttribute("transform")) {
+          const currentTransform = group.getAttribute("transform") || "";
+          group.setAttribute(
+            "transform",
+            currentTransform.replace(
+              /translate\(([^,]+),\s*([^)]+)\)/,
+              (match, x, y) => `translate(${x}, ${parseFloat(y) + 30})`
+            )
+          );
+        } else {
+          group.setAttribute("transform", `translate(0, 30)`);
+        }
+      });
+    }
+  }
+
+  const serializer = new XMLSerializer();
+  const svgString = serializer.serializeToString(svgClone);
+  const svgBlob = new Blob([svgString], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+  const url = URL.createObjectURL(svgBlob);
+  const img = new Image();
+
+  const width = svg.width.baseVal.value;
+  const height = svg.height.baseVal.value;
+  const finalHeight =
+    height +
+    (options.includeHeader ? 30 : 0) +
+    (options.includeFooter ? 30 : 0);
+
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = (e) => reject(e);
+    img.src = url;
+  });
+
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.floor(width * options.scale);
+  canvas.height = Math.floor(finalHeight * options.scale);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  ctx.setTransform(options.scale, 0, 0, options.scale, 0, 0);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, width, finalHeight);
+  ctx.drawImage(img, 0, 0, width, finalHeight);
+
+  URL.revokeObjectURL(url);
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${options.filename}.png`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }, "image/png");
+}
+
+async function exportPDF(options: ExportOptions) {
+  try {
+    const jsPDF = (await import("jspdf")).default;
+    const svg = document.querySelector(
+      'svg[data-export-id="gantt"]'
+    ) as SVGSVGElement | null;
+    if (!svg) return;
+
+    // Create a clone and embed font styles
+    const svgClone = svg.cloneNode(true) as SVGSVGElement;
+    const textElements = svgClone.querySelectorAll("text");
+    const originalTextElements = svg.querySelectorAll("text");
+
+    textElements.forEach((textEl, index) => {
+      const originalText = originalTextElements[index];
+      if (originalText) {
+        const computedStyle = getComputedStyle(originalText as Element);
+        textEl.setAttribute("font-family", computedStyle.fontFamily);
+        textEl.setAttribute("font-size", computedStyle.fontSize);
+        textEl.setAttribute("font-weight", computedStyle.fontWeight);
+        textEl.setAttribute("font-style", computedStyle.fontStyle);
+      }
+    });
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgClone);
+    const svgBlob = new Blob([svgString], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+
+    const width = svg.width.baseVal.value;
+    const height = svg.height.baseVal.value;
+
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = (e) => reject(e);
+      img.src = url;
+    });
+
+    // Convert SVG to canvas first for better PDF compatibility
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(img, 0, 0, width, height);
+
+    // Calculate PDF dimensions (A4 with margins)
+    const pdfWidth = 8.5; // inches
+    const pdfHeight = 11; // inches
+    const margin = 0.75; // 0.75 inch margins on all sides
+    const contentWidth = pdfWidth - margin * 2;
+    const contentHeight = pdfHeight - margin * 2;
+
+    // Scale to fit within content area with margins
+    const scale = Math.min(
+      contentWidth / (width / 96),
+      contentHeight / (height / 96)
+    );
+
+    const pdf = new jsPDF({
+      orientation: width > height ? "landscape" : "portrait",
+      unit: "in",
+      format: "a4",
+    });
+
+    // Add header if enabled
+    if (options.includeHeader) {
+      pdf.setFontSize(16);
+      pdf.text(options.headerText, pdfWidth / 2, margin + 0.2, {
+        align: "center",
+      });
+    }
+
+    // Add the chart - centered with margins
+    const chartWidth = (width / 96) * scale;
+    const chartHeight = (height / 96) * scale;
+    const chartX = margin + (contentWidth - chartWidth) / 2;
+    const chartY =
+      margin +
+      (options.includeHeader ? 0.3 : 0) +
+      (contentHeight - chartHeight) / 2;
+
+    pdf.addImage(canvas, "PNG", chartX, chartY, chartWidth, chartHeight);
+
+    // Add footer if enabled
+    if (options.includeFooter) {
+      const pageHeight = pdf.internal.pageSize.height;
+      pdf.setFontSize(10);
+      pdf.text(options.footerText, pdfWidth / 2, pageHeight - margin - 0.1, {
+        align: "center",
+      });
+    }
+
+    URL.revokeObjectURL(url);
+    pdf.save(`${options.filename}.pdf`);
+  } catch (error) {
+    console.error("PDF export error:", error);
+    throw error;
+  }
+}

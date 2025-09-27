@@ -16,6 +16,7 @@ export function Toolbar() {
   const setTimescaleOpen = useScheduleStore((s) => s.setTimescaleOpen);
   const setViewRange = useScheduleStore((s) => s.setViewRange);
   const setRangeOpen = useScheduleStore((s) => s.setRangeOpen);
+  const setExportOpen = useScheduleStore((s) => s.setExportOpen);
 
   async function handleImport(file: File) {
     setStatus("loading");
@@ -95,7 +96,12 @@ export function Toolbar() {
       >
         Import
       </Button>
-      <Button size="small" variant="contained" sx={btnSx}>
+      <Button
+        size="small"
+        variant="contained"
+        sx={btnSx}
+        onClick={() => setExportOpen(true)}
+      >
         Export
       </Button>
       <Button size="small" variant="contained" sx={btnSx}>

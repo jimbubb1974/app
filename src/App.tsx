@@ -8,6 +8,7 @@ import { RightPanel } from "./components/RightPanel";
 import { StatusBar } from "./components/StatusBar";
 import { TimescaleDialog } from "./components/TimescaleDialog";
 import { RangeDialog } from "./components/RangeDialog";
+import { ExportDialog } from "./components/ExportDialog";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
       <StatusBar />
       <TimescaleDialog />
       <RangeDialog />
+      <ExportDialog />
     </AppLayout>
   );
 }

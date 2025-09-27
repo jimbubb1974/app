@@ -15,6 +15,8 @@ export function GanttChart() {
   const data = useScheduleStore((s) => s.data);
   const activities: Activity[] = data?.activities ?? [];
 
+  //
+
   const parsed = useMemo(() => {
     return activities
       .map((a) => ({
@@ -47,12 +49,13 @@ export function GanttChart() {
     return [start, end] as [Date, Date];
   }, [parsed]);
 
-  const DEBUG = false;
+  const DISABLE_CLIP = true; // keep clip disabled; header overlay handles clipping reliably
 
   const headerHeight = 56; // two-tier header
   const monthRowHeight = 24; // upper row height to keep week lines below months
   const height = Math.max(300, parsed.length * 28 + headerHeight + 40);
-  const [viewportHeight, setViewportHeight] = useState<number>(400);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [viewportHeight, setViewportHeight] = useState<number>(400); // reserved for future viewport calculations
   const [vScroll, setVScroll] = useState<number>(0);
   const dragStartVScrollRef = useRef(0);
   const clipId = useMemo(
@@ -86,6 +89,8 @@ export function GanttChart() {
     dragStartVScrollRef.current = 0;
   }, [parsed.length]);
 
+  //
+
   const x = useMemo(() => {
     const domainStart = viewStart !== undefined ? new Date(viewStart) : minDate;
     const domainEnd = viewEnd !== undefined ? new Date(viewEnd) : maxDate;
@@ -108,6 +113,8 @@ export function GanttChart() {
     [parsed, height]
   );
 
+  //
+
   // Simple drag-to-pan interaction
   const svgRef = useRef<SVGSVGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -120,6 +127,7 @@ export function GanttChart() {
         const cr = entry.contentRect;
         setChartWidth(Math.max(320, Math.floor(cr.width)));
         setViewportHeight(Math.max(200, Math.floor(cr.height)));
+        //
       }
     });
     ro.observe(el);
@@ -158,20 +166,6 @@ export function GanttChart() {
     const container = containerRef.current;
     dragStartScrollTopRef.current = container ? container.scrollTop : 0;
     dragStartVScrollRef.current = vScroll;
-    if (DEBUG) {
-      // eslint-disable-next-line no-console
-      console.log("onMouseDown", {
-        button: e.button,
-        shift: e.shiftKey,
-        x: e.clientX,
-        y: e.clientY,
-        viewStart,
-        viewEnd,
-        scrollTop: dragStartScrollTopRef.current,
-        clientHeight: container?.clientHeight,
-        scrollHeight: container?.scrollHeight,
-      });
-    }
     window.addEventListener("mousemove", onMouseMove as any, {
       passive: false,
     });
@@ -183,14 +177,6 @@ export function GanttChart() {
     e.preventDefault();
     const dx = e.clientX - dragStartXRef.current;
     const dy = e.clientY - dragStartYRef.current;
-    if (DEBUG) {
-      // eslint-disable-next-line no-console
-      console.log("onMouseMove", {
-        button: dragButtonRef.current,
-        dx,
-        dy,
-      });
-    }
 
     // Vertical-only panning (middle mouse OR Shift+left)
     if (dragModeRef.current === "vertical") {
@@ -204,16 +190,6 @@ export function GanttChart() {
       const maxScroll = Math.max(0, contentHeight - visibleHeight);
       const unclamped = dragStartVScrollRef.current - dy;
       const next = Math.max(0, Math.min(maxScroll, unclamped));
-      if (DEBUG) {
-        // eslint-disable-next-line no-console
-        console.log("vertical scroll", {
-          from: vScroll,
-          to: next,
-          visibleHeight,
-          contentHeight,
-          maxScroll,
-        });
-      }
       setVScroll(next);
       return;
     }
@@ -235,20 +211,12 @@ export function GanttChart() {
       const deltaMs = t0 - t1; // dragging right moves left in time
       const newStart = dragStartViewRef.current[0] + deltaMs;
       const newEnd = dragStartViewRef.current[1] + deltaMs;
-      if (DEBUG) {
-        // eslint-disable-next-line no-console
-        console.log("horizontal pan", { newStart, newEnd });
-      }
       setViewRange(newStart, newEnd);
     }
   }
 
   function onMouseUp() {
     dragStartViewRef.current = null;
-    if (DEBUG) {
-      // eslint-disable-next-line no-console
-      console.log("onMouseUp");
-    }
     window.removeEventListener("mousemove", onMouseMove as any);
   }
 
@@ -372,47 +340,20 @@ export function GanttChart() {
           minWidth: 0,
           boxSizing: "border-box",
           overflowX: "hidden",
-          overflowY: "auto",
+          overflowY: "hidden",
         }}
       >
         <svg
           ref={svgRef}
           width={Math.floor(chartWidth)}
           height={height}
+          data-export-id="gantt"
           onMouseDown={onMouseDown}
-          onAuxClick={(e) => {
-            // Capture middle click to prevent browser auto-scroll and log it
-            if (e.button === 1) {
-              e.preventDefault();
-              e.stopPropagation();
-              if (DEBUG) {
-                // eslint-disable-next-line no-console
-                console.log("onAuxClick middle", {
-                  x: e.clientX,
-                  y: e.clientY,
-                });
-              }
-            }
-          }}
+          onAuxClick={() => {}}
           onWheel={onWheel}
           style={{ cursor: "grab", display: "block" }}
         >
-          {/* clip to visible chart area for manual vertical scroll (exclude gap above header) */}
-          <defs>
-            <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
-              <rect
-                x={0}
-                y={margin.top + headerHeight}
-                width={Math.floor(chartWidth)}
-                height={Math.max(
-                  0,
-                  (containerRef.current?.clientHeight ?? height) -
-                    margin.top -
-                    headerHeight
-                )}
-              />
-            </clipPath>
-          </defs>
+          {/* clip path intentionally unused; header overlay ensures bars cannot cover the timescale */}
           {/* Draw grid lines behind bars (weeks/months) before bars layer */}
           <g transform={`translate(0, ${margin.top})`}>
             {headerSegments.bottom.map((seg, i) => {
@@ -429,12 +370,18 @@ export function GanttChart() {
               );
             })}
             {/* solid mask above the timescale to cover any bleed from below */}
-            <rect x={0} y={-margin.top} width={Math.floor(chartWidth)} height={margin.top} fill="#f5f5f5" />
+            <rect
+              x={0}
+              y={-margin.top}
+              width={Math.floor(chartWidth)}
+              height={margin.top}
+              fill="#f5f5f5"
+            />
           </g>
 
-          {/* Bars with manual vertical offset and clipping */}
+          {/* Bars layer: vertically translated; draw behind header overlay */}
           <g
-            clipPath={`url(#${clipId})`}
+            {...(DISABLE_CLIP ? {} : ({ clipPath: `url(#${clipId})` } as any))}
             transform={`translate(0, ${margin.top + headerHeight - Math.floor(vScroll)})`}
             style={{ pointerEvents: "none" }}
           >
@@ -467,11 +414,19 @@ export function GanttChart() {
             })}
           </g>
 
-          {/* Render header last to keep it visually on top of bars */}
+          {/* Header overlay: always on top to mask bars underneath */}
           <g
             transform={`translate(0, ${margin.top})`}
             style={{ pointerEvents: "none" }}
           >
+            {/* fill gap above timescale to prevent any peek-through */}
+            <rect
+              x={0}
+              y={-margin.top}
+              width={Math.floor(chartWidth)}
+              height={margin.top}
+              fill="#ecf0f1"
+            />
             {/* background mask to ensure bars never show through the timescale */}
             <rect
               x={0}
