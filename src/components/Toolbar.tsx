@@ -17,6 +17,7 @@ export function Toolbar() {
   const setViewRange = useScheduleStore((s) => s.setViewRange);
   const setRangeOpen = useScheduleStore((s) => s.setRangeOpen);
   const setExportOpen = useScheduleStore((s) => s.setExportOpen);
+  const setSettingsOpen = useScheduleStore((s) => s.setSettingsOpen);
 
   async function handleImport(file: File) {
     setStatus("loading");
@@ -106,6 +107,9 @@ export function Toolbar() {
       </Button>
       <Button size="small" variant="contained" sx={btnSx}>
         Save Config
+      </Button>
+      <Button size="small" variant="contained" sx={btnSx} onClick={() => setSettingsOpen(true)}>
+        Settings
       </Button>
       <Divider
         flexItem

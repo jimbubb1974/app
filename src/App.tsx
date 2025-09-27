@@ -9,6 +9,7 @@ import { StatusBar } from "./components/StatusBar";
 import { TimescaleDialog } from "./components/TimescaleDialog";
 import { RangeDialog } from "./components/RangeDialog";
 import { ExportDialog } from "./components/ExportDialog";
+import { SettingsDialog } from "./components/SettingsDialog";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
       <TimescaleDialog />
       <RangeDialog />
       <ExportDialog />
+      <SettingsDialog />
     </AppLayout>
   );
 }

@@ -32,6 +32,10 @@ interface ExportOptions {
   includeFooter: boolean;
   headerText: string;
   footerText: string;
+  includeChartTitle: boolean;
+  chartTitle: string;
+  includeChartCaption: boolean;
+  chartCaption: string;
   filename: string;
   pageSize: PageSize;
   orientation: Orientation;

@@ -22,6 +22,13 @@ type ScheduleState = {
   timescaleOpen: boolean;
   rangeOpen: boolean;
   exportOpen: boolean;
+  settingsOpen: boolean;
+  settings: {
+    activitySpacing: number;
+    fontSize: number;
+    fontFamily: string;
+    barHeight: number;
+  };
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -41,6 +48,13 @@ type ScheduleState = {
   setTimescaleOpen: (open: boolean) => void;
   setRangeOpen: (open: boolean) => void;
   setExportOpen: (open: boolean) => void;
+  setSettingsOpen: (open: boolean) => void;
+  setSettings: (settings: {
+    activitySpacing: number;
+    fontSize: number;
+    fontFamily: string;
+    barHeight: number;
+  }) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -62,6 +76,13 @@ export const useScheduleStore = create<ScheduleState>()(
       timescaleOpen: false,
       rangeOpen: false,
       exportOpen: false,
+      settingsOpen: false,
+      settings: {
+        activitySpacing: 28,
+        fontSize: 12,
+        fontFamily: "Arial, sans-serif",
+        barHeight: 20,
+      },
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
       setError: (error) => set({ error }),
@@ -104,6 +125,8 @@ export const useScheduleStore = create<ScheduleState>()(
       setTimescaleOpen: (open) => set({ timescaleOpen: open }),
       setRangeOpen: (open) => set({ rangeOpen: open }),
       setExportOpen: (open) => set({ exportOpen: open }),
+      setSettingsOpen: (open) => set({ settingsOpen: open }),
+      setSettings: (settings) => set({ settings }),
     }),
     {
       name: "planworks-ui",
@@ -115,6 +138,7 @@ export const useScheduleStore = create<ScheduleState>()(
         leftWidth: state.leftWidth,
         timescaleTop: state.timescaleTop,
         timescaleBottom: state.timescaleBottom,
+        settings: state.settings,
       }),
     }
   )

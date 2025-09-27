@@ -14,6 +14,7 @@ function parseISO(date: string): Date | null {
 export function GanttChart() {
   const data = useScheduleStore((s) => s.data);
   const activities: Activity[] = data?.activities ?? [];
+  const settings = useScheduleStore((s) => s.settings);
 
   //
 
@@ -53,7 +54,7 @@ export function GanttChart() {
 
   const headerHeight = 56; // two-tier header
   const monthRowHeight = 24; // upper row height to keep week lines below months
-  const height = Math.max(300, parsed.length * 28 + headerHeight + 40);
+  const height = Math.max(300, parsed.length * settings.activitySpacing + headerHeight + 40);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [viewportHeight, setViewportHeight] = useState<number>(400); // reserved for future viewport calculations
   const [vScroll, setVScroll] = useState<number>(0);
@@ -110,7 +111,7 @@ export function GanttChart() {
           Math.max(0, height - margin.bottom - (margin.top + headerHeight)),
         ])
         .padding(0.3),
-    [parsed, height]
+    [parsed, height, settings.activitySpacing]
   );
 
   //
@@ -392,19 +393,20 @@ export function GanttChart() {
               const barWidth = Math.max(2, xEnd - xStart);
               return (
                 <g key={`${a.id}-${i}`}>
-                  <rect
-                    x={xStart}
-                    y={yPos}
-                    width={barWidth}
-                    height={y.bandwidth()}
-                    rx={4}
-                    fill={a.isCritical ? "#e74c3c" : "#3498db"}
-                  />
+                       <rect
+                         x={xStart}
+                         y={yPos + (y.bandwidth() - settings.barHeight) / 2}
+                         width={barWidth}
+                         height={settings.barHeight}
+                         rx={4}
+                         fill={a.isCritical ? "#e74c3c" : "#3498db"}
+                       />
                   <text
                     x={xEnd + 6}
                     y={(yPos ?? 0) + y.bandwidth() / 2}
                     dominantBaseline="middle"
-                    fontSize={11}
+                    fontSize={settings.fontSize}
+                    fontFamily={settings.fontFamily}
                     fill="#2c3e50"
                   >
                     {a.name}
@@ -442,16 +444,17 @@ export function GanttChart() {
               const cx = (x1 + x2) / 2;
               return (
                 <g key={`m2-${i}`}>
-                  <text
-                    x={cx}
-                    y={14}
-                    textAnchor="middle"
-                    fill="#2c3e50"
-                    fontSize={12}
-                    fontWeight={600}
-                  >
-                    {seg.label}
-                  </text>
+                       <text
+                         x={cx}
+                         y={14}
+                         textAnchor="middle"
+                         fill="#2c3e50"
+                         fontSize={settings.fontSize}
+                         fontFamily={settings.fontFamily}
+                         fontWeight={600}
+                       >
+                         {seg.label}
+                       </text>
                   <line
                     x1={x2}
                     x2={x2}
@@ -469,15 +472,16 @@ export function GanttChart() {
               const cx = (x1 + x2) / 2;
               return (
                 <g key={`w2-${i}`}>
-                  <text
-                    x={cx}
-                    y={monthRowHeight + 12}
-                    textAnchor="middle"
-                    fill="#7f8c8d"
-                    fontSize={11}
-                  >
-                    {seg.label}
-                  </text>
+                       <text
+                         x={cx}
+                         y={monthRowHeight + 12}
+                         textAnchor="middle"
+                         fill="#7f8c8d"
+                         fontSize={settings.fontSize - 1}
+                         fontFamily={settings.fontFamily}
+                       >
+                         {seg.label}
+                       </text>
                   {/* separator inside header only (avoid overlaying bars) */}
                   <line
                     x1={x1}
