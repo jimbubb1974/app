@@ -16,7 +16,11 @@ export function GanttChart() {
   const activities: Activity[] = data?.activities ?? [];
   const settings = useScheduleStore((s) => s.settings);
   const selectedActivityId = useScheduleStore((s) => s.selectedActivityId);
+  const selectedActivityIds = useScheduleStore((s) => s.selectedActivityIds);
   const setSelectedActivity = useScheduleStore((s) => s.setSelectedActivity);
+  const toggleActivitySelection = useScheduleStore(
+    (s) => s.toggleActivitySelection
+  );
 
   //
 
@@ -413,7 +417,7 @@ export function GanttChart() {
                       a.customColor || (a.isCritical ? "#e74c3c" : "#3498db")
                     }
                     stroke={
-                      selectedActivityId === a.id
+                      selectedActivityIds.includes(a.id)
                         ? "#2c3e50"
                         : a.barStyle === "dashed" || a.barStyle === "dotted"
                           ? a.customColor ||
@@ -421,7 +425,7 @@ export function GanttChart() {
                           : "none"
                     }
                     strokeWidth={
-                      selectedActivityId === a.id
+                      selectedActivityIds.includes(a.id)
                         ? 3
                         : a.barStyle === "dashed" || a.barStyle === "dotted"
                           ? 2
@@ -435,7 +439,13 @@ export function GanttChart() {
                           : "none"
                     }
                     style={{ cursor: "pointer" }}
-                    onClick={() => setSelectedActivity(a.id)}
+                    onClick={(e) => {
+                      if (e.shiftKey) {
+                        toggleActivitySelection(a.id);
+                      } else {
+                        setSelectedActivity(a.id);
+                      }
+                    }}
                   />
                   {a.showLabel !== false && (
                     <text

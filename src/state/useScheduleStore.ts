@@ -31,6 +31,7 @@ type ScheduleState = {
   };
   // Activity selection
   selectedActivityId: string | null;
+  selectedActivityIds: string[]; // Multi-selection support
   // Source file tracking
   sourceFile: {
     type: "XER" | "JSON" | "unknown";
@@ -64,8 +65,15 @@ type ScheduleState = {
     barHeight: number;
   }) => void;
   setSelectedActivity: (id: string | null) => void;
+  setSelectedActivities: (ids: string[]) => void;
+  toggleActivitySelection: (id: string) => void;
   updateActivityProperty: (
     id: string,
+    property: keyof Activity,
+    value: any
+  ) => void;
+  updateMultipleActivities: (
+    ids: string[],
     property: keyof Activity,
     value: any
   ) => void;
@@ -105,6 +113,7 @@ export const useScheduleStore = create<ScheduleState>()(
         barHeight: 20,
       },
       selectedActivityId: null,
+      selectedActivityIds: [],
       sourceFile: null,
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
@@ -150,13 +159,57 @@ export const useScheduleStore = create<ScheduleState>()(
       setExportOpen: (open) => set({ exportOpen: open }),
       setSettingsOpen: (open) => set({ settingsOpen: open }),
       setSettings: (settings) => set({ settings }),
-      setSelectedActivity: (id) => set({ selectedActivityId: id }),
+      setSelectedActivity: (id) =>
+        set({ selectedActivityId: id, selectedActivityIds: id ? [id] : [] }),
+      setSelectedActivities: (ids) =>
+        set({
+          selectedActivityIds: ids,
+          selectedActivityId: ids.length === 1 ? ids[0] : null,
+        }),
+      toggleActivitySelection: (id) => {
+        const state = get();
+        const currentIds = state.selectedActivityIds;
+        const isSelected = currentIds.includes(id);
+
+        if (isSelected) {
+          // Remove from selection
+          const newIds = currentIds.filter((selectedId) => selectedId !== id);
+          set({
+            selectedActivityIds: newIds,
+            selectedActivityId: newIds.length === 1 ? newIds[0] : null,
+          });
+        } else {
+          // Add to selection
+          const newIds = [...currentIds, id];
+          set({
+            selectedActivityIds: newIds,
+            selectedActivityId: newIds.length === 1 ? newIds[0] : null,
+          });
+        }
+      },
       updateActivityProperty: (id, property, value) => {
         const state = get();
         if (!state.data) return;
 
         const updatedActivities = state.data.activities.map((activity) =>
           activity.id === id ? { ...activity, [property]: value } : activity
+        );
+
+        set({
+          data: {
+            ...state.data,
+            activities: updatedActivities,
+          },
+        });
+      },
+      updateMultipleActivities: (ids, property, value) => {
+        const state = get();
+        if (!state.data) return;
+
+        const updatedActivities = state.data.activities.map((activity) =>
+          ids.includes(activity.id)
+            ? { ...activity, [property]: value }
+            : activity
         );
 
         set({
