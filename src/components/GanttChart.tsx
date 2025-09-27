@@ -451,7 +451,10 @@ export function GanttChart() {
           </g>
 
           {/* Render header last to keep it visually on top of bars */}
-          <g transform={`translate(0, ${margin.top})`} style={{ pointerEvents: "none" }}>
+          <g
+            transform={`translate(0, ${margin.top})`}
+            style={{ pointerEvents: "none" }}
+          >
             {/* background mask to ensure bars never show through the timescale */}
             <rect
               x={0}

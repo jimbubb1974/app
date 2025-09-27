@@ -17,7 +17,7 @@ function App() {
         display="flex"
         flex={1}
         bgcolor="#fff"
-        sx={{ minWidth: 0, boxSizing: "border-box" }}
+        sx={{ minWidth: 0, boxSizing: "border-box", overflow: "hidden" }}
       >
         <LeftPanel />
         <GanttChart />

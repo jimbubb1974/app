@@ -80,6 +80,8 @@ export function Toolbar() {
         position: "sticky",
         top: 0,
         zIndex: 5,
+        flexShrink: 0,
+        minHeight: 40,
       }}
     >
       <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
