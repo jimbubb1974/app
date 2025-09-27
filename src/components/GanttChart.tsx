@@ -117,12 +117,14 @@ export function GanttChart() {
   const dragStartViewRef = useRef<[number, number] | null>(null);
   const dragStartScrollTopRef = useRef(0);
   const dragButtonRef = useRef<number>(0);
+  const dragModeRef = useRef<"horizontal" | "vertical">("horizontal");
 
   function onMouseDown(e: React.MouseEvent<SVGSVGElement>) {
     if (viewStart === undefined || viewEnd === undefined) return;
     e.preventDefault();
     e.stopPropagation();
     dragButtonRef.current = e.button; // 0=left, 1=middle, 2=right
+    dragModeRef.current = e.button === 1 || e.shiftKey ? "vertical" : "horizontal";
     dragStartXRef.current = e.clientX;
     dragStartYRef.current = e.clientY;
     dragStartViewRef.current = [viewStart, viewEnd];
@@ -159,22 +161,25 @@ export function GanttChart() {
       });
     }
 
-    // Middle mouse: vertical-only panning (scroll activities)
-    if (dragButtonRef.current === 1) {
+    // Vertical-only panning (middle mouse OR Shift+left)
+    if (dragModeRef.current === "vertical") {
       const container = containerRef.current;
       if (container) {
         const next = dragStartScrollTopRef.current - dy;
         if (DEBUG) {
           // eslint-disable-next-line no-console
-          console.log("vertical scroll", { from: container.scrollTop, to: next });
+          console.log("vertical scroll", {
+            from: container.scrollTop,
+            to: next,
+          });
         }
         container.scrollTop = next;
       }
       return;
     }
 
-    // Left mouse: horizontal panning (time)
-    if (dragButtonRef.current === 0) {
+    // Horizontal panning (time)
+    if (dragModeRef.current === "horizontal") {
       const domain = [
         new Date(dragStartViewRef.current[0]),
         new Date(dragStartViewRef.current[1]),
@@ -339,7 +344,10 @@ export function GanttChart() {
               e.stopPropagation();
               if (DEBUG) {
                 // eslint-disable-next-line no-console
-                console.log("onAuxClick middle", { x: e.clientX, y: e.clientY });
+                console.log("onAuxClick middle", {
+                  x: e.clientX,
+                  y: e.clientY,
+                });
               }
             }
           }}
@@ -417,13 +425,13 @@ export function GanttChart() {
           </g>
 
           {/* Bars */}
-          {parsed.map((a) => {
+          {parsed.map((a, i) => {
             const yPos = y(a.id) ?? 0;
             const xStart = x(a.startDate);
             const xEnd = x(a.finishDate);
             const barWidth = Math.max(2, xEnd - xStart);
             return (
-              <g key={a.id}>
+              <g key={`${a.id}-${i}`}>
                 <rect
                   x={xStart}
                   y={yPos}
