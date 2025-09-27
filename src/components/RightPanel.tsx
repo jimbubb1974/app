@@ -325,9 +325,11 @@ function ActivityProperties({
   };
 
   const handleLabelPositionChange = (
-    position: "left" | "right" | "top" | "bottom" | "bar" | "none"
+    position: "left" | "right" | "top" | "bottom" | "bar" | "none" | "mixed"
   ) => {
-    onUpdate("labelPosition", position);
+    if (position !== "mixed") {
+      onUpdate("labelPosition", position);
+    }
   };
 
   const handleReset = () => {
@@ -835,9 +837,11 @@ function MultiActivityProperties({
   };
 
   const handleLabelPositionChange = (
-    position: "left" | "right" | "top" | "bottom" | "bar" | "none"
+    position: "left" | "right" | "top" | "bottom" | "bar" | "none" | "mixed"
   ) => {
-    onUpdate("labelPosition", position);
+    if (position !== "mixed") {
+      onUpdate("labelPosition", position);
+    }
   };
 
   const handleReset = () => {
@@ -1052,7 +1056,16 @@ function MultiActivityProperties({
                   <InputLabel>Label Position</InputLabel>
                   <Select
                     label="Label Position"
-                    value="right"
+                    value={(() => {
+                      // Check if all activities have the same label position
+                      const positions = activities.map(
+                        (a) => a.labelPosition || "right"
+                      );
+                      const uniquePositions = [...new Set(positions)];
+                      return uniquePositions.length === 1
+                        ? uniquePositions[0]
+                        : "mixed";
+                    })()}
                     onChange={(e) =>
                       handleLabelPositionChange(
                         e.target.value as
@@ -1065,6 +1078,9 @@ function MultiActivityProperties({
                       )
                     }
                   >
+                    <MenuItem value="mixed" disabled>
+                      Mixed (select activities individually)
+                    </MenuItem>
                     <MenuItem value="left">Left</MenuItem>
                     <MenuItem value="right">Right</MenuItem>
                     <MenuItem value="top">Top</MenuItem>
