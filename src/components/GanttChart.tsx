@@ -388,7 +388,9 @@ export function GanttChart() {
                 width={Math.floor(chartWidth)}
                 height={Math.max(
                   0,
-                  (containerRef.current?.clientHeight ?? height) - margin.top - headerHeight
+                  (containerRef.current?.clientHeight ?? height) -
+                    margin.top -
+                    headerHeight
                 )}
               />
             </clipPath>
@@ -466,7 +468,7 @@ export function GanttChart() {
           {/* Bars with manual vertical offset and clipping */}
           <g
             clipPath={`url(#${clipId})`}
-            transform={`translate(0, ${-vScroll})`}
+            transform={`translate(0, ${margin.top + headerHeight - vScroll})`}
           >
             {parsed.map((a, i) => {
               const yPos = y(a.id) ?? 0;
