@@ -51,7 +51,9 @@ export function GanttChart() {
 
   const headerHeight = 56; // two-tier header
   const monthRowHeight = 24; // upper row height to keep week lines below months
-  const height = Math.max(300, parsed.length * 28 + headerHeight + 40);
+  const [containerHeight, setContainerHeight] = useState<number>(400);
+  const contentHeight = Math.max(300, parsed.length * 28 + headerHeight + 40);
+  const height = Math.max(contentHeight, containerHeight + 200); // ensure some vertical scroll room
   const [chartWidth, setChartWidth] = useState<number>(800);
   const margin = { top: 16, right: 20, bottom: 20, left: 20 };
 
@@ -103,10 +105,12 @@ export function GanttChart() {
       for (const entry of entries) {
         const cr = entry.contentRect;
         setChartWidth(Math.max(320, Math.floor(cr.width)));
+        setContainerHeight(Math.max(200, Math.floor(cr.height)));
       }
     });
     ro.observe(el);
     setChartWidth(Math.max(320, el.clientWidth));
+    setContainerHeight(Math.max(200, el.clientHeight));
     return () => ro.disconnect();
   }, []);
 
@@ -143,11 +147,14 @@ export function GanttChart() {
       // eslint-disable-next-line no-console
       console.log("onMouseDown", {
         button: e.button,
+        shift: e.shiftKey,
         x: e.clientX,
         y: e.clientY,
         viewStart,
         viewEnd,
         scrollTop: dragStartScrollTopRef.current,
+        clientHeight: container?.clientHeight,
+        scrollHeight: container?.scrollHeight,
       });
     }
     window.addEventListener("mousemove", onMouseMove as any, {
@@ -174,12 +181,14 @@ export function GanttChart() {
     if (dragModeRef.current === "vertical") {
       const container = containerRef.current;
       if (container) {
-        const next = dragStartScrollTopRef.current - dy;
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        const next = Math.max(0, Math.min(maxScroll, dragStartScrollTopRef.current - dy));
         if (DEBUG) {
           // eslint-disable-next-line no-console
           console.log("vertical scroll", {
             from: container.scrollTop,
             to: next,
+            maxScroll,
           });
         }
         container.scrollTop = next;
