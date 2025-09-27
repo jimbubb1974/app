@@ -1,4 +1,6 @@
-import { Box, Typography } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useMemo } from "react";
 import { useScheduleStore } from "../state/useScheduleStore";
 import type { Activity } from "../types/schedule";
@@ -40,16 +42,38 @@ function buildTree(activities: Activity[]): TreeNode[] {
 
 export function LeftPanel() {
   const data = useScheduleStore((s) => s.data);
+  const open = useScheduleStore((s) => s.leftOpen);
+  const width = useScheduleStore((s) => s.leftWidth);
+  const toggle = useScheduleStore((s) => s.toggleLeft);
+  const setWidth = useScheduleStore((s) => s.setLeftWidth);
   const tree = useMemo(() => buildTree(data?.activities ?? []), [data]);
+
+  if (!open) {
+    return (
+      <Box
+        width={28}
+        bgcolor="#ecf0f1"
+        borderRight="2px solid #bdc3c7"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        sx={{ boxSizing: "border-box" }}
+      >
+        <IconButton size="small" onClick={toggle} aria-label="Open activity list">
+          <ChevronRightIcon fontSize="small" />
+        </IconButton>
+      </Box>
+    );
+  }
 
   return (
     <Box
-      width={280}
+      width={width}
       bgcolor="#ecf0f1"
       display="flex"
       flexDirection="column"
       borderRight="2px solid #bdc3c7"
-      sx={{ boxSizing: "border-box" }}
+      sx={{ boxSizing: "border-box", position: "relative" }}
     >
       <Box
         px={1.5}
@@ -63,8 +87,35 @@ export function LeftPanel() {
         <Typography variant="subtitle2" fontWeight={700}>
           Activity List
         </Typography>
-        <Box component="span">⚙</Box>
+        <IconButton size="small" onClick={toggle} aria-label="Close activity list" sx={{ color: '#fff' }}>
+          <ChevronLeftIcon fontSize="small" />
+        </IconButton>
       </Box>
+      {/* Resizer handle on the right edge of the panel */}
+      <Box
+        onMouseDown={(e) => {
+          const startX = e.clientX;
+          const startW = width;
+          function onMove(ev: MouseEvent) {
+            setWidth(startW + (ev.clientX - startX));
+          }
+          function onUp() {
+            window.removeEventListener("mousemove", onMove);
+            window.removeEventListener("mouseup", onUp);
+          }
+          window.addEventListener("mousemove", onMove);
+          window.addEventListener("mouseup", onUp, { once: true });
+        }}
+        sx={{
+          position: "absolute",
+          right: -4,
+          top: 0,
+          bottom: 0,
+          width: 8,
+          cursor: "col-resize",
+          zIndex: 2,
+        }}
+      />
       <Box flex={1} overflow="auto" p={1}>
         {tree.length === 0 && (
           <Typography variant="body2" color="text.secondary">

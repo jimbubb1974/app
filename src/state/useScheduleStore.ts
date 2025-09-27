@@ -13,6 +13,8 @@ type ScheduleState = {
   // UI state
   propertiesOpen: boolean;
   propertiesWidth: number; // px
+  leftOpen: boolean;
+  leftWidth: number; // px
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -25,6 +27,9 @@ type ScheduleState = {
   setPropertiesOpen: (open: boolean) => void;
   toggleProperties: () => void;
   setPropertiesWidth: (width: number) => void;
+  setLeftOpen: (open: boolean) => void;
+  toggleLeft: () => void;
+  setLeftWidth: (width: number) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>((set, get) => ({
@@ -37,6 +42,8 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
   viewEnd: undefined,
   propertiesOpen: true,
   propertiesWidth: 300,
+  leftOpen: true,
+  leftWidth: 280,
   setData: (data) => set({ data }),
   setStatus: (status) => set({ status }),
   setError: (error) => set({ error }),
@@ -62,5 +69,10 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
   },
   setPropertiesOpen: (open) => set({ propertiesOpen: open }),
   toggleProperties: () => set((s) => ({ propertiesOpen: !s.propertiesOpen })),
-  setPropertiesWidth: (width) => set({ propertiesWidth: Math.max(220, Math.min(560, Math.round(width))) }),
+  setPropertiesWidth: (width) =>
+    set({ propertiesWidth: Math.max(220, Math.min(560, Math.round(width))) }),
+  setLeftOpen: (open) => set({ leftOpen: open }),
+  toggleLeft: () => set((s) => ({ leftOpen: !s.leftOpen })),
+  setLeftWidth: (width) =>
+    set({ leftWidth: Math.max(200, Math.min(520, Math.round(width))) }),
 }));

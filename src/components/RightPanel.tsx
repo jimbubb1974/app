@@ -34,7 +34,7 @@ export function RightPanel() {
       display="flex"
       flexDirection="column"
       borderLeft="2px solid #bdc3c7"
-      sx={{ boxSizing: "border-box", position: 'relative' }}
+      sx={{ boxSizing: "border-box", position: "relative" }}
     >
       <Box
         px={1.5}
