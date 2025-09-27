@@ -47,7 +47,7 @@ export function GanttChart() {
     return [start, end] as [Date, Date];
   }, [parsed]);
 
-  const DEBUG = true;
+  const DEBUG = false;
 
   const headerHeight = 56; // two-tier header
   const monthRowHeight = 24; // upper row height to keep week lines below months
@@ -55,7 +55,10 @@ export function GanttChart() {
   const [viewportHeight, setViewportHeight] = useState<number>(400);
   const [vScroll, setVScroll] = useState<number>(0);
   const dragStartVScrollRef = useRef(0);
-  const clipId = useMemo(() => `gclip-${Math.random().toString(36).slice(2)}`, []);
+  const clipId = useMemo(
+    () => `gclip-${Math.random().toString(36).slice(2)}`,
+    []
+  );
   const [chartWidth, setChartWidth] = useState<number>(800);
   const margin = { top: 16, right: 20, bottom: 20, left: 20 };
 
@@ -138,8 +141,7 @@ export function GanttChart() {
     e.preventDefault();
     e.stopPropagation();
     dragButtonRef.current = e.button; // 0=left, 1=middle, 2=right
-    dragModeRef.current =
-      e.button === 1 || e.shiftKey ? "vertical" : "horizontal";
+    dragModeRef.current = "horizontal"; // disable vertical panning for now
     dragStartXRef.current = e.clientX;
     dragStartYRef.current = e.clientY;
     dragStartViewRef.current = [viewStart, viewEnd];
@@ -185,10 +187,16 @@ export function GanttChart() {
       const container = containerRef.current;
       const svg = svgRef.current;
       const visibleTop = margin.top + headerHeight;
-      const visibleHeight = Math.max(0, (container?.clientHeight ?? 0) - visibleTop - margin.bottom);
+      const visibleHeight = Math.max(
+        0,
+        (container?.clientHeight ?? 0) - visibleTop - margin.bottom
+      );
       const contentHeight = Math.max(0, height - visibleTop - margin.bottom);
       const maxScroll = Math.max(0, contentHeight - visibleHeight);
-      const next = Math.max(0, Math.min(maxScroll, dragStartVScrollRef.current - dy));
+      const next = Math.max(
+        0,
+        Math.min(maxScroll, dragStartVScrollRef.current - dy)
+      );
       if (DEBUG) {
         // eslint-disable-next-line no-console
         console.log("vertical scroll", {
@@ -393,7 +401,10 @@ export function GanttChart() {
                 x={0}
                 y={margin.top}
                 width={Math.floor(chartWidth)}
-                height={Math.max(0, (containerRef.current?.clientHeight ?? height) - margin.top)}
+                height={Math.max(
+                  0,
+                  (containerRef.current?.clientHeight ?? height) - margin.top
+                )}
               />
             </clipPath>
           </defs>
@@ -468,7 +479,10 @@ export function GanttChart() {
           </g>
 
           {/* Bars with manual vertical offset and clipping */}
-          <g clipPath={`url(#${clipId})`} transform={`translate(0, ${-vScroll})`}>
+          <g
+            clipPath={`url(#${clipId})`}
+            transform={`translate(0, ${-vScroll})`}
+          >
             {parsed.map((a, i) => {
               const yPos = y(a.id) ?? 0;
               const xStart = x(a.startDate);
