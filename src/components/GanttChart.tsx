@@ -111,11 +111,13 @@ export function GanttChart() {
     return () => window.removeEventListener("resize", measure);
   }, []);
   let dragStartX = 0;
+  let dragStartY = 0;
   let dragStartView: [number, number] | null = null;
 
   function onMouseDown(e: React.MouseEvent<SVGSVGElement>) {
     if (viewStart === undefined || viewEnd === undefined) return;
     dragStartX = e.clientX;
+    dragStartY = e.clientY;
     dragStartView = [viewStart, viewEnd];
     window.addEventListener("mousemove", onMouseMove as any);
     window.addEventListener("mouseup", onMouseUp as any, { once: true });
@@ -124,6 +126,9 @@ export function GanttChart() {
   function onMouseMove(e: MouseEvent) {
     if (!dragStartView) return;
     const dx = e.clientX - dragStartX;
+    const dy = e.clientY - dragStartY;
+    
+    // Handle horizontal panning (time)
     const domain = [
       new Date(dragStartView[0]),
       new Date(dragStartView[1]),
@@ -140,6 +145,14 @@ export function GanttChart() {
     const deltaMs = t0 - t1; // dragging right moves left in time
     const newStart = dragStartView[0] + deltaMs;
     const newEnd = dragStartView[1] + deltaMs;
+    
+    // Handle vertical panning (activities) - scroll the container
+    const container = containerRef.current;
+    if (container && Math.abs(dy) > 0) {
+      const currentScrollTop = container.scrollTop;
+      container.scrollTop = currentScrollTop - dy;
+    }
+    
     setViewRange(newStart, newEnd);
   }
 
