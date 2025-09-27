@@ -110,31 +110,33 @@ export function GanttChart() {
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, []);
-  let dragStartX = 0;
-  let dragStartY = 0;
-  let dragStartView: [number, number] | null = null;
-  let dragStartScrollTop = 0;
+  const dragStartXRef = useRef(0);
+  const dragStartYRef = useRef(0);
+  const dragStartViewRef = useRef<[number, number] | null>(null);
+  const dragStartScrollTopRef = useRef(0);
 
   function onMouseDown(e: React.MouseEvent<SVGSVGElement>) {
     if (viewStart === undefined || viewEnd === undefined) return;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    dragStartView = [viewStart, viewEnd];
+    e.preventDefault();
+    dragStartXRef.current = e.clientX;
+    dragStartYRef.current = e.clientY;
+    dragStartViewRef.current = [viewStart, viewEnd];
     const container = containerRef.current;
-    dragStartScrollTop = container ? container.scrollTop : 0;
-    window.addEventListener("mousemove", onMouseMove as any);
+    dragStartScrollTopRef.current = container ? container.scrollTop : 0;
+    window.addEventListener("mousemove", onMouseMove as any, { passive: false });
     window.addEventListener("mouseup", onMouseUp as any, { once: true });
   }
 
   function onMouseMove(e: MouseEvent) {
-    if (!dragStartView) return;
-    const dx = e.clientX - dragStartX;
-    const dy = e.clientY - dragStartY;
-    
+    if (!dragStartViewRef.current) return;
+    e.preventDefault();
+    const dx = e.clientX - dragStartXRef.current;
+    const dy = e.clientY - dragStartYRef.current;
+
     // Handle horizontal panning (time)
     const domain = [
-      new Date(dragStartView[0]),
-      new Date(dragStartView[1]),
+      new Date(dragStartViewRef.current[0]),
+      new Date(dragStartViewRef.current[1]),
     ] as const;
     const tempScale = scaleTime()
       .domain(domain)
@@ -146,20 +148,20 @@ export function GanttChart() {
     const t0 = tempScale.invert(0).getTime();
     const t1 = tempScale.invert(dx).getTime();
     const deltaMs = t0 - t1; // dragging right moves left in time
-    const newStart = dragStartView[0] + deltaMs;
-    const newEnd = dragStartView[1] + deltaMs;
-    
+    const newStart = dragStartViewRef.current[0] + deltaMs;
+    const newEnd = dragStartViewRef.current[1] + deltaMs;
+
     // Handle vertical panning (activities) - scroll the container
     const container = containerRef.current;
     if (container) {
-      container.scrollTop = dragStartScrollTop - dy;
+      container.scrollTop = dragStartScrollTopRef.current - dy;
     }
-    
+
     setViewRange(newStart, newEnd);
   }
 
   function onMouseUp() {
-    dragStartView = null;
+    dragStartViewRef.current = null;
     window.removeEventListener("mousemove", onMouseMove as any);
   }
 
