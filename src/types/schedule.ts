@@ -13,7 +13,7 @@ export type Activity = {
 export type Relationship = {
   predecessorId: string;
   successorId: string;
-  type?: 'FS' | 'SS' | 'FF' | 'SF';
+  type?: "FS" | "SS" | "FF" | "SF";
   lagDays?: number;
 };
 
@@ -23,6 +23,4 @@ export type ProjectData = {
   relationships?: Relationship[];
 };
 
-export type LoadStatus = 'idle' | 'loading' | 'loaded' | 'error';
-
-
+export type LoadStatus = "idle" | "loading" | "loaded" | "error";

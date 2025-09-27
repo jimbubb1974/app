@@ -1,11 +1,11 @@
-import './App.css';
-import { Box } from '@mui/material';
-import { AppLayout } from './components/AppLayout';
-import { Toolbar } from './components/Toolbar';
-import { LeftPanel } from './components/LeftPanel';
-import { GanttChart } from './components/GanttChart';
-import { RightPanel } from './components/RightPanel';
-import { StatusBar } from './components/StatusBar';
+import "./App.css";
+import { Box } from "@mui/material";
+import { AppLayout } from "./components/AppLayout";
+import { Toolbar } from "./components/Toolbar";
+import { LeftPanel } from "./components/LeftPanel";
+import { GanttChart } from "./components/GanttChart";
+import { RightPanel } from "./components/RightPanel";
+import { StatusBar } from "./components/StatusBar";
 
 function App() {
   return (
@@ -21,4 +21,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

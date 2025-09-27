@@ -1,5 +1,5 @@
-import { PropsWithChildren } from 'react';
-import { Box } from '@mui/material';
+import { PropsWithChildren } from "react";
+import { Box } from "@mui/material";
 
 export function AppLayout({ children }: PropsWithChildren) {
   return (
@@ -8,5 +8,3 @@ export function AppLayout({ children }: PropsWithChildren) {
     </Box>
   );
 }
-
-

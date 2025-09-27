@@ -1,22 +1,55 @@
-import { create } from 'zustand';
-import type { LoadStatus, ProjectData } from '../types/schedule';
+import { create } from "zustand";
+import type { LoadStatus, ProjectData } from "../types/schedule";
 
 type ScheduleState = {
   data: ProjectData | null;
   status: LoadStatus;
   error?: string;
+  // Data extents and current view window (ms since epoch)
+  dataMin?: number;
+  dataMax?: number;
+  viewStart?: number;
+  viewEnd?: number;
+  // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
   setError: (e?: string) => void;
+  setExtents: (min?: number, max?: number) => void;
+  setViewRange: (start?: number, end?: number) => void;
+  fitAll: () => void;
+  zoom: (factor: number) => void; // <1 zoom in, >1 zoom out
+  panMs: (deltaMs: number) => void;
 };
 
-export const useScheduleStore = create<ScheduleState>((set) => ({
+export const useScheduleStore = create<ScheduleState>((set, get) => ({
   data: null,
-  status: 'idle',
+  status: "idle",
   error: undefined,
+  dataMin: undefined,
+  dataMax: undefined,
+  viewStart: undefined,
+  viewEnd: undefined,
   setData: (data) => set({ data }),
   setStatus: (status) => set({ status }),
   setError: (error) => set({ error }),
+  setExtents: (min, max) => set({ dataMin: min, dataMax: max }),
+  setViewRange: (start, end) => set({ viewStart: start, viewEnd: end }),
+  fitAll: () => {
+    const { dataMin, dataMax } = get();
+    if (dataMin !== undefined && dataMax !== undefined) {
+      set({ viewStart: dataMin, viewEnd: dataMax });
+    }
+  },
+  zoom: (factor) => {
+    const { viewStart, viewEnd } = get();
+    if (viewStart === undefined || viewEnd === undefined) return;
+    const center = (viewStart + viewEnd) / 2;
+    const half = ((viewEnd - viewStart) / 2) * factor;
+    set({ viewStart: center - half, viewEnd: center + half });
+  },
+  panMs: (deltaMs) => {
+    const { viewStart, viewEnd } = get();
+    if (viewStart === undefined || viewEnd === undefined) return;
+    set({ viewStart: viewStart + deltaMs, viewEnd: viewEnd + deltaMs });
+  },
 }));
-
-

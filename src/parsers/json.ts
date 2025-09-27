@@ -1,4 +1,4 @@
-import type { ProjectData } from '../types/schedule';
+import type { ProjectData } from "../types/schedule";
 
 export async function parseJson(file: File): Promise<ProjectData> {
   const text = await file.text();
@@ -12,5 +12,3 @@ export async function parseJson(file: File): Promise<ProjectData> {
   }
   return data as ProjectData;
 }
-
-

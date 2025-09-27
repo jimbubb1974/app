@@ -1,11 +1,20 @@
-import { Box } from '@mui/material';
-import { useScheduleStore } from '../state/useScheduleStore';
+import { Box } from "@mui/material";
+import { useScheduleStore } from "../state/useScheduleStore";
 
 export function StatusBar() {
   const data = useScheduleStore((s) => s.data);
   const count = data?.activities.length ?? 0;
   return (
-    <Box display="flex" justifyContent="space-between" alignItems="center" px={2} py={0.5} bgcolor="#34495e" color="#fff" fontSize={12}>
+    <Box
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      px={2}
+      py={0.5}
+      bgcolor="#34495e"
+      color="#fff"
+      fontSize={12}
+    >
       <Box display="flex" gap={4}>
         <span>Activities: {count}</span>
         <span>Critical Path: —</span>
@@ -15,5 +24,3 @@ export function StatusBar() {
     </Box>
   );
 }
-
-
