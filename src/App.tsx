@@ -11,6 +11,7 @@ import { RangeDialog } from "./components/RangeDialog";
 import { ExportDialog } from "./components/ExportDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { CriticalPathDialog } from "./components/CriticalPathDialog";
+import { FilterDialog } from "./components/FilterDialog";
 import { useScheduleStore } from "./state/useScheduleStore";
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
       <ExportDialog />
       <SettingsDialog />
       <CriticalPathDialog />
+      <FilterDialog />
 
       {/* Global Success Notification */}
       <Snackbar

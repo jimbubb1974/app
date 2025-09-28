@@ -5,6 +5,11 @@ import { useMemo } from "react";
 import { useScheduleStore } from "../state/useScheduleStore";
 import type { Activity } from "../types/schedule";
 
+function parseISO(date: string): Date | null {
+  const d = new Date(date);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 type TreeNode = {
   name: string;
   children?: TreeNode[];
@@ -46,7 +51,63 @@ export function LeftPanel() {
   const width = useScheduleStore((s) => s.leftWidth);
   const toggle = useScheduleStore((s) => s.toggleLeft);
   const setWidth = useScheduleStore((s) => s.setLeftWidth);
-  const tree = useMemo(() => buildTree(data?.activities ?? []), [data]);
+  const filterSettings = useScheduleStore((s) => s.filterSettings);
+
+  const filteredActivities = useMemo(() => {
+    const activities = data?.activities ?? [];
+
+    if (!filterSettings.enabled) {
+      return activities;
+    }
+
+    return activities.filter((activity) => {
+      // Name filter
+      if (
+        filterSettings.nameFilter &&
+        !activity.name
+          .toLowerCase()
+          .includes(filterSettings.nameFilter.toLowerCase())
+      ) {
+        return false;
+      }
+
+      // Critical path filter
+      if (filterSettings.criticalOnly && !activity.isCritical) {
+        return false;
+      }
+
+      // Date range filter
+      if (filterSettings.dateRange.enabled) {
+        const startDate = parseISO(activity.start);
+        const finishDate = parseISO(activity.finish);
+
+        if (!startDate || !finishDate) {
+          return false;
+        }
+
+        if (filterSettings.dateRange.startDate) {
+          const filterStart = new Date(filterSettings.dateRange.startDate);
+          if (finishDate < filterStart) {
+            return false;
+          }
+        }
+
+        if (filterSettings.dateRange.endDate) {
+          const filterEnd = new Date(filterSettings.dateRange.endDate);
+          if (startDate > filterEnd) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
+  }, [data?.activities, filterSettings]);
+
+  const tree = useMemo(
+    () => buildTree(filteredActivities),
+    [filteredActivities]
+  );
 
   if (!open) {
     return (

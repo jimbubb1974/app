@@ -66,6 +66,24 @@ type ScheduleState = {
     bottomTierCustomFormat: string;
   };
   logicLinesEnabled: boolean;
+  // Filter and sort state
+  filterOpen: boolean;
+  sortOpen: boolean;
+  filterSettings: {
+    enabled: boolean;
+    nameFilter: string;
+    criticalOnly: boolean;
+    dateRange: {
+      enabled: boolean;
+      startDate: string;
+      endDate: string;
+    };
+  };
+  sortSettings: {
+    enabled: boolean;
+    sortBy: "name" | "startDate" | "finishDate" | "duration" | "totalFloat";
+    sortOrder: "asc" | "desc";
+  };
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -137,6 +155,23 @@ type ScheduleState = {
     bottomTierCustomFormat: string;
   }) => void;
   setLogicLinesEnabled: (enabled: boolean) => void;
+  setFilterOpen: (open: boolean) => void;
+  setSortOpen: (open: boolean) => void;
+  setFilterSettings: (settings: {
+    enabled: boolean;
+    nameFilter: string;
+    criticalOnly: boolean;
+    dateRange: {
+      enabled: boolean;
+      startDate: string;
+      endDate: string;
+    };
+  }) => void;
+  setSortSettings: (settings: {
+    enabled: boolean;
+    sortBy: "name" | "startDate" | "finishDate" | "duration" | "totalFloat";
+    sortOrder: "asc" | "desc";
+  }) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -190,6 +225,24 @@ export const useScheduleStore = create<ScheduleState>()(
         bottomTierCustomFormat: "",
       },
       logicLinesEnabled: false,
+      // Filter and sort initial state
+      filterOpen: false,
+      sortOpen: false,
+      filterSettings: {
+        enabled: false,
+        nameFilter: "",
+        criticalOnly: false,
+        dateRange: {
+          enabled: false,
+          startDate: "",
+          endDate: "",
+        },
+      },
+      sortSettings: {
+        enabled: false,
+        sortBy: "name",
+        sortOrder: "asc",
+      },
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
       setError: (error) => set({ error }),
@@ -305,6 +358,10 @@ export const useScheduleStore = create<ScheduleState>()(
       setTimelineFormatSettings: (settings) =>
         set({ timelineFormatSettings: settings }),
       setLogicLinesEnabled: (enabled) => set({ logicLinesEnabled: enabled }),
+      setFilterOpen: (open) => set({ filterOpen: open }),
+      setSortOpen: (open) => set({ sortOpen: open }),
+      setFilterSettings: (settings) => set({ filterSettings: settings }),
+      setSortSettings: (settings) => set({ sortSettings: settings }),
     }),
     {
       name: "planworks-ui",
@@ -322,6 +379,8 @@ export const useScheduleStore = create<ScheduleState>()(
         criticalPathSettings: state.criticalPathSettings,
         timelineFormatSettings: state.timelineFormatSettings,
         logicLinesEnabled: state.logicLinesEnabled,
+        filterSettings: state.filterSettings,
+        sortSettings: state.sortSettings,
       }),
     }
   )

@@ -287,11 +287,12 @@ export function GanttChart() {
     (s) => s.toggleActivitySelection
   );
   const logicLinesEnabled = useScheduleStore((s) => s.logicLinesEnabled);
+  const filterSettings = useScheduleStore((s) => s.filterSettings);
 
   //
 
   const parsed = useMemo(() => {
-    return activities
+    let filtered = activities
       .map((a) => ({
         ...a,
         startDate: parseISO(a.start),
@@ -301,7 +302,51 @@ export function GanttChart() {
       startDate: Date;
       finishDate: Date;
     })[];
-  }, [activities]);
+
+    // Apply filtering if enabled
+    if (filterSettings.enabled) {
+      filtered = filtered.filter((activity) => {
+        // Name filter
+        if (
+          filterSettings.nameFilter &&
+          !activity.name
+            .toLowerCase()
+            .includes(filterSettings.nameFilter.toLowerCase())
+        ) {
+          return false;
+        }
+
+        // Critical path filter
+        if (filterSettings.criticalOnly && !activity.isCritical) {
+          return false;
+        }
+
+        // Date range filter
+        if (filterSettings.dateRange.enabled) {
+          const activityStart = activity.startDate;
+          const activityEnd = activity.finishDate;
+
+          if (filterSettings.dateRange.startDate) {
+            const filterStart = new Date(filterSettings.dateRange.startDate);
+            if (activityEnd < filterStart) {
+              return false;
+            }
+          }
+
+          if (filterSettings.dateRange.endDate) {
+            const filterEnd = new Date(filterSettings.dateRange.endDate);
+            if (activityStart > filterEnd) {
+              return false;
+            }
+          }
+        }
+
+        return true;
+      });
+    }
+
+    return filtered;
+  }, [activities, filterSettings]);
 
   const setExtents = useScheduleStore((s) => s.setExtents);
   const setViewRange = useScheduleStore((s) => s.setViewRange);

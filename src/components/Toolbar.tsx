@@ -22,6 +22,8 @@ import {
   Tune,
   ViewSidebar,
   AccountTree,
+  FilterList,
+  Sort,
 } from "@mui/icons-material";
 import { useScheduleStore } from "../state/useScheduleStore";
 import { useRef, useState } from "react";
@@ -46,6 +48,8 @@ export function Toolbar() {
   const setSourceFile = useScheduleStore((s) => s.setSourceFile);
   const logicLinesEnabled = useScheduleStore((s) => s.logicLinesEnabled);
   const setLogicLinesEnabled = useScheduleStore((s) => s.setLogicLinesEnabled);
+  const setFilterOpen = useScheduleStore((s) => s.setFilterOpen);
+  const setSortOpen = useScheduleStore((s) => s.setSortOpen);
 
   // Menu state
   const [fileMenuAnchor, setFileMenuAnchor] = useState<null | HTMLElement>(
@@ -62,6 +66,8 @@ export function Toolbar() {
   const [layoutMenuAnchor, setLayoutMenuAnchor] = useState<null | HTMLElement>(
     null
   );
+  const [filterSortMenuAnchor, setFilterSortMenuAnchor] =
+    useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -180,6 +186,14 @@ export function Toolbar() {
           onClick={(e) => handleMenuOpen(e, setLayoutMenuAnchor)}
         >
           Layout
+        </Button>
+
+        {/* Filter & Sort Menu */}
+        <Button
+          sx={menuButtonSx}
+          onClick={(e) => handleMenuOpen(e, setFilterSortMenuAnchor)}
+        >
+          Filter & Sort
         </Button>
       </Box>
 
@@ -383,6 +397,38 @@ export function Toolbar() {
             <ViewSidebar fontSize="small" />
           </ListItemIcon>
           <ListItemText>Toggle Properties</ListItemText>
+        </MenuItem>
+      </Menu>
+
+      {/* Filter & Sort Menu */}
+      <Menu
+        anchorEl={filterSortMenuAnchor}
+        open={Boolean(filterSortMenuAnchor)}
+        onClose={() => handleMenuClose(setFilterSortMenuAnchor)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <MenuItem
+          onClick={() => {
+            setFilterOpen(true);
+            handleMenuClose(setFilterSortMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <FilterList fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Filter Activities</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setSortOpen(true);
+            handleMenuClose(setFilterSortMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Sort fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Sort Activities</ListItemText>
         </MenuItem>
       </Menu>
 
