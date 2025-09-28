@@ -133,6 +133,13 @@ export function Toolbar() {
     },
   } as const;
 
+  function blurActiveElement() {
+    try {
+      const active = document.activeElement as HTMLElement | null;
+      if (active) active.blur();
+    } catch {}
+  }
+
   return (
     <>
       <Box
@@ -220,6 +227,7 @@ export function Toolbar() {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            blurActiveElement();
             setExportOpen(true);
             handleMenuClose(setFileMenuAnchor);
           }}
@@ -301,6 +309,7 @@ export function Toolbar() {
       >
         <MenuItem
           onClick={() => {
+            blurActiveElement();
             setSettingsOpen(true);
             handleMenuClose(setFormatMenuAnchor);
           }}
@@ -324,6 +333,7 @@ export function Toolbar() {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            blurActiveElement();
             setTimescaleOpen(true);
             handleMenuClose(setFormatMenuAnchor);
           }}
@@ -335,6 +345,7 @@ export function Toolbar() {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            blurActiveElement();
             setLogicLinesEnabled(!logicLinesEnabled);
             handleMenuClose(setFormatMenuAnchor);
           }}
@@ -346,6 +357,18 @@ export function Toolbar() {
             {logicLinesEnabled ? "Hide Logic Lines" : "Show Logic Lines"}
           </ListItemText>
         </MenuItem>
+        <MenuItem
+          onClick={() => {
+            blurActiveElement();
+            setCriticalPathOpen(true);
+            handleMenuClose(setFormatMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Analytics fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Critical Path</ListItemText>
+        </MenuItem>
       </Menu>
 
       {/* Analysis Menu */}
@@ -356,16 +379,11 @@ export function Toolbar() {
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
       >
-        <MenuItem
-          onClick={() => {
-            setCriticalPathOpen(true);
-            handleMenuClose(setAnalysisMenuAnchor);
-          }}
-        >
+        <MenuItem onClick={() => handleMenuClose(setAnalysisMenuAnchor)}>
           <ListItemIcon>
             <Analytics fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Critical Path</ListItemText>
+          <ListItemText>Coming Soon</ListItemText>
         </MenuItem>
       </Menu>
 
@@ -385,6 +403,7 @@ export function Toolbar() {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            blurActiveElement();
             setAutoLayoutOpen(true);
             handleMenuClose(setLayoutMenuAnchor);
           }}
@@ -417,6 +436,7 @@ export function Toolbar() {
       >
         <MenuItem
           onClick={() => {
+            blurActiveElement();
             setFilterOpen(true);
             handleMenuClose(setFilterSortMenuAnchor);
           }}
@@ -428,6 +448,7 @@ export function Toolbar() {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            blurActiveElement();
             setSortOpen(true);
             handleMenuClose(setFilterSortMenuAnchor);
           }}
