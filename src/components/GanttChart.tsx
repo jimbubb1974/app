@@ -288,6 +288,7 @@ export function GanttChart() {
   );
   const logicLinesEnabled = useScheduleStore((s) => s.logicLinesEnabled);
   const filterSettings = useScheduleStore((s) => s.filterSettings);
+  const sortSettings = useScheduleStore((s) => s.sortSettings);
 
   //
 
@@ -345,8 +346,47 @@ export function GanttChart() {
       });
     }
 
+    // Apply sorting if enabled
+    if (sortSettings.enabled) {
+      filtered = [...filtered].sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortSettings.sortBy) {
+          case "name":
+            aValue = a.name.toLowerCase();
+            bValue = b.name.toLowerCase();
+            break;
+          case "startDate":
+            aValue = a.startDate.getTime();
+            bValue = b.startDate.getTime();
+            break;
+          case "finishDate":
+            aValue = a.finishDate.getTime();
+            bValue = b.finishDate.getTime();
+            break;
+          case "duration":
+            aValue = a.finishDate.getTime() - a.startDate.getTime();
+            bValue = b.finishDate.getTime() - b.startDate.getTime();
+            break;
+          case "totalFloat":
+            aValue = a.totalFloatDays ?? 0;
+            bValue = b.totalFloatDays ?? 0;
+            break;
+          default:
+            return 0;
+        }
+
+        if (sortSettings.sortOrder === "asc") {
+          return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        } else {
+          return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        }
+      });
+    }
+
     return filtered;
-  }, [activities, filterSettings]);
+  }, [activities, filterSettings, sortSettings]);
 
   const setExtents = useScheduleStore((s) => s.setExtents);
   const setViewRange = useScheduleStore((s) => s.setViewRange);

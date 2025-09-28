@@ -11,6 +11,7 @@ function parseISO(date: string): Date | null {
 export function StatusBar() {
   const data = useScheduleStore((s) => s.data);
   const filterSettings = useScheduleStore((s) => s.filterSettings);
+  const sortSettings = useScheduleStore((s) => s.sortSettings);
 
   const count = data?.activities.length ?? 0;
 
@@ -62,8 +63,12 @@ export function StatusBar() {
       }
 
       return true;
-    }).length;
-  }, [data?.activities, filterSettings, count]);
+    });
+
+    // Apply sorting if enabled (for count calculation, we don't need to actually sort)
+    // The sorting is handled in the display components
+    return filtered.length;
+  }, [data?.activities, filterSettings, sortSettings, count]);
   return (
     <Box
       display="flex"

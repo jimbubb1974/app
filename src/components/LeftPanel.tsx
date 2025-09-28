@@ -52,6 +52,7 @@ export function LeftPanel() {
   const toggle = useScheduleStore((s) => s.toggleLeft);
   const setWidth = useScheduleStore((s) => s.setLeftWidth);
   const filterSettings = useScheduleStore((s) => s.filterSettings);
+  const sortSettings = useScheduleStore((s) => s.sortSettings);
 
   const filteredActivities = useMemo(() => {
     const activities = data?.activities ?? [];
@@ -104,9 +105,66 @@ export function LeftPanel() {
     });
   }, [data?.activities, filterSettings]);
 
+  const sortedAndFilteredActivities = useMemo(() => {
+    let result = filteredActivities;
+
+    // Apply sorting if enabled
+    if (sortSettings.enabled) {
+      result = [...result].sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortSettings.sortBy) {
+          case "name":
+            aValue = a.name.toLowerCase();
+            bValue = b.name.toLowerCase();
+            break;
+          case "startDate":
+            const aStart = parseISO(a.start);
+            const bStart = parseISO(b.start);
+            if (!aStart || !bStart) return 0;
+            aValue = aStart.getTime();
+            bValue = bStart.getTime();
+            break;
+          case "finishDate":
+            const aFinish = parseISO(a.finish);
+            const bFinish = parseISO(b.finish);
+            if (!aFinish || !bFinish) return 0;
+            aValue = aFinish.getTime();
+            bValue = bFinish.getTime();
+            break;
+          case "duration":
+            const aStartDur = parseISO(a.start);
+            const aFinishDur = parseISO(a.finish);
+            const bStartDur = parseISO(b.start);
+            const bFinishDur = parseISO(b.finish);
+            if (!aStartDur || !aFinishDur || !bStartDur || !bFinishDur)
+              return 0;
+            aValue = aFinishDur.getTime() - aStartDur.getTime();
+            bValue = bFinishDur.getTime() - bStartDur.getTime();
+            break;
+          case "totalFloat":
+            aValue = a.totalFloatDays ?? 0;
+            bValue = b.totalFloatDays ?? 0;
+            break;
+          default:
+            return 0;
+        }
+
+        if (sortSettings.sortOrder === "asc") {
+          return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        } else {
+          return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        }
+      });
+    }
+
+    return result;
+  }, [filteredActivities, sortSettings]);
+
   const tree = useMemo(
-    () => buildTree(filteredActivities),
-    [filteredActivities]
+    () => buildTree(sortedAndFilteredActivities),
+    [sortedAndFilteredActivities]
   );
 
   if (!open) {
