@@ -51,7 +51,6 @@ export function generateLayoutCandidates(
     maxConcurrentActivities: 3,
   }
 ): OptimizationResult {
-  
   const startTime = Date.now();
 
   const candidates: LayoutCandidate[] = [];
@@ -95,8 +94,6 @@ export function generateLayoutCandidates(
 
   const processingTime = Date.now() - startTime;
 
-  
-
   return {
     candidates: scoredCandidates,
     bestCandidate,
@@ -114,8 +111,6 @@ function generateMaximumCompressionLayout(
   opportunities: any[],
   constraints: OptimizationConstraints
 ): LayoutCandidate | null {
-  
-
   const rowSharingOpportunities = opportunities.filter(
     (opp) => opp.type === "row_sharing"
   );
@@ -179,8 +174,6 @@ function generateBalancedLayout(
   opportunities: any[],
   constraints: OptimizationConstraints
 ): LayoutCandidate | null {
-  
-
   const rowSharingOpportunities = opportunities.filter(
     (opp) => opp.type === "row_sharing"
   );
@@ -246,8 +239,6 @@ function generateStructurePreservingLayout(
   opportunities: any[],
   constraints: OptimizationConstraints
 ): LayoutCandidate | null {
-  
-
   // Group activities by WBS or similar structure
   const groupedActivities = groupActivitiesByStructure(activities);
   const appliedChanges: Array<{ activityId: string; newRow: number }> = [];
@@ -318,8 +309,6 @@ function generateCriticalPathFocusLayout(
   opportunities: any[],
   constraints: OptimizationConstraints
 ): LayoutCandidate | null {
-  
-
   const criticalActivities = activities.filter((a) => a.isCritical);
   const nonCriticalOpportunities = opportunities.filter(
     (opp) =>

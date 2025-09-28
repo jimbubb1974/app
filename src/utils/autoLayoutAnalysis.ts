@@ -49,7 +49,6 @@ export interface LayoutAnalysis {
  * Parse schedule data and identify all time gaps
  */
 export function analyzeTimeGaps(activities: any[]): TimeGap[] {
-        
   const gaps: TimeGap[] = [];
 
   // Sort activities by start date
@@ -80,7 +79,6 @@ export function analyzeTimeGaps(activities: any[]): TimeGap[] {
     }
   }
 
-        
   return gaps;
 }
 
@@ -90,7 +88,6 @@ export function analyzeTimeGaps(activities: any[]): TimeGap[] {
 export function analyzeActivityCompatibility(
   activities: any[]
 ): ActivityCompatibility[] {
-        
   const compatibility: ActivityCompatibility[] = [];
 
   // Smart optimization: Only analyze activities that are close in time
@@ -158,7 +155,6 @@ export function analyzeActivityCompatibility(
     }
   }
 
-  
   return compatibility;
 }
 
@@ -169,7 +165,6 @@ export function identifyOptimizationOpportunities(
   timeGaps: TimeGap[],
   compatibility: ActivityCompatibility[]
 ): OptimizationOpportunity[] {
-  
   const opportunities: OptimizationOpportunity[] = [];
 
   // Row sharing opportunities (limit to prevent memory issues)
@@ -204,7 +199,6 @@ export function identifyOptimizationOpportunities(
 
   opportunities.push(...gapFilling);
 
-  
   return opportunities;
 }
 
@@ -254,7 +248,6 @@ export function analyzeScheduleLayout(
   onProgress?: (step: string, progress: number) => void
 ): LayoutAnalysis {
   const startTime = Date.now();
-  
 
   if (onProgress) onProgress("Initializing analysis...", 0);
 
@@ -287,8 +280,6 @@ export function analyzeScheduleLayout(
   const processingTime = Date.now() - startTime;
 
   if (onProgress) onProgress("Analysis complete!", 100);
-
-  
 
   return {
     timeGaps,

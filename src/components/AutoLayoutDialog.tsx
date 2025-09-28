@@ -34,14 +34,11 @@ export function AutoLayoutDialog() {
   const setAutoLayoutOpen = useScheduleStore((s) => s.setAutoLayoutOpen);
   const data = useScheduleStore((s) => s.data);
 
-  
-
   const [analysis, setAnalysis] = useState<SimpleAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     if (autoLayoutOpen && data?.activities && data?.relationships) {
-      
       setIsAnalyzing(true);
 
       // Run analysis in a timeout to avoid blocking UI
@@ -65,8 +62,6 @@ export function AutoLayoutDialog() {
   const handleRunOptimization = () => {
     // TODO: Implement optimization engine
   };
-
-  
 
   return (
     <Dialog

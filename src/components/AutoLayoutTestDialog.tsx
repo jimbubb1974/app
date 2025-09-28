@@ -93,12 +93,12 @@ export function AutoLayoutTestDialog() {
 
       // Run analysis in a timeout to avoid blocking UI
       setTimeout(() => {
-          try {
-            const result = analyzeScheduleLayout(data.activities);
+        try {
+          const result = analyzeScheduleLayout(data.activities);
 
           setAnalysis(result);
           setIsAnalyzing(false);
-          } catch (error) {
+        } catch (error) {
           setIsAnalyzing(false);
         }
       }, 100);
@@ -115,8 +115,8 @@ export function AutoLayoutTestDialog() {
       setIsOptimizing(true);
 
       setTimeout(() => {
-          try {
-            const result = generateLayoutCandidates(
+        try {
+          const result = generateLayoutCandidates(
             data.activities,
             analysis.optimizationOpportunities,
             {
@@ -130,7 +130,7 @@ export function AutoLayoutTestDialog() {
 
           setOptimizationResult(result);
           setIsOptimizing(false);
-          } catch (error) {
+        } catch (error) {
           setIsOptimizing(false);
         }
       }, 100);
@@ -161,8 +161,8 @@ export function AutoLayoutTestDialog() {
             console.log(
               `📝 Moved ${activityChange.id} from row ${activityChange.originalRow} to row ${activityChange.optimizedRow}`
             );
-                }
-              });
+          }
+        });
 
         // Update the store with optimized activities
         const setData = useScheduleStore.getState().setData;
