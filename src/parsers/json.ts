@@ -1,5 +1,6 @@
 import type { ProjectData } from "../types/schedule";
 import { useScheduleStore } from "../state/useScheduleStore";
+import { computeActivityRelationships } from "../utils/relationships";
 
 export async function parseJson(file: File): Promise<ProjectData> {
   const text = await file.text();
@@ -48,10 +49,15 @@ export async function parseJson(file: File): Promise<ProjectData> {
       store.setSourceFile(data.sourceFile);
     }
 
+    // Compute predecessor/successor relationships if relationships exist
+    const activitiesWithRelationships = data.relationships
+      ? computeActivityRelationships(data.activities, data.relationships)
+      : data.activities;
+
     // Return the project data
     return {
       projectName: data.projectName,
-      activities: data.activities,
+      activities: activitiesWithRelationships,
       relationships: data.relationships,
     };
   }
@@ -63,5 +69,15 @@ export async function parseJson(file: File): Promise<ProjectData> {
   if (!data.activities) {
     return { projectName: data.projectName, activities: [] };
   }
-  return data as ProjectData;
+
+  // Compute relationships if they exist
+  const activitiesWithRelationships = data.relationships
+    ? computeActivityRelationships(data.activities, data.relationships)
+    : data.activities;
+
+  return {
+    projectName: data.projectName,
+    activities: activitiesWithRelationships,
+    relationships: data.relationships,
+  };
 }

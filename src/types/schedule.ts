@@ -15,6 +15,9 @@ export type Activity = {
   customFontFamily?: string;
   barStyle?: "solid" | "dashed" | "dotted";
   labelPosition?: "left" | "right" | "top" | "bottom" | "bar" | "none";
+  // Relationship data (computed from relationships array)
+  predecessors?: string[]; // Array of predecessor activity IDs
+  successors?: string[]; // Array of successor activity IDs
 };
 
 export type Relationship = {

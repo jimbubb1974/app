@@ -1,6 +1,30 @@
-import { Box, Button, Divider, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Typography,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+import {
+  FileOpen,
+  Save,
+  Settings,
+  Visibility,
+  ZoomIn,
+  ZoomOut,
+  Palette,
+  Label,
+  Timeline,
+  Analytics,
+  Tune,
+  ViewSidebar,
+  AccountTree,
+} from "@mui/icons-material";
 import { useScheduleStore } from "../state/useScheduleStore";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 // toggle handled here too so user can collapse/expand from toolbar in future
 import { parseXer } from "../parsers/xer";
 import { parseJson } from "../parsers/json";
@@ -20,6 +44,35 @@ export function Toolbar() {
   const setSettingsOpen = useScheduleStore((s) => s.setSettingsOpen);
   const setCriticalPathOpen = useScheduleStore((s) => s.setCriticalPathOpen);
   const setSourceFile = useScheduleStore((s) => s.setSourceFile);
+  const logicLinesEnabled = useScheduleStore((s) => s.logicLinesEnabled);
+  const setLogicLinesEnabled = useScheduleStore((s) => s.setLogicLinesEnabled);
+
+  // Menu state
+  const [fileMenuAnchor, setFileMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+  const [viewMenuAnchor, setViewMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+  const [formatMenuAnchor, setFormatMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+  const [analysisMenuAnchor, setAnalysisMenuAnchor] =
+    useState<null | HTMLElement>(null);
+  const [layoutMenuAnchor, setLayoutMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    setter: (anchor: HTMLElement | null) => void
+  ) => {
+    setter(event.currentTarget);
+  };
+
+  const handleMenuClose = (setter: (anchor: HTMLElement | null) => void) => {
+    setter(null);
+  };
 
   async function handleImport(file: File) {
     setStatus("loading");
@@ -62,169 +115,278 @@ export function Toolbar() {
     }
   }
 
-  const btnSx = {
-    bgcolor: "#34495e",
-    whiteSpace: "nowrap",
+  const menuButtonSx = {
+    color: "#fff",
     textTransform: "none",
-    minWidth: 0,
-    px: 1.2,
-    py: 0.4,
-    lineHeight: 1.2,
+    px: 2,
+    py: 1,
+    "&:hover": {
+      backgroundColor: "#34495e",
+    },
   } as const;
 
   return (
-    <Box
-      display="flex"
-      alignItems="center"
-      gap={1}
-      px={1.5}
-      py={0.5}
-      bgcolor="#2c3e50"
-      color="#fff"
-      boxShadow={1}
-      sx={{
-        minWidth: 0,
-        width: "100%",
-        overflowX: "auto",
-        overflowY: "hidden",
-        position: "sticky",
-        top: 0,
-        zIndex: 5,
-        flexShrink: 0,
-        minHeight: 40,
-      }}
-    >
-      <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
-        FILE
-      </Typography>
-      <Button
-        size="small"
-        variant="contained"
-        sx={btnSx}
-        onClick={() => inputRef.current?.click()}
+    <>
+      <Box
+        display="flex"
+        alignItems="center"
+        bgcolor="#2c3e50"
+        color="#fff"
+        boxShadow={1}
+        sx={{
+          width: "100%",
+          position: "sticky",
+          top: 0,
+          zIndex: 5,
+          flexShrink: 0,
+          minHeight: 32,
+        }}
       >
-        Import
-      </Button>
-      <Button
-        size="small"
-        variant="contained"
-        sx={btnSx}
-        onClick={() => setExportOpen(true)}
-      >
-        Export
-      </Button>
-      <Button size="small" variant="contained" sx={btnSx}>
-        Save Config
-      </Button>
-      <Button
-        size="small"
-        variant="contained"
-        sx={btnSx}
-        onClick={() => setSettingsOpen(true)}
-      >
-        Settings
-      </Button>
-      <Button
-        size="small"
-        variant="contained"
-        sx={btnSx}
-        onClick={() => setCriticalPathOpen(true)}
-      >
-        Critical Path
-      </Button>
-      <Divider
-        flexItem
-        orientation="vertical"
-        sx={{ borderColor: "#34495e", mx: 2 }}
-      />
-      <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
-        VIEW
-      </Typography>
-      {/* Manual view range controls (Tier 2 lightweight) */}
-      {/* Future: move into a proper datepicker; keep simple buttons for now */}
-      <Button size="small" variant="contained" sx={btnSx} onClick={fitAll}>
-        Fit All
-      </Button>
-      <Button
-        size="small"
-        variant="contained"
-        sx={btnSx}
-        onClick={() => setRangeOpen(true)}
-      >
-        Set Range
-      </Button>
-      <Button
-        size="small"
-        variant="contained"
-        sx={btnSx}
-        onClick={() => zoom(0.8)}
-      >
-        Zoom In
-      </Button>
-      <Button
-        size="small"
-        variant="contained"
-        sx={btnSx}
-        onClick={() => zoom(1.25)}
-      >
-        Zoom Out
-      </Button>
-      <Divider
-        flexItem
-        orientation="vertical"
-        sx={{ borderColor: "#34495e", mx: 2 }}
-      />
-      <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
-        FORMAT
-      </Typography>
-      <Button size="small" variant="contained" sx={btnSx}>
-        Colors
-      </Button>
-      <Button size="small" variant="contained" sx={btnSx}>
-        Labels
-      </Button>
-      <Button
-        size="small"
-        variant="contained"
-        sx={btnSx}
-        onClick={() => setTimescaleOpen(true)}
-      >
-        Timescale & Format
-      </Button>
-      <Divider
-        flexItem
-        orientation="vertical"
-        sx={{ borderColor: "#34495e", mx: 2 }}
-      />
-      <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
-        ANALYSIS
-      </Typography>
-      <Button size="small" variant="contained" sx={btnSx}>
-        Critical Path
-      </Button>
-      <Divider
-        flexItem
-        orientation="vertical"
-        sx={{ borderColor: "#34495e", mx: 2 }}
-      />
-      <Typography variant="body2" sx={{ color: "#bdc3c7" }}>
-        LAYOUT
-      </Typography>
-      <Button size="small" variant="contained" sx={btnSx}>
-        Manual Mode
-      </Button>
-      <Button size="small" variant="contained" sx={btnSx}>
-        Auto Layout
-      </Button>
-      <Button
-        size="small"
-        variant="contained"
-        sx={btnSx}
-        onClick={toggleProperties}
-      >
-        Toggle Properties
-      </Button>
+        {/* File Menu */}
+        <Button
+          sx={menuButtonSx}
+          onClick={(e) => handleMenuOpen(e, setFileMenuAnchor)}
+        >
+          File
+        </Button>
 
+        {/* View Menu */}
+        <Button
+          sx={menuButtonSx}
+          onClick={(e) => handleMenuOpen(e, setViewMenuAnchor)}
+        >
+          View
+        </Button>
+
+        {/* Format Menu */}
+        <Button
+          sx={menuButtonSx}
+          onClick={(e) => handleMenuOpen(e, setFormatMenuAnchor)}
+        >
+          Format
+        </Button>
+
+        {/* Analysis Menu */}
+        <Button
+          sx={menuButtonSx}
+          onClick={(e) => handleMenuOpen(e, setAnalysisMenuAnchor)}
+        >
+          Analysis
+        </Button>
+
+        {/* Layout Menu */}
+        <Button
+          sx={menuButtonSx}
+          onClick={(e) => handleMenuOpen(e, setLayoutMenuAnchor)}
+        >
+          Layout
+        </Button>
+      </Box>
+
+      {/* File Menu */}
+      <Menu
+        anchorEl={fileMenuAnchor}
+        open={Boolean(fileMenuAnchor)}
+        onClose={() => handleMenuClose(setFileMenuAnchor)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <MenuItem
+          onClick={() => {
+            inputRef.current?.click();
+            handleMenuClose(setFileMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <FileOpen fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Import</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setExportOpen(true);
+            handleMenuClose(setFileMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Save fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleMenuClose(setFileMenuAnchor)}>
+          <ListItemIcon>
+            <Save fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Save Config</ListItemText>
+        </MenuItem>
+      </Menu>
+
+      {/* View Menu */}
+      <Menu
+        anchorEl={viewMenuAnchor}
+        open={Boolean(viewMenuAnchor)}
+        onClose={() => handleMenuClose(setViewMenuAnchor)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <MenuItem
+          onClick={() => {
+            fitAll();
+            handleMenuClose(setViewMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Visibility fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Fit All</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setRangeOpen(true);
+            handleMenuClose(setViewMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Visibility fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Set Range</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            zoom(0.8);
+            handleMenuClose(setViewMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <ZoomIn fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Zoom In</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            zoom(1.25);
+            handleMenuClose(setViewMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <ZoomOut fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Zoom Out</ListItemText>
+        </MenuItem>
+      </Menu>
+
+      {/* Format Menu */}
+      <Menu
+        anchorEl={formatMenuAnchor}
+        open={Boolean(formatMenuAnchor)}
+        onClose={() => handleMenuClose(setFormatMenuAnchor)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <MenuItem
+          onClick={() => {
+            setSettingsOpen(true);
+            handleMenuClose(setFormatMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Settings fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Defaults</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleMenuClose(setFormatMenuAnchor)}>
+          <ListItemIcon>
+            <Palette fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Colors</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleMenuClose(setFormatMenuAnchor)}>
+          <ListItemIcon>
+            <Label fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Labels</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setTimescaleOpen(true);
+            handleMenuClose(setFormatMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Timeline fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Timescale & Format</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setLogicLinesEnabled(!logicLinesEnabled);
+            handleMenuClose(setFormatMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <AccountTree fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>
+            {logicLinesEnabled ? "Hide Logic Lines" : "Show Logic Lines"}
+          </ListItemText>
+        </MenuItem>
+      </Menu>
+
+      {/* Analysis Menu */}
+      <Menu
+        anchorEl={analysisMenuAnchor}
+        open={Boolean(analysisMenuAnchor)}
+        onClose={() => handleMenuClose(setAnalysisMenuAnchor)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <MenuItem
+          onClick={() => {
+            setCriticalPathOpen(true);
+            handleMenuClose(setAnalysisMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Analytics fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Critical Path</ListItemText>
+        </MenuItem>
+      </Menu>
+
+      {/* Layout Menu */}
+      <Menu
+        anchorEl={layoutMenuAnchor}
+        open={Boolean(layoutMenuAnchor)}
+        onClose={() => handleMenuClose(setLayoutMenuAnchor)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <MenuItem onClick={() => handleMenuClose(setLayoutMenuAnchor)}>
+          <ListItemIcon>
+            <Tune fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Manual Mode</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleMenuClose(setLayoutMenuAnchor)}>
+          <ListItemIcon>
+            <Tune fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Auto Layout</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            toggleProperties();
+            handleMenuClose(setLayoutMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <ViewSidebar fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Toggle Properties</ListItemText>
+        </MenuItem>
+      </Menu>
+
+      {/* Hidden file input */}
       <input
         ref={inputRef}
         type="file"
@@ -236,6 +398,6 @@ export function Toolbar() {
           e.currentTarget.value = "";
         }}
       />
-    </Box>
+    </>
   );
 }

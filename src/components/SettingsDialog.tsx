@@ -23,6 +23,7 @@ interface SettingsOptions {
   fontSize: number; // base font size
   fontFamily: string; // font family
   barHeight: number; // height of activity bars
+  defaultLabelPosition: "left" | "right" | "top" | "bottom" | "bar" | "none";
 }
 
 export function SettingsDialog() {
@@ -36,6 +37,7 @@ export function SettingsDialog() {
     fontSize: settings.fontSize,
     fontFamily: settings.fontFamily,
     barHeight: settings.barHeight,
+    defaultLabelPosition: settings.defaultLabelPosition,
   });
 
   const handleSpacingChange = (value: number) => {
@@ -54,6 +56,12 @@ export function SettingsDialog() {
     setLocalSettings((prev) => ({ ...prev, barHeight: value }));
   };
 
+  const handleLabelPositionChange = (
+    position: "left" | "right" | "top" | "bottom" | "bar" | "none"
+  ) => {
+    setLocalSettings((prev) => ({ ...prev, defaultLabelPosition: position }));
+  };
+
   const handleApply = () => {
     setSettings(localSettings);
     setOpen(false);
@@ -65,6 +73,7 @@ export function SettingsDialog() {
       fontSize: settings.fontSize,
       fontFamily: settings.fontFamily,
       barHeight: settings.barHeight,
+      defaultLabelPosition: settings.defaultLabelPosition,
     });
     setOpen(false);
   };
@@ -75,6 +84,7 @@ export function SettingsDialog() {
       fontSize: 12,
       fontFamily: "Arial, sans-serif",
       barHeight: 20,
+      defaultLabelPosition: "bar" as const,
     };
     setLocalSettings(defaultSettings);
   };
@@ -211,6 +221,38 @@ export function SettingsDialog() {
               </Box>
               <Typography variant="caption" color="text.secondary">
                 Controls the height of activity bars
+              </Typography>
+            </Box>
+
+            {/* Default Label Position */}
+            <Box mt={3}>
+              <FormControl fullWidth>
+                <InputLabel>Default Label Position</InputLabel>
+                <Select
+                  value={localSettings.defaultLabelPosition}
+                  onChange={(e) =>
+                    handleLabelPositionChange(
+                      e.target.value as
+                        | "left"
+                        | "right"
+                        | "top"
+                        | "bottom"
+                        | "bar"
+                        | "none"
+                    )
+                  }
+                  label="Default Label Position"
+                >
+                  <MenuItem value="left">Left</MenuItem>
+                  <MenuItem value="right">Right</MenuItem>
+                  <MenuItem value="top">Top</MenuItem>
+                  <MenuItem value="bottom">Bottom</MenuItem>
+                  <MenuItem value="bar">Inside Bar</MenuItem>
+                  <MenuItem value="none">None</MenuItem>
+                </Select>
+              </FormControl>
+              <Typography variant="caption" color="text.secondary">
+                Default position for activity labels
               </Typography>
             </Box>
           </Box>

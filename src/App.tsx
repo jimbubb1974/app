@@ -6,7 +6,7 @@ import { LeftPanel } from "./components/LeftPanel";
 import { GanttChart } from "./components/GanttChart";
 import { RightPanel } from "./components/RightPanel";
 import { StatusBar } from "./components/StatusBar";
-import { CombinedTimescaleDialog } from "./components/CombinedTimescaleDialog";
+import CombinedTimescaleDialog from "./components/CombinedTimescaleDialog";
 import { RangeDialog } from "./components/RangeDialog";
 import { ExportDialog } from "./components/ExportDialog";
 import { SettingsDialog } from "./components/SettingsDialog";

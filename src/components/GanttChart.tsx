@@ -286,6 +286,7 @@ export function GanttChart() {
   const toggleActivitySelection = useScheduleStore(
     (s) => s.toggleActivitySelection
   );
+  const logicLinesEnabled = useScheduleStore((s) => s.logicLinesEnabled);
 
   //
 
@@ -673,6 +674,56 @@ export function GanttChart() {
               fill="#f5f5f5"
             />
           </g>
+
+          {/* Logic Lines - behind bars */}
+          {logicLinesEnabled && data?.relationships && (
+            <g
+              transform={`translate(0, ${margin.top + headerHeight - Math.floor(vScroll)})`}
+              style={{ pointerEvents: "none" }}
+            >
+              {data.relationships.map((rel, i) => {
+                const predecessor = parsed.find(
+                  (a) => a.id === rel.predecessorId
+                );
+                const successor = parsed.find((a) => a.id === rel.successorId);
+
+                if (!predecessor || !successor) return null;
+
+                const predY = y(predecessor.id) ?? 0;
+                const succY = y(successor.id) ?? 0;
+                const predFinishX = x(predecessor.finishDate);
+                const succStartX = x(successor.startDate);
+
+                // Calculate connection points
+                const predCenterY = predY + y.bandwidth() / 2;
+                const succCenterY = succY + y.bandwidth() / 2;
+
+                return (
+                  <g key={`logic-${i}`}>
+                    {/* Horizontal dotted line from predecessor finish to successor start */}
+                    <line
+                      x1={predFinishX}
+                      y1={predCenterY}
+                      x2={succStartX}
+                      y2={predCenterY}
+                      stroke="#7f8c8d"
+                      strokeWidth="2"
+                      strokeDasharray="3,3"
+                    />
+                    {/* Vertical solid line from horizontal line to successor start */}
+                    <line
+                      x1={succStartX}
+                      y1={predCenterY}
+                      x2={succStartX}
+                      y2={succCenterY}
+                      stroke="#7f8c8d"
+                      strokeWidth="2"
+                    />
+                  </g>
+                );
+              })}
+            </g>
+          )}
 
           {/* Bars layer: vertically translated; draw behind header overlay */}
           <g

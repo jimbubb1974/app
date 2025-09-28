@@ -28,6 +28,7 @@ type ScheduleState = {
     fontSize: number;
     fontFamily: string;
     barHeight: number;
+    defaultLabelPosition: "left" | "right" | "top" | "bottom" | "bar" | "none";
   };
   // Activity selection
   selectedActivityId: string | null;
@@ -64,6 +65,7 @@ type ScheduleState = {
     topTierCustomFormat: string;
     bottomTierCustomFormat: string;
   };
+  logicLinesEnabled: boolean;
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -89,6 +91,7 @@ type ScheduleState = {
     fontSize: number;
     fontFamily: string;
     barHeight: number;
+    defaultLabelPosition: "left" | "right" | "top" | "bottom" | "bar" | "none";
   }) => void;
   setSelectedActivity: (id: string | null) => void;
   setSelectedActivities: (ids: string[]) => void;
@@ -133,6 +136,7 @@ type ScheduleState = {
     topTierCustomFormat: string;
     bottomTierCustomFormat: string;
   }) => void;
+  setLogicLinesEnabled: (enabled: boolean) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -160,6 +164,7 @@ export const useScheduleStore = create<ScheduleState>()(
         fontSize: 12,
         fontFamily: "Arial, sans-serif",
         barHeight: 20,
+        defaultLabelPosition: "bar",
       },
       selectedActivityId: null,
       selectedActivityIds: [],
@@ -184,6 +189,7 @@ export const useScheduleStore = create<ScheduleState>()(
         topTierCustomFormat: "",
         bottomTierCustomFormat: "",
       },
+      logicLinesEnabled: false,
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
       setError: (error) => set({ error }),
@@ -298,6 +304,7 @@ export const useScheduleStore = create<ScheduleState>()(
       setTimelineFormatOpen: (open) => set({ timelineFormatOpen: open }),
       setTimelineFormatSettings: (settings) =>
         set({ timelineFormatSettings: settings }),
+      setLogicLinesEnabled: (enabled) => set({ logicLinesEnabled: enabled }),
     }),
     {
       name: "planworks-ui",
@@ -314,6 +321,7 @@ export const useScheduleStore = create<ScheduleState>()(
         exportPath: state.exportPath,
         criticalPathSettings: state.criticalPathSettings,
         timelineFormatSettings: state.timelineFormatSettings,
+        logicLinesEnabled: state.logicLinesEnabled,
       }),
     }
   )

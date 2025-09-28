@@ -253,6 +253,7 @@ function ActivityProperties({
   onUpdate,
   onClose,
 }: ActivityPropertiesProps) {
+  const settings = useScheduleStore((s) => s.settings);
   const [barSectionOpen, setBarSectionOpen] = useState(false);
   const [labelSectionOpen, setLabelSectionOpen] = useState(false);
   const [infoSectionOpen, setInfoSectionOpen] = useState(false);
@@ -326,10 +327,22 @@ function ActivityProperties({
   };
 
   const handleLabelPositionChange = (
-    position: "left" | "right" | "top" | "bottom" | "bar" | "none" | "mixed"
+    position:
+      | "left"
+      | "right"
+      | "top"
+      | "bottom"
+      | "bar"
+      | "none"
+      | "mixed"
+      | "default"
   ) => {
     if (position !== "mixed") {
-      onUpdate("labelPosition", position);
+      if (position === "default") {
+        onUpdate("labelPosition", settings.defaultLabelPosition);
+      } else {
+        onUpdate("labelPosition", position);
+      }
     }
   };
 
@@ -341,6 +354,16 @@ function ActivityProperties({
     onUpdate("barStyle", undefined);
     onUpdate("labelPosition", undefined);
   };
+
+  if (!activity) {
+    return (
+      <Box p={2}>
+        <Typography variant="body2" color="text.secondary">
+          No activity selected
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Stack spacing={3}>
@@ -384,7 +407,26 @@ function ActivityProperties({
           )}
         </ListItemButton>
         <Collapse in={infoSectionOpen} timeout="auto" unmountOnExit>
-          <Stack spacing={2} sx={{ pl: 2, pr: 1 }}>
+          <Stack spacing={1} sx={{ pl: 2, pr: 1 }}>
+            {/* Activity ID */}
+            <Box>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Typography variant="body2" sx={{ color: "#000000" }}>
+                  Activity ID
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: "medium", color: "#000000" }}
+                >
+                  {activity.id}
+                </Typography>
+              </Stack>
+            </Box>
+
             {/* Total Float */}
             <Box>
               <Stack
@@ -444,16 +486,16 @@ function ActivityProperties({
                 alignItems="center"
               >
                 <Typography variant="body2" sx={{ color: "#000000" }}>
-                  Critical Path Status
+                  CP Status
                 </Typography>
                 <Typography
                   variant="body1"
                   sx={{ fontWeight: "medium", color: "#000000" }}
                 >
                   {activity.isCritical === true
-                    ? "Critical Path Activity"
+                    ? "Critical"
                     : activity.isCritical === false
-                      ? "Non-Critical Activity"
+                      ? "Non-Critical"
                       : "Unknown"}
                 </Typography>
               </Stack>
@@ -475,6 +517,48 @@ function ActivityProperties({
                     sx={{ fontWeight: "medium", color: "#000000" }}
                   >
                     {activity.percentComplete}% Complete
+                  </Typography>
+                </Stack>
+              </Box>
+            )}
+
+            {/* Predecessors */}
+            {activity.predecessors && activity.predecessors.length > 0 && (
+              <Box>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="body2" sx={{ color: "#000000" }}>
+                    Predecessors
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: "medium", color: "#000000" }}
+                  >
+                    {activity.predecessors.join(", ")}
+                  </Typography>
+                </Stack>
+              </Box>
+            )}
+
+            {/* Successors */}
+            {activity.successors && activity.successors.length > 0 && (
+              <Box>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="body2" sx={{ color: "#000000" }}>
+                    Successors
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: "medium", color: "#000000" }}
+                  >
+                    {activity.successors.join(", ")}
                   </Typography>
                 </Stack>
               </Box>
@@ -637,6 +721,11 @@ function ActivityProperties({
                           : e.target.value
                       )
                     }
+                    sx={{
+                      "& .MuiSelect-select": {
+                        color: !activity.customFontFamily ? "#666" : "inherit",
+                      },
+                    }}
                   >
                     <MenuItem value="default">Default</MenuItem>
                     <MenuItem value="Arial, sans-serif">Arial</MenuItem>
@@ -656,7 +745,11 @@ function ActivityProperties({
                   <InputLabel>Label Position</InputLabel>
                   <Select
                     label="Label Position"
-                    value={activity.labelPosition || "right"}
+                    value={
+                      activity.labelPosition === settings.defaultLabelPosition
+                        ? "default"
+                        : activity.labelPosition || "right"
+                    }
                     onChange={(e) =>
                       handleLabelPositionChange(
                         e.target.value as
@@ -666,9 +759,20 @@ function ActivityProperties({
                           | "bottom"
                           | "bar"
                           | "none"
+                          | "default"
                       )
                     }
+                    sx={{
+                      "& .MuiSelect-select": {
+                        color:
+                          activity.labelPosition ===
+                          settings.defaultLabelPosition
+                            ? "#666"
+                            : "inherit",
+                      },
+                    }}
                   >
+                    <MenuItem value="default">Default</MenuItem>
                     <MenuItem value="left">Left</MenuItem>
                     <MenuItem value="right">Right</MenuItem>
                     <MenuItem value="top">Top</MenuItem>
@@ -688,7 +792,7 @@ function ActivityProperties({
       {/* Actions */}
       <Stack direction="row" spacing={1}>
         <Button variant="outlined" size="small" onClick={handleReset} fullWidth>
-          Reset to Default
+          Reset
         </Button>
         <Button variant="outlined" size="small" onClick={onClose} fullWidth>
           Close
@@ -923,6 +1027,7 @@ function MultiActivityProperties({
   onUpdate,
   onClose,
 }: MultiActivityPropertiesProps) {
+  const settings = useScheduleStore((s) => s.settings);
   const [barSectionOpen, setBarSectionOpen] = useState(false);
   const [labelSectionOpen, setLabelSectionOpen] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
@@ -958,10 +1063,22 @@ function MultiActivityProperties({
   };
 
   const handleLabelPositionChange = (
-    position: "left" | "right" | "top" | "bottom" | "bar" | "none" | "mixed"
+    position:
+      | "left"
+      | "right"
+      | "top"
+      | "bottom"
+      | "bar"
+      | "none"
+      | "mixed"
+      | "default"
   ) => {
     if (position !== "mixed") {
-      onUpdate("labelPosition", position);
+      if (position === "default") {
+        onUpdate("labelPosition", settings.defaultLabelPosition);
+      } else {
+        onUpdate("labelPosition", position);
+      }
     }
   };
 
@@ -1158,6 +1275,17 @@ function MultiActivityProperties({
                           : e.target.value
                       )
                     }
+                    sx={{
+                      "& .MuiSelect-select": {
+                        color: (() => {
+                          const fonts = activities.map(
+                            (a) => a.customFontFamily
+                          );
+                          const allDefault = fonts.every((font) => !font);
+                          return allDefault ? "#666" : "inherit";
+                        })(),
+                      },
+                    }}
                   >
                     <MenuItem value="default">Default</MenuItem>
                     <MenuItem value="Arial, sans-serif">Arial</MenuItem>
@@ -1179,9 +1307,12 @@ function MultiActivityProperties({
                     label="Label Position"
                     value={(() => {
                       // Check if all activities have the same label position
-                      const positions = activities.map(
-                        (a) => a.labelPosition || "right"
-                      );
+                      const positions = activities.map((a) => {
+                        const position = a.labelPosition || "right";
+                        return position === settings.defaultLabelPosition
+                          ? "default"
+                          : position;
+                      });
                       const uniquePositions = [...new Set(positions)];
                       return uniquePositions.length === 1
                         ? uniquePositions[0]
@@ -1196,12 +1327,31 @@ function MultiActivityProperties({
                           | "bottom"
                           | "bar"
                           | "none"
+                          | "default"
                       )
                     }
+                    sx={{
+                      "& .MuiSelect-select": {
+                        color: (() => {
+                          const positions = activities.map((a) => {
+                            const position = a.labelPosition || "right";
+                            return position === settings.defaultLabelPosition
+                              ? "default"
+                              : position;
+                          });
+                          const uniquePositions = [...new Set(positions)];
+                          return uniquePositions.length === 1 &&
+                            uniquePositions[0] === "default"
+                            ? "#666"
+                            : "inherit";
+                        })(),
+                      },
+                    }}
                   >
                     <MenuItem value="mixed" disabled>
                       Mixed (select activities individually)
                     </MenuItem>
+                    <MenuItem value="default">Default</MenuItem>
                     <MenuItem value="left">Left</MenuItem>
                     <MenuItem value="right">Right</MenuItem>
                     <MenuItem value="top">Top</MenuItem>
@@ -1221,7 +1371,7 @@ function MultiActivityProperties({
       {/* Actions */}
       <Stack direction="row" spacing={1}>
         <Button variant="outlined" size="small" onClick={handleReset} fullWidth>
-          Reset All to Default
+          Reset
         </Button>
         <Button variant="outlined" size="small" onClick={onClose} fullWidth>
           Close
