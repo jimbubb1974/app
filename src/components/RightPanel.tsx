@@ -474,6 +474,27 @@ function ActivityProperties({
                 )}
             </Box>
 
+            {/* Float Path Number */}
+            <Box>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Typography variant="body2" sx={{ color: "#000000" }}>
+                  Float Path
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: "medium", color: "#000000" }}
+                >
+                  {activity.floatPathNumber !== undefined
+                    ? `#${activity.floatPathNumber}`
+                    : "Not computed"}
+                </Typography>
+              </Stack>
+            </Box>
+
             {/* Duration */}
             <Box>
               <Stack
@@ -1182,6 +1203,24 @@ function MultiActivityProperties({
             />
           )}
         </Stack>
+        {/* Float Path Summary */}
+        <Box mt={1}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="body2" sx={{ color: "#000000" }}>
+              Float Path
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: "medium", color: "#000000" }}>
+              {(() => {
+                const paths = activities.map((a) => a.floatPathNumber ?? null);
+                const unique = [...new Set(paths)];
+                if (unique.length === 1) {
+                  return unique[0] !== null ? `#${unique[0]}` : "Not computed";
+                }
+                return "Mixed";
+              })()}
+            </Typography>
+          </Stack>
+        </Box>
       </Box>
 
       <Divider />

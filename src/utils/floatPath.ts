@@ -15,7 +15,9 @@ export function assignFloatPathNumbers(
 ): FloatPathAssignment[] {
   // Basic approach: rank distinct totalFloatDays values ascending
   // Future improvement: compute true path-based float partitions via network analysis
-  const floats = activities.map((a) => a.totalFloatDays ?? Number.POSITIVE_INFINITY);
+  const floats = activities.map(
+    (a) => a.totalFloatDays ?? Number.POSITIVE_INFINITY
+  );
   const uniqueSorted = Array.from(new Set(floats)).sort((a, b) => a - b);
 
   // Map each float value to a path number starting at 1
@@ -31,8 +33,8 @@ export function assignFloatPathNumbers(
   return activities.map((a) => ({
     activityId: a.id,
     totalFloatDays: a.totalFloatDays,
-    floatPathNumber: floatToPath.get(a.totalFloatDays ?? Number.POSITIVE_INFINITY) || uniqueSorted.length,
+    floatPathNumber:
+      floatToPath.get(a.totalFloatDays ?? Number.POSITIVE_INFINITY) ||
+      uniqueSorted.length,
   }));
 }
-
-

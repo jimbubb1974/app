@@ -395,13 +395,17 @@ export const useScheduleStore = create<ScheduleState>()(
           state.data.activities,
           state.data.relationships
         );
-        const byId = new Map(assignments.map((a) => [a.activityId, a.floatPathNumber]));
+        const byId = new Map(
+          assignments.map((a) => [a.activityId, a.floatPathNumber])
+        );
         const updated = state.data.activities.map((a) => ({
           ...a,
           floatPathNumber: byId.get(a.id),
         }));
         set({ data: { ...state.data, activities: updated } });
-        set({ successNotification: { open: true, message: "Float paths computed" } });
+        set({
+          successNotification: { open: true, message: "Float paths computed" },
+        });
       },
     }),
     {

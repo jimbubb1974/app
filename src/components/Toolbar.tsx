@@ -418,18 +418,18 @@ export function Toolbar() {
           <ListItemText>Auto Layout</ListItemText>
         </MenuItem>
 
-      <MenuItem
-        onClick={() => {
-          blurActiveElement();
-          computeFloatPaths();
-          handleMenuClose(setLayoutMenuAnchor);
-        }}
-      >
-        <ListItemIcon>
-          <Analytics fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>Compute Float Paths</ListItemText>
-      </MenuItem>
+        <MenuItem
+          onClick={() => {
+            blurActiveElement();
+            computeFloatPaths();
+            handleMenuClose(setLayoutMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Analytics fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Compute Float Paths</ListItemText>
+        </MenuItem>
         <MenuItem
           onClick={() => {
             toggleProperties();
