@@ -52,6 +52,7 @@ export function Toolbar() {
   const setFilterOpen = useScheduleStore((s) => s.setFilterOpen);
   const setSortOpen = useScheduleStore((s) => s.setSortOpen);
   const setAutoLayoutOpen = useScheduleStore((s) => s.setAutoLayoutOpen);
+  const settings = useScheduleStore((s) => s.settings);
 
   // Menu state
   const [fileMenuAnchor, setFileMenuAnchor] = useState<null | HTMLElement>(
@@ -138,6 +139,26 @@ export function Toolbar() {
       const active = document.activeElement as HTMLElement | null;
       if (active) active.blur();
     } catch {}
+  }
+
+  function applyDefaultsToAllActivities() {
+    if (!data?.activities) return;
+    
+    const updatedActivities = data.activities.map(activity => ({
+      ...activity,
+      // Reset all custom properties to undefined so they use defaults
+      customColor: undefined,
+      customBarHeight: undefined,
+      customFontSize: undefined,
+      customFontFamily: undefined,
+      barStyle: undefined,
+      labelPosition: undefined,
+    }));
+
+    setData({
+      ...data,
+      activities: updatedActivities,
+    });
   }
 
   return (
@@ -318,6 +339,18 @@ export function Toolbar() {
             <Settings fontSize="small" />
           </ListItemIcon>
           <ListItemText>Defaults</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            blurActiveElement();
+            applyDefaultsToAllActivities();
+            handleMenuClose(setFormatMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Settings fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Apply Defaults Everywhere</ListItemText>
         </MenuItem>
         <MenuItem onClick={() => handleMenuClose(setFormatMenuAnchor)}>
           <ListItemIcon>
