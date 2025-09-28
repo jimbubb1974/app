@@ -322,7 +322,9 @@ function ActivityProperties({
     onUpdate("customFontFamily", family);
   };
 
-  const handleBarStyleChange = (style: "solid" | "dashed" | "dotted") => {
+  const handleBarStyleChange = (
+    style: "solid" | "dashed" | "dotted" | "rounded" | "barbell" | "sharp"
+  ) => {
     onUpdate("barStyle", style);
   };
 
@@ -653,13 +655,22 @@ function ActivityProperties({
                     value={activity.barStyle || "solid"}
                     onChange={(e) =>
                       handleBarStyleChange(
-                        e.target.value as "solid" | "dashed" | "dotted"
+                        e.target.value as
+                          | "solid"
+                          | "dashed"
+                          | "dotted"
+                          | "rounded"
+                          | "barbell"
+                          | "sharp"
                       )
                     }
                   >
                     <MenuItem value="solid">Solid</MenuItem>
                     <MenuItem value="dashed">Dashed</MenuItem>
                     <MenuItem value="dotted">Dotted</MenuItem>
+                    <MenuItem value="rounded">Rounded</MenuItem>
+                    <MenuItem value="barbell">Barbell</MenuItem>
+                    <MenuItem value="sharp">Sharp</MenuItem>
                   </Select>
                 </FormControl>
               </Stack>
@@ -1058,7 +1069,9 @@ function MultiActivityProperties({
     onUpdate("customFontFamily", family);
   };
 
-  const handleBarStyleChange = (style: "solid" | "dashed" | "dotted") => {
+  const handleBarStyleChange = (
+    style: "solid" | "dashed" | "dotted" | "rounded" | "barbell" | "sharp"
+  ) => {
     onUpdate("barStyle", style);
   };
 
@@ -1207,13 +1220,22 @@ function MultiActivityProperties({
                     value="solid"
                     onChange={(e) =>
                       handleBarStyleChange(
-                        e.target.value as "solid" | "dashed" | "dotted"
+                        e.target.value as
+                          | "solid"
+                          | "dashed"
+                          | "dotted"
+                          | "rounded"
+                          | "barbell"
+                          | "sharp"
                       )
                     }
                   >
                     <MenuItem value="solid">Solid</MenuItem>
                     <MenuItem value="dashed">Dashed</MenuItem>
                     <MenuItem value="dotted">Dotted</MenuItem>
+                    <MenuItem value="rounded">Rounded</MenuItem>
+                    <MenuItem value="barbell">Barbell</MenuItem>
+                    <MenuItem value="sharp">Sharp</MenuItem>
                   </Select>
                 </FormControl>
               </Stack>

@@ -49,6 +49,23 @@ export async function parseJson(file: File): Promise<ProjectData> {
       store.setSourceFile(data.sourceFile);
     }
 
+    // Restore filter and sort settings
+    if (data.filterSettings) {
+      store.setFilterSettings(data.filterSettings);
+    }
+    if (data.sortSettings) {
+      store.setSortSettings(data.sortSettings);
+    }
+    if (data.criticalPathSettings) {
+      store.setCriticalPathSettings(data.criticalPathSettings);
+    }
+    if (data.timelineFormatSettings) {
+      store.setTimelineFormatSettings(data.timelineFormatSettings);
+    }
+    if (data.logicLinesEnabled !== undefined) {
+      store.setLogicLinesEnabled(data.logicLinesEnabled);
+    }
+
     // Compute predecessor/successor relationships if relationships exist
     const activitiesWithRelationships = data.relationships
       ? computeActivityRelationships(data.activities, data.relationships)

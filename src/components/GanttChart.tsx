@@ -141,6 +141,146 @@ function getLabelAnchor(activity: Activity): "start" | "end" {
   }
 }
 
+// Helper function to render different bar styles
+function renderBar(
+  activity: Activity,
+  xStart: number,
+  yPos: number,
+  barWidth: number,
+  barHeight: number,
+  barColor: string,
+  strokeColor: string,
+  strokeWidth: number,
+  strokeDasharray: string
+) {
+  const barStyle = activity.barStyle || "solid";
+
+  switch (barStyle) {
+    case "rounded":
+      return (
+        <rect
+          x={xStart}
+          y={yPos}
+          width={barWidth}
+          height={barHeight}
+          rx={8}
+          ry={8}
+          fill={barColor}
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDasharray}
+          style={{ cursor: "pointer" }}
+        />
+      );
+
+    case "barbell":
+      const circleRadius = Math.max(3, barHeight / 4); // Bigger circles
+      const lineY = yPos + barHeight / 2;
+      const lineThickness = Math.max(1, barHeight / 4); // Much thinner line
+      return (
+        <g>
+          {/* Connecting line (behind circles) */}
+          <line
+            x1={xStart + circleRadius}
+            y1={lineY}
+            x2={xStart + barWidth - circleRadius}
+            y2={lineY}
+            stroke={barColor}
+            strokeWidth={lineThickness}
+            strokeLinecap="round"
+            style={{ cursor: "pointer" }}
+          />
+          {/* Left circle (on top of line) */}
+          <circle
+            cx={xStart + circleRadius}
+            cy={yPos + barHeight / 2}
+            r={circleRadius}
+            fill="white"
+            stroke={barColor}
+            strokeWidth={strokeWidth}
+            style={{ cursor: "pointer" }}
+          />
+          {/* Right circle (on top of line) */}
+          <circle
+            cx={xStart + barWidth - circleRadius}
+            cy={yPos + barHeight / 2}
+            r={circleRadius}
+            fill="white"
+            stroke={barColor}
+            strokeWidth={strokeWidth}
+            style={{ cursor: "pointer" }}
+          />
+        </g>
+      );
+
+    case "sharp":
+      return (
+        <rect
+          x={xStart}
+          y={yPos}
+          width={barWidth}
+          height={barHeight}
+          rx={0}
+          ry={0}
+          fill={barColor}
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDasharray}
+          style={{ cursor: "pointer" }}
+        />
+      );
+
+    case "dashed":
+      return (
+        <rect
+          x={xStart}
+          y={yPos}
+          width={barWidth}
+          height={barHeight}
+          rx={4}
+          fill={barColor}
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+          strokeDasharray="5,5"
+          style={{ cursor: "pointer" }}
+        />
+      );
+
+    case "dotted":
+      return (
+        <rect
+          x={xStart}
+          y={yPos}
+          width={barWidth}
+          height={barHeight}
+          rx={4}
+          fill={barColor}
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+          strokeDasharray="2,2"
+          style={{ cursor: "pointer" }}
+        />
+      );
+
+    case "solid":
+    default:
+      return (
+        <rect
+          x={xStart}
+          y={yPos}
+          width={barWidth}
+          height={barHeight}
+          rx={4}
+          fill={barColor}
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDasharray}
+          style={{ cursor: "pointer" }}
+        />
+      );
+  }
+}
+
 // Helper function to determine if an activity is critical based on settings
 function isActivityCritical(activity: Activity, settings: any): boolean {
   if (!settings.enabled) return false;
@@ -844,6 +984,10 @@ export function GanttChart() {
                 strokeColor = barColor;
                 strokeWidth = 2;
                 strokeDasharray = a.barStyle === "dashed" ? "5,5" : "2,2";
+              } else if (a.barStyle === "barbell") {
+                // Barbell needs thick stroke for circles to be visible
+                strokeColor = barColor;
+                strokeWidth = 3;
               } else if (
                 isCritical &&
                 criticalPathSettings.displayMethod === "outline"
@@ -852,32 +996,33 @@ export function GanttChart() {
                 strokeWidth = criticalPathSettings.outlineWidth;
               }
 
+              const barY =
+                yPos +
+                (y.bandwidth() - (a.customBarHeight || settings.barHeight)) / 2;
+              const barHeight = a.customBarHeight || settings.barHeight;
+
               return (
-                <g key={`${a.id}-${i}`}>
-                  <rect
-                    x={xStart}
-                    y={
-                      yPos +
-                      (y.bandwidth() -
-                        (a.customBarHeight || settings.barHeight)) /
-                        2
+                <g
+                  key={`${a.id}-${i}`}
+                  onClick={(e) => {
+                    if (e.shiftKey) {
+                      toggleActivitySelection(a.id);
+                    } else {
+                      setSelectedActivity(a.id);
                     }
-                    width={barWidth}
-                    height={a.customBarHeight || settings.barHeight}
-                    rx={4}
-                    fill={barColor}
-                    stroke={strokeColor}
-                    strokeWidth={strokeWidth}
-                    strokeDasharray={strokeDasharray}
-                    style={{ cursor: "pointer" }}
-                    onClick={(e) => {
-                      if (e.shiftKey) {
-                        toggleActivitySelection(a.id);
-                      } else {
-                        setSelectedActivity(a.id);
-                      }
-                    }}
-                  />
+                  }}
+                >
+                  {renderBar(
+                    a,
+                    xStart,
+                    barY,
+                    barWidth,
+                    barHeight,
+                    barColor,
+                    strokeColor,
+                    strokeWidth,
+                    strokeDasharray
+                  )}
                   {a.labelPosition !== "none" &&
                     (() => {
                       const isBarLabel = a.labelPosition === "bar";

@@ -958,6 +958,11 @@ async function exportJSON(
         showLabels: true,
       },
     },
+    filterSettings: store.filterSettings,
+    sortSettings: store.sortSettings,
+    criticalPathSettings: store.criticalPathSettings,
+    timelineFormatSettings: store.timelineFormatSettings,
+    logicLinesEnabled: store.logicLinesEnabled,
     customizations: {
       lastModified: new Date().toISOString(),
       version: "1.0",
