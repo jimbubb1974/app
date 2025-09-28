@@ -142,26 +142,6 @@ export function Toolbar() {
     } catch {}
   }
 
-  function applyDefaultsToAllActivities() {
-    if (!data?.activities) return;
-
-    const updatedActivities = data.activities.map((activity) => ({
-      ...activity,
-      // Reset all custom properties to undefined so they use defaults
-      customColor: undefined,
-      customBarHeight: undefined,
-      customFontSize: undefined,
-      customFontFamily: undefined,
-      barStyle: undefined,
-      labelPosition: undefined,
-    }));
-
-    setData({
-      ...data,
-      activities: updatedActivities,
-    });
-  }
-
   return (
     <>
       <Box
@@ -341,18 +321,7 @@ export function Toolbar() {
           </ListItemIcon>
           <ListItemText>Defaults</ListItemText>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            blurActiveElement();
-            applyDefaultsToAllActivities();
-            handleMenuClose(setFormatMenuAnchor);
-          }}
-        >
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Apply Defaults Everywhere</ListItemText>
-        </MenuItem>
+
         <MenuItem onClick={() => handleMenuClose(setFormatMenuAnchor)}>
           <ListItemIcon>
             <Palette fontSize="small" />

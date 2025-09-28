@@ -29,6 +29,14 @@ type ScheduleState = {
     fontFamily: string;
     barHeight: number;
     defaultLabelPosition: "left" | "right" | "top" | "bottom" | "bar" | "none";
+    defaultBarStyle:
+      | "solid"
+      | "dashed"
+      | "dotted"
+      | "rounded"
+      | "barbell"
+      | "sharp"
+      | "pill";
   };
   // Activity selection
   selectedActivityId: string | null;
@@ -112,6 +120,14 @@ type ScheduleState = {
     fontFamily: string;
     barHeight: number;
     defaultLabelPosition: "left" | "right" | "top" | "bottom" | "bar" | "none";
+    defaultBarStyle:
+      | "solid"
+      | "dashed"
+      | "dotted"
+      | "rounded"
+      | "barbell"
+      | "sharp"
+      | "pill";
   }) => void;
   setSelectedActivity: (id: string | null) => void;
   setSelectedActivities: (ids: string[]) => void;
@@ -203,6 +219,7 @@ export const useScheduleStore = create<ScheduleState>()(
         fontFamily: "Arial, sans-serif",
         barHeight: 20,
         defaultLabelPosition: "bar",
+        defaultBarStyle: "solid",
       },
       selectedActivityId: null,
       selectedActivityIds: [],

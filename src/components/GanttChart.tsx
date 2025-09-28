@@ -70,8 +70,13 @@ function getBarLabelColor(activity: Activity): {
 }
 
 // Helper functions for label positioning
-function getLabelX(activity: Activity, xStart: number, xEnd: number): number {
-  const position = activity.labelPosition || "right";
+function getLabelX(
+  activity: Activity,
+  xStart: number,
+  xEnd: number,
+  settings: any
+): number {
+  const position = activity.labelPosition || settings.defaultLabelPosition;
   switch (position) {
     case "left":
       return xStart - 6; // Right justified, against the bar
@@ -90,9 +95,10 @@ function getLabelX(activity: Activity, xStart: number, xEnd: number): number {
 function getLabelY(
   activity: Activity,
   yPos: number,
-  bandwidth: number
+  bandwidth: number,
+  settings: any
 ): number {
-  const position = activity.labelPosition || "right";
+  const position = activity.labelPosition || settings.defaultLabelPosition;
   switch (position) {
     case "left":
     case "right":
@@ -108,8 +114,11 @@ function getLabelY(
   }
 }
 
-function getLabelBaseline(activity: Activity): "middle" | "hanging" {
-  const position = activity.labelPosition || "right";
+function getLabelBaseline(
+  activity: Activity,
+  settings: any
+): "middle" | "hanging" {
+  const position = activity.labelPosition || settings.defaultLabelPosition;
   switch (position) {
     case "left":
     case "right":
@@ -125,8 +134,8 @@ function getLabelBaseline(activity: Activity): "middle" | "hanging" {
   }
 }
 
-function getLabelAnchor(activity: Activity): "start" | "end" {
-  const position = activity.labelPosition || "right";
+function getLabelAnchor(activity: Activity, settings: any): "start" | "end" {
+  const position = activity.labelPosition || settings.defaultLabelPosition;
   switch (position) {
     case "left":
       return "end"; // Right justified
@@ -151,9 +160,10 @@ function renderBar(
   barColor: string,
   strokeColor: string,
   strokeWidth: number,
-  strokeDasharray: string
+  strokeDasharray: string,
+  settings: any
 ) {
-  const barStyle = activity.barStyle || "solid";
+  const barStyle = activity.barStyle || settings.defaultBarStyle;
 
   switch (barStyle) {
     case "rounded":
@@ -1058,20 +1068,28 @@ export function GanttChart() {
               if (selectedActivityIds.includes(a.id)) {
                 strokeColor = "#2c3e50";
                 strokeWidth = 3;
-              } else if (a.barStyle === "dashed" || a.barStyle === "dotted") {
-                strokeColor = barColor;
-                strokeWidth = 2;
-                strokeDasharray = a.barStyle === "dashed" ? "5,5" : "2,2";
-              } else if (a.barStyle === "barbell") {
-                // Barbell needs thick stroke for circles to be visible
-                strokeColor = barColor;
-                strokeWidth = 3;
-              } else if (
-                isCritical &&
-                criticalPathSettings.displayMethod === "outline"
-              ) {
-                strokeColor = criticalPathSettings.outlineColor;
-                strokeWidth = criticalPathSettings.outlineWidth;
+              } else {
+                const effectiveBarStyle =
+                  a.barStyle || settings.defaultBarStyle;
+                if (
+                  effectiveBarStyle === "dashed" ||
+                  effectiveBarStyle === "dotted"
+                ) {
+                  strokeColor = barColor;
+                  strokeWidth = 2;
+                  strokeDasharray =
+                    effectiveBarStyle === "dashed" ? "5,5" : "2,2";
+                } else if (effectiveBarStyle === "barbell") {
+                  // Barbell needs thick stroke for circles to be visible
+                  strokeColor = barColor;
+                  strokeWidth = 3;
+                } else if (
+                  isCritical &&
+                  criticalPathSettings.displayMethod === "outline"
+                ) {
+                  strokeColor = criticalPathSettings.outlineColor;
+                  strokeWidth = criticalPathSettings.outlineWidth;
+                }
               }
 
               const barY =
@@ -1099,32 +1117,36 @@ export function GanttChart() {
                     barColor,
                     strokeColor,
                     strokeWidth,
-                    strokeDasharray
+                    strokeDasharray,
+                    settings
                   )}
-                  {a.labelPosition !== "none" &&
-                    (() => {
-                      const isBarLabel = a.labelPosition === "bar";
-                      const textColors = isBarLabel
-                        ? getBarLabelColor(a)
-                        : { fill: "#2c3e50", stroke: "none", strokeWidth: "0" };
+                  {(() => {
+                    const effectiveLabelPosition =
+                      a.labelPosition ?? settings.defaultLabelPosition;
+                    if (effectiveLabelPosition === "none") return null;
 
-                      return (
-                        <text
-                          x={getLabelX(a, xStart, xEnd)}
-                          y={getLabelY(a, yPos ?? 0, y.bandwidth())}
-                          dominantBaseline={getLabelBaseline(a)}
-                          textAnchor={getLabelAnchor(a)}
-                          fontSize={a.customFontSize || settings.fontSize}
-                          fontFamily={a.customFontFamily || settings.fontFamily}
-                          fill={textColors.fill}
-                          stroke={textColors.stroke}
-                          strokeWidth={textColors.strokeWidth}
-                          fontWeight={isBarLabel ? "bold" : "normal"}
-                        >
-                          {a.name}
-                        </text>
-                      );
-                    })()}
+                    const isBarLabel = effectiveLabelPosition === "bar";
+                    const textColors = isBarLabel
+                      ? getBarLabelColor(a)
+                      : { fill: "#2c3e50", stroke: "none", strokeWidth: "0" };
+
+                    return (
+                      <text
+                        x={getLabelX(a, xStart, xEnd, settings)}
+                        y={getLabelY(a, yPos ?? 0, y.bandwidth(), settings)}
+                        dominantBaseline={getLabelBaseline(a, settings)}
+                        textAnchor={getLabelAnchor(a, settings)}
+                        fontSize={a.customFontSize || settings.fontSize}
+                        fontFamily={a.customFontFamily || settings.fontFamily}
+                        fill={textColors.fill}
+                        stroke={textColors.stroke}
+                        strokeWidth={textColors.strokeWidth}
+                        fontWeight={isBarLabel ? "bold" : "normal"}
+                      >
+                        {a.name}
+                      </text>
+                    );
+                  })()}
                 </g>
               );
             })}

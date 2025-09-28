@@ -31,6 +31,9 @@ import { useScheduleStore } from "../state/useScheduleStore";
 import type { Activity } from "../types/schedule";
 import { useState, useEffect } from "react";
 
+// Standardized default grey color for consistent styling
+const DEFAULT_GREY = "#9e9e9e"; // Light grey for default values
+
 // Predefined color palettes
 const PREDEFINED_COLORS = [
   // Primary colors
@@ -331,8 +334,13 @@ function ActivityProperties({
       | "barbell"
       | "sharp"
       | "pill"
+      | "default"
   ) => {
-    onUpdate("barStyle", style);
+    if (style === "default") {
+      onUpdate("barStyle", settings.defaultBarStyle);
+    } else {
+      onUpdate("barStyle", style);
+    }
   };
 
   const handleLabelPositionChange = (
@@ -659,7 +667,12 @@ function ActivityProperties({
                   <InputLabel>Bar Style</InputLabel>
                   <Select
                     label="Bar Style"
-                    value={activity.barStyle || "solid"}
+                    value={
+                      activity.barStyle === settings.defaultBarStyle ||
+                      activity.barStyle === undefined
+                        ? "default"
+                        : activity.barStyle
+                    }
                     onChange={(e) =>
                       handleBarStyleChange(
                         e.target.value as
@@ -670,9 +683,20 @@ function ActivityProperties({
                           | "barbell"
                           | "sharp"
                           | "pill"
+                          | "default"
                       )
                     }
+                    sx={{
+                      "& .MuiSelect-select": {
+                        color:
+                          activity.barStyle === settings.defaultBarStyle ||
+                          activity.barStyle === undefined
+                            ? DEFAULT_GREY
+                            : "inherit",
+                      },
+                    }}
                   >
+                    <MenuItem value="default">Default</MenuItem>
                     <MenuItem value="solid">Solid</MenuItem>
                     <MenuItem value="dashed">Dashed</MenuItem>
                     <MenuItem value="dotted">Dotted</MenuItem>
@@ -743,7 +767,9 @@ function ActivityProperties({
                     }
                     sx={{
                       "& .MuiSelect-select": {
-                        color: !activity.customFontFamily ? "#666" : "inherit",
+                        color: !activity.customFontFamily
+                          ? DEFAULT_GREY
+                          : "inherit",
                       },
                     }}
                   >
@@ -766,9 +792,11 @@ function ActivityProperties({
                   <Select
                     label="Label Position"
                     value={
-                      activity.labelPosition === settings.defaultLabelPosition
+                      activity.labelPosition ===
+                        settings.defaultLabelPosition ||
+                      activity.labelPosition === undefined
                         ? "default"
-                        : activity.labelPosition || "right"
+                        : activity.labelPosition
                     }
                     onChange={(e) =>
                       handleLabelPositionChange(
@@ -786,8 +814,9 @@ function ActivityProperties({
                       "& .MuiSelect-select": {
                         color:
                           activity.labelPosition ===
-                          settings.defaultLabelPosition
-                            ? "#666"
+                            settings.defaultLabelPosition ||
+                          activity.labelPosition === undefined
+                            ? DEFAULT_GREY
                             : "inherit",
                       },
                     }}
@@ -1087,8 +1116,13 @@ function MultiActivityProperties({
       | "barbell"
       | "sharp"
       | "pill"
+      | "default"
   ) => {
-    onUpdate("barStyle", style);
+    if (style === "default") {
+      onUpdate("barStyle", settings.defaultBarStyle);
+    } else {
+      onUpdate("barStyle", style);
+    }
   };
 
   const handleLabelPositionChange = (
@@ -1233,7 +1267,20 @@ function MultiActivityProperties({
                   <InputLabel>Bar Style</InputLabel>
                   <Select
                     label="Bar Style"
-                    value="solid"
+                    value={(() => {
+                      // Check if all activities have the same bar style
+                      const styles = activities.map((a) => {
+                        const style = a.barStyle;
+                        return style === settings.defaultBarStyle ||
+                          style === undefined
+                          ? "default"
+                          : style;
+                      });
+                      const uniqueStyles = [...new Set(styles)];
+                      return uniqueStyles.length === 1
+                        ? uniqueStyles[0]
+                        : "mixed";
+                    })()}
                     onChange={(e) =>
                       handleBarStyleChange(
                         e.target.value as
@@ -1244,9 +1291,32 @@ function MultiActivityProperties({
                           | "barbell"
                           | "sharp"
                           | "pill"
+                          | "default"
                       )
                     }
+                    sx={{
+                      "& .MuiSelect-select": {
+                        color: (() => {
+                          const styles = activities.map((a) => {
+                            const style = a.barStyle;
+                            return style === settings.defaultBarStyle ||
+                              style === undefined
+                              ? "default"
+                              : style;
+                          });
+                          const uniqueStyles = [...new Set(styles)];
+                          return uniqueStyles.length === 1 &&
+                            uniqueStyles[0] === "default"
+                            ? DEFAULT_GREY
+                            : "inherit";
+                        })(),
+                      },
+                    }}
                   >
+                    <MenuItem value="mixed" disabled>
+                      Mixed (select activities individually)
+                    </MenuItem>
+                    <MenuItem value="default">Default</MenuItem>
                     <MenuItem value="solid">Solid</MenuItem>
                     <MenuItem value="dashed">Dashed</MenuItem>
                     <MenuItem value="dotted">Dotted</MenuItem>
@@ -1322,7 +1392,7 @@ function MultiActivityProperties({
                             (a) => a.customFontFamily
                           );
                           const allDefault = fonts.every((font) => !font);
-                          return allDefault ? "#666" : "inherit";
+                          return allDefault ? DEFAULT_GREY : "inherit";
                         })(),
                       },
                     }}
@@ -1348,8 +1418,9 @@ function MultiActivityProperties({
                     value={(() => {
                       // Check if all activities have the same label position
                       const positions = activities.map((a) => {
-                        const position = a.labelPosition || "right";
-                        return position === settings.defaultLabelPosition
+                        const position = a.labelPosition;
+                        return position === settings.defaultLabelPosition ||
+                          position === undefined
                           ? "default"
                           : position;
                       });
@@ -1382,7 +1453,7 @@ function MultiActivityProperties({
                           const uniquePositions = [...new Set(positions)];
                           return uniquePositions.length === 1 &&
                             uniquePositions[0] === "default"
-                            ? "#666"
+                            ? DEFAULT_GREY
                             : "inherit";
                         })(),
                       },

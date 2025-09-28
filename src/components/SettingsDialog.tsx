@@ -24,6 +24,14 @@ interface SettingsOptions {
   fontFamily: string; // font family
   barHeight: number; // height of activity bars
   defaultLabelPosition: "left" | "right" | "top" | "bottom" | "bar" | "none";
+  defaultBarStyle:
+    | "solid"
+    | "dashed"
+    | "dotted"
+    | "rounded"
+    | "barbell"
+    | "sharp"
+    | "pill";
 }
 
 export function SettingsDialog() {
@@ -31,6 +39,8 @@ export function SettingsDialog() {
   const setOpen = useScheduleStore((s) => s.setSettingsOpen);
   const settings = useScheduleStore((s) => s.settings);
   const setSettings = useScheduleStore((s) => s.setSettings);
+  const data = useScheduleStore((s) => s.data);
+  const setData = useScheduleStore((s) => s.setData);
 
   const [localSettings, setLocalSettings] = useState<SettingsOptions>({
     activitySpacing: settings.activitySpacing,
@@ -38,6 +48,7 @@ export function SettingsDialog() {
     fontFamily: settings.fontFamily,
     barHeight: settings.barHeight,
     defaultLabelPosition: settings.defaultLabelPosition,
+    defaultBarStyle: settings.defaultBarStyle || "solid",
   });
 
   const handleSpacingChange = (value: number) => {
@@ -62,6 +73,19 @@ export function SettingsDialog() {
     setLocalSettings((prev) => ({ ...prev, defaultLabelPosition: position }));
   };
 
+  const handleBarStyleChange = (
+    style:
+      | "solid"
+      | "dashed"
+      | "dotted"
+      | "rounded"
+      | "barbell"
+      | "sharp"
+      | "pill"
+  ) => {
+    setLocalSettings((prev) => ({ ...prev, defaultBarStyle: style }));
+  };
+
   const handleApply = () => {
     setSettings(localSettings);
     setOpen(false);
@@ -74,6 +98,7 @@ export function SettingsDialog() {
       fontFamily: settings.fontFamily,
       barHeight: settings.barHeight,
       defaultLabelPosition: settings.defaultLabelPosition,
+      defaultBarStyle: settings.defaultBarStyle || "solid",
     });
     setOpen(false);
   };
@@ -85,8 +110,31 @@ export function SettingsDialog() {
       fontFamily: "Arial, sans-serif",
       barHeight: 20,
       defaultLabelPosition: "bar" as const,
+      defaultBarStyle: "solid" as const,
     };
     setLocalSettings(defaultSettings);
+  };
+
+  const handleApplyDefaultsEverywhere = () => {
+    // Persist the current local settings as the global defaults first
+    setSettings(localSettings);
+
+    // Then clear per-activity overrides so they inherit the defaults
+    if (!data?.activities) return;
+    const updatedActivities = data.activities.map((activity) => ({
+      ...activity,
+      customColor: undefined,
+      customBarHeight: undefined,
+      customFontSize: undefined,
+      customFontFamily: undefined,
+      barStyle: undefined,
+      labelPosition: undefined,
+    }));
+
+    setData({
+      ...data,
+      activities: updatedActivities,
+    });
   };
 
   return (
@@ -255,12 +303,49 @@ export function SettingsDialog() {
                 Default position for activity labels
               </Typography>
             </Box>
+
+            {/* Default Bar Style */}
+            <Box mt={3}>
+              <FormControl fullWidth>
+                <InputLabel>Default Bar Style</InputLabel>
+                <Select
+                  value={localSettings.defaultBarStyle}
+                  onChange={(e) =>
+                    handleBarStyleChange(
+                      e.target.value as
+                        | "solid"
+                        | "dashed"
+                        | "dotted"
+                        | "rounded"
+                        | "barbell"
+                        | "sharp"
+                        | "pill"
+                    )
+                  }
+                  label="Default Bar Style"
+                >
+                  <MenuItem value="solid">Solid</MenuItem>
+                  <MenuItem value="dashed">Dashed</MenuItem>
+                  <MenuItem value="dotted">Dotted</MenuItem>
+                  <MenuItem value="rounded">Rounded</MenuItem>
+                  <MenuItem value="barbell">Barbell</MenuItem>
+                  <MenuItem value="sharp">Sharp</MenuItem>
+                  <MenuItem value="pill">Pill</MenuItem>
+                </Select>
+              </FormControl>
+              <Typography variant="caption" color="text.secondary">
+                Default style for activity bars
+              </Typography>
+            </Box>
           </Box>
         </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleReset} color="secondary">
           Reset to Defaults
+        </Button>
+        <Button onClick={handleApplyDefaultsEverywhere} color="primary">
+          Apply Defaults Everywhere
         </Button>
         <Button onClick={handleCancel}>Cancel</Button>
         <Button onClick={handleApply} variant="contained">
