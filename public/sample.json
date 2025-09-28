@@ -12,28 +12,28 @@
     {
       "id": "A2",
       "name": "Design",
-      "start": "2025-01-20",
+      "start": "2025-01-21",
       "finish": "2025-02-05",
       "wbsPath": ["DESIGN"]
     },
     {
       "id": "A3",
       "name": "Permits",
-      "start": "2025-01-10",
-      "finish": "2025-01-18",
+      "start": "2025-01-21",
+      "finish": "2025-02-01",
       "wbsPath": ["DESIGN"]
     },
     {
       "id": "B1",
       "name": "Site Work",
-      "start": "2025-02-01",
-      "finish": "2025-02-10",
+      "start": "2025-02-06",
+      "finish": "2025-02-15",
       "wbsPath": ["CONSTRUCTION"]
     },
     {
       "id": "B2",
       "name": "Construction",
-      "start": "2025-02-10",
+      "start": "2025-02-16",
       "finish": "2025-03-05",
       "wbsPath": ["CONSTRUCTION"],
       "isCritical": true
@@ -41,66 +41,170 @@
     {
       "id": "B3",
       "name": "Concrete",
-      "start": "2025-02-12",
-      "finish": "2025-02-25",
+      "start": "2025-02-16",
+      "finish": "2025-02-28",
       "wbsPath": ["CONSTRUCTION"]
     },
     {
       "id": "B4",
       "name": "Framing",
-      "start": "2025-02-20",
-      "finish": "2025-03-10",
+      "start": "2025-03-01",
+      "finish": "2025-03-15",
       "wbsPath": ["CONSTRUCTION"]
     },
     {
       "id": "C1",
       "name": "Electrical",
-      "start": "2025-03-01",
-      "finish": "2025-03-15",
+      "start": "2025-03-06",
+      "finish": "2025-03-20",
       "wbsPath": ["MEP"]
     },
     {
       "id": "C2",
       "name": "Plumbing",
-      "start": "2025-03-05",
-      "finish": "2025-03-18",
+      "start": "2025-03-06",
+      "finish": "2025-03-20",
       "wbsPath": ["MEP"]
     },
     {
       "id": "C3",
       "name": "HVAC",
-      "start": "2025-03-10",
-      "finish": "2025-03-25",
+      "start": "2025-03-16",
+      "finish": "2025-03-30",
       "wbsPath": ["MEP"]
     },
     {
       "id": "D1",
       "name": "Drywall",
-      "start": "2025-03-20",
-      "finish": "2025-03-30",
+      "start": "2025-03-21",
+      "finish": "2025-04-05",
       "wbsPath": ["FINISHES"]
     },
     {
       "id": "D2",
       "name": "Flooring",
-      "start": "2025-03-25",
-      "finish": "2025-04-05",
+      "start": "2025-04-06",
+      "finish": "2025-04-15",
       "wbsPath": ["FINISHES"]
     },
     {
       "id": "D3",
       "name": "Painting",
-      "start": "2025-03-28",
-      "finish": "2025-04-03",
+      "start": "2025-04-06",
+      "finish": "2025-04-12",
       "wbsPath": ["FINISHES"]
     },
     {
       "id": "D4",
       "name": "Final Finish",
-      "start": "2025-04-02",
-      "finish": "2025-04-15",
+      "start": "2025-04-16",
+      "finish": "2025-04-25",
       "wbsPath": ["FINISHES"],
       "isCritical": true
+    }
+  ],
+  "relationships": [
+    {
+      "predecessorId": "A1",
+      "successorId": "A2",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "A1",
+      "successorId": "A3",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "A2",
+      "successorId": "B1",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "A3",
+      "successorId": "B1",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "B1",
+      "successorId": "B2",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "B1",
+      "successorId": "B3",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "B3",
+      "successorId": "B4",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "B2",
+      "successorId": "C1",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "B2",
+      "successorId": "C2",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "B4",
+      "successorId": "C3",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "C1",
+      "successorId": "D1",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "C2",
+      "successorId": "D1",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "C3",
+      "successorId": "D1",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "D1",
+      "successorId": "D2",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "D1",
+      "successorId": "D3",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "D2",
+      "successorId": "D4",
+      "type": "FS",
+      "lagDays": 0
+    },
+    {
+      "predecessorId": "D3",
+      "successorId": "D4",
+      "type": "FS",
+      "lagDays": 0
     }
   ]
 }
