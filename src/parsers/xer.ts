@@ -22,11 +22,11 @@ export async function parseXer(file: File): Promise<ProjectData> {
   for (const line of lines) {
     if (line.startsWith("%T")) {
       // Table header - determine which table we're parsing
-      if (line.includes("TASK")) {
-        currentTable = "TASK";
-        headers = null;
-      } else if (line.includes("TASKPRED")) {
+      if (line.includes("TASKPRED")) {
         currentTable = "TASKPRED";
+        headers = null;
+      } else if (line.includes("TASK")) {
+        currentTable = "TASK";
         headers = null;
       } else {
         currentTable = "";
@@ -95,10 +95,16 @@ export async function parseXer(file: File): Promise<ProjectData> {
       // Extract relationship data
       const predecessorId = row["pred_task_id"] || row["predecessor_id"];
       const successorId = row["task_id"] || row["successor_id"];
-      const type = row["pred_type"] || row["relationship_type"] || "FS";
+      const type =
+        row["pred_type"] ||
+        row["relationship_type"] ||
+        row["logic_type"] ||
+        "FS";
       const lagDays = row["lag_hr_cnt"]
         ? parseFloat(row["lag_hr_cnt"]) / 8 // Convert hours to days
-        : 0;
+        : row["lag"]
+          ? parseFloat(row["lag"])
+          : 0;
 
       if (predecessorId && successorId) {
         relationships.push({
