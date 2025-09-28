@@ -53,6 +53,7 @@ export function Toolbar() {
   const setSortOpen = useScheduleStore((s) => s.setSortOpen);
   const setAutoLayoutOpen = useScheduleStore((s) => s.setAutoLayoutOpen);
   const settings = useScheduleStore((s) => s.settings);
+  const data = useScheduleStore((s) => s.data);
 
   // Menu state
   const [fileMenuAnchor, setFileMenuAnchor] = useState<null | HTMLElement>(
@@ -143,8 +144,8 @@ export function Toolbar() {
 
   function applyDefaultsToAllActivities() {
     if (!data?.activities) return;
-    
-    const updatedActivities = data.activities.map(activity => ({
+
+    const updatedActivities = data.activities.map((activity) => ({
       ...activity,
       // Reset all custom properties to undefined so they use defaults
       customColor: undefined,
