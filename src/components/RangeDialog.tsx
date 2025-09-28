@@ -63,7 +63,17 @@ export function RangeDialog() {
   }
 
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
+    <Dialog
+      open={open}
+      onClose={() => setOpen(false)}
+      maxWidth="xs"
+      fullWidth
+      disablePortal
+      disableEnforceFocus
+      disableAutoFocus
+      disableRestoreFocus
+      disableScrollLock
+    >
       <DialogTitle>Set View Range</DialogTitle>
       <DialogContent>
         <Stack spacing={2} mt={1}>

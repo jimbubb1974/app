@@ -18,6 +18,7 @@ export function Toolbar() {
   const setRangeOpen = useScheduleStore((s) => s.setRangeOpen);
   const setExportOpen = useScheduleStore((s) => s.setExportOpen);
   const setSettingsOpen = useScheduleStore((s) => s.setSettingsOpen);
+  const setCriticalPathOpen = useScheduleStore((s) => s.setCriticalPathOpen);
   const setSourceFile = useScheduleStore((s) => s.setSourceFile);
 
   async function handleImport(file: File) {
@@ -123,6 +124,14 @@ export function Toolbar() {
       >
         Settings
       </Button>
+      <Button
+        size="small"
+        variant="contained"
+        sx={btnSx}
+        onClick={() => setCriticalPathOpen(true)}
+      >
+        Critical Path
+      </Button>
       <Divider
         flexItem
         orientation="vertical"
@@ -180,7 +189,7 @@ export function Toolbar() {
         sx={btnSx}
         onClick={() => setTimescaleOpen(true)}
       >
-        Timescale
+        Timescale & Format
       </Button>
       <Divider
         flexItem

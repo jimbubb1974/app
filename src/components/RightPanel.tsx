@@ -255,13 +255,14 @@ function ActivityProperties({
 }: ActivityPropertiesProps) {
   const [barSectionOpen, setBarSectionOpen] = useState(false);
   const [labelSectionOpen, setLabelSectionOpen] = useState(false);
+  const [infoSectionOpen, setInfoSectionOpen] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [colorPickerTab, setColorPickerTab] = useState(0);
   const [customColor, setCustomColor] = useState(
-    activity.customColor || "#3498db"
+    activity?.customColor || "#3498db"
   );
   const [rgbValues, setRgbValues] = useState({ r: 52, g: 152, b: 219 });
-  const [hexInput, setHexInput] = useState(activity.customColor || "#3498db");
+  const [hexInput, setHexInput] = useState(activity?.customColor || "#3498db");
 
   const handleColorChange = (color: string) => {
     onUpdate("customColor", color);
@@ -360,6 +361,126 @@ function ActivityProperties({
             />
           )}
         </Stack>
+      </Box>
+
+      <Divider />
+
+      {/* Activity Information */}
+      <Box>
+        <ListItemButton
+          onClick={() => setInfoSectionOpen(!infoSectionOpen)}
+          sx={{ px: 0, py: 1 }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{ flexGrow: 1, color: "#000000" }}
+          >
+            Activity Information
+          </Typography>
+          {infoSectionOpen ? (
+            <ExpandLess sx={{ color: "#000000" }} />
+          ) : (
+            <ExpandMore sx={{ color: "#000000" }} />
+          )}
+        </ListItemButton>
+        <Collapse in={infoSectionOpen} timeout="auto" unmountOnExit>
+          <Stack spacing={2} sx={{ pl: 2, pr: 1 }}>
+            {/* Total Float */}
+            <Box>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Typography variant="body2" sx={{ color: "#000000" }}>
+                  Total Float
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: "medium", color: "#000000" }}
+                >
+                  {activity.totalFloatDays !== undefined
+                    ? `${activity.totalFloatDays.toFixed(1)} days`
+                    : "Not available"}
+                </Typography>
+              </Stack>
+              {activity.totalFloatDays !== undefined &&
+                activity.totalFloatDays <= 0 && (
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "#000000", mt: 0.5, display: "block" }}
+                  >
+                    Critical path activity (zero or negative float)
+                  </Typography>
+                )}
+            </Box>
+
+            {/* Duration */}
+            <Box>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Typography variant="body2" sx={{ color: "#000000" }}>
+                  Duration
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: "medium", color: "#000000" }}
+                >
+                  {activity.durationDays !== undefined
+                    ? `${activity.durationDays.toFixed(1)} days`
+                    : "Not available"}
+                </Typography>
+              </Stack>
+            </Box>
+
+            {/* Critical Path Status */}
+            <Box>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Typography variant="body2" sx={{ color: "#000000" }}>
+                  Critical Path Status
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: "medium", color: "#000000" }}
+                >
+                  {activity.isCritical === true
+                    ? "Critical Path Activity"
+                    : activity.isCritical === false
+                      ? "Non-Critical Activity"
+                      : "Unknown"}
+                </Typography>
+              </Stack>
+            </Box>
+
+            {/* Progress */}
+            {activity.percentComplete !== undefined && (
+              <Box>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="body2" sx={{ color: "#000000" }}>
+                    Progress
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: "medium", color: "#000000" }}
+                  >
+                    {activity.percentComplete}% Complete
+                  </Typography>
+                </Stack>
+              </Box>
+            )}
+          </Stack>
+        </Collapse>
       </Box>
 
       <Divider />

@@ -48,8 +48,25 @@ export async function parseXer(file: File): Promise<ProjectData> {
         row["act_end_date"] ||
         "";
 
+      // Extract float values for critical path analysis
+      const totalFloatHours = row["total_float_hr_cnt"]
+        ? parseFloat(row["total_float_hr_cnt"])
+        : undefined;
+      const totalFloatDays =
+        totalFloatHours !== undefined ? totalFloatHours / 8 : undefined; // Convert hours to days (assuming 8-hour workday)
+
+      // Determine if activity is critical (total float <= 0)
+      const isCritical = totalFloatDays !== undefined && totalFloatDays <= 0;
+
       if (id && start && finish) {
-        activities.push({ id, name, start, finish });
+        activities.push({
+          id,
+          name,
+          start,
+          finish,
+          totalFloatDays,
+          isCritical,
+        });
       }
     }
   }

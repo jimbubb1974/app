@@ -6,10 +6,11 @@ import { LeftPanel } from "./components/LeftPanel";
 import { GanttChart } from "./components/GanttChart";
 import { RightPanel } from "./components/RightPanel";
 import { StatusBar } from "./components/StatusBar";
-import { TimescaleDialog } from "./components/TimescaleDialog";
+import { CombinedTimescaleDialog } from "./components/CombinedTimescaleDialog";
 import { RangeDialog } from "./components/RangeDialog";
 import { ExportDialog } from "./components/ExportDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
+import { CriticalPathDialog } from "./components/CriticalPathDialog";
 import { useScheduleStore } from "./state/useScheduleStore";
 
 function App() {
@@ -32,10 +33,11 @@ function App() {
         <RightPanel />
       </Box>
       <StatusBar />
-      <TimescaleDialog />
+      <CombinedTimescaleDialog />
       <RangeDialog />
       <ExportDialog />
       <SettingsDialog />
+      <CriticalPathDialog />
 
       {/* Global Success Notification */}
       <Snackbar

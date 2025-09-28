@@ -21,11 +21,26 @@ function isLightColor(color: string): boolean {
   const g = parseInt(hex.substr(2, 2), 16);
   const b = parseInt(hex.substr(4, 2), 16);
 
-  // Calculate luminance using relative luminance formula
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  // Calculate relative luminance using the standard formula
+  // Convert to sRGB values (0-1 range)
+  const rsRGB = r / 255;
+  const gsRGB = g / 255;
+  const bsRGB = b / 255;
 
-  // Return true if luminance is greater than 0.5 (light color)
-  return luminance > 0.5;
+  // Apply gamma correction
+  const rLinear =
+    rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
+  const gLinear =
+    gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
+  const bLinear =
+    bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
+
+  // Calculate relative luminance
+  const luminance = 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
+
+  // Use a lower threshold for better dark color detection
+  // Colors with luminance < 0.4 are considered dark and should use white text
+  return luminance > 0.4;
 }
 
 // Helper function to get appropriate text color for bar labels
@@ -126,10 +141,146 @@ function getLabelAnchor(activity: Activity): "start" | "end" {
   }
 }
 
+// Helper function to determine if an activity is critical based on settings
+function isActivityCritical(activity: Activity, settings: any): boolean {
+  if (!settings.enabled) return false;
+
+  if (settings.criteria === "isCritical") {
+    return activity.isCritical === true;
+  } else if (settings.criteria === "totalFloat") {
+    return (
+      activity.totalFloatDays !== undefined &&
+      activity.totalFloatDays <= settings.floatThreshold
+    );
+  }
+
+  return false;
+}
+
+// Helper function to format timeline text based on settings
+function formatTimelineText(
+  date: Date,
+  settings: any,
+  isTopTier: boolean,
+  timescaleTop: string,
+  timescaleBottom: string
+): string {
+  if (!settings.enabled) {
+    // Default formatting based on timescale structure
+    if (isTopTier) {
+      return timescaleTop === "year"
+        ? date.getFullYear().toString()
+        : date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    } else {
+      return timescaleBottom === "month"
+        ? date.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+        : date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+  }
+
+  const activeFormat = isTopTier
+    ? settings.topTierFormat
+    : settings.bottomTierFormat;
+  const activeCustomFormat = isTopTier
+    ? settings.topTierCustomFormat
+    : settings.bottomTierCustomFormat;
+
+  if (isTopTier) {
+    // Top tier formatting based on selected type
+    switch (activeFormat) {
+      case "full":
+        return timescaleTop === "year"
+          ? date.getFullYear().toString()
+          : date.toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            });
+      case "abbreviated":
+        return timescaleTop === "year"
+          ? date.getFullYear().toString().slice(-2)
+          : date.toLocaleDateString("en-US", {
+              month: "short",
+              year: "2-digit",
+            });
+      case "short":
+        return timescaleTop === "year"
+          ? date.getFullYear().toString().slice(-2)
+          : date.toLocaleDateString("en-US", { month: "short" });
+      case "numeric":
+        return timescaleTop === "year"
+          ? date.getFullYear().toString()
+          : `${date.getMonth() + 1}/${date.getFullYear()}`;
+      case "custom":
+        if (!activeCustomFormat) return "Custom format";
+        return activeCustomFormat
+          .replace("MM", (date.getMonth() + 1).toString().padStart(2, "0"))
+          .replace("DD", date.getDate().toString().padStart(2, "0"))
+          .replace("YYYY", date.getFullYear().toString())
+          .replace("YY", date.getFullYear().toString().slice(-2));
+      default:
+        return timescaleTop === "year"
+          ? date.getFullYear().toString()
+          : date.toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
+            });
+    }
+  } else {
+    // Bottom tier formatting based on selected type
+    switch (activeFormat) {
+      case "full":
+        return timescaleBottom === "month"
+          ? date.toLocaleDateString("en-US", { month: "long", year: "numeric" })
+          : `Week of ${date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+      case "abbreviated":
+        return timescaleBottom === "month"
+          ? date.toLocaleDateString("en-US", {
+              month: "short",
+              year: "2-digit",
+            })
+          : date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
+      case "short":
+        return timescaleBottom === "month"
+          ? date.toLocaleDateString("en-US", { month: "short" })
+          : date.toLocaleDateString("en-US", { day: "numeric" });
+      case "numeric":
+        return timescaleBottom === "month"
+          ? `${date.getMonth() + 1}/${date.getFullYear()}`
+          : `${date.getMonth() + 1}/${date.getDate()}`;
+      case "custom":
+        if (!activeCustomFormat) return "Custom format";
+        return activeCustomFormat
+          .replace("MM", (date.getMonth() + 1).toString().padStart(2, "0"))
+          .replace("DD", date.getDate().toString().padStart(2, "0"))
+          .replace("YYYY", date.getFullYear().toString())
+          .replace("YY", date.getFullYear().toString().slice(-2));
+      default:
+        return timescaleBottom === "month"
+          ? date.toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
+            })
+          : date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
+    }
+  }
+}
+
 export function GanttChart() {
   const data = useScheduleStore((s) => s.data);
   const activities: Activity[] = data?.activities ?? [];
   const settings = useScheduleStore((s) => s.settings);
+  const criticalPathSettings = useScheduleStore((s) => s.criticalPathSettings);
+  const timelineFormatSettings = useScheduleStore(
+    (s) => s.timelineFormatSettings
+  );
+  const timescaleTop = useScheduleStore((s) => s.timescaleTop);
+  const timescaleBottom = useScheduleStore((s) => s.timescaleBottom);
   const selectedActivityIds = useScheduleStore((s) => s.selectedActivityIds);
   const setSelectedActivity = useScheduleStore((s) => s.setSelectedActivity);
   const toggleActivitySelection = useScheduleStore(
@@ -375,10 +526,13 @@ export function GanttChart() {
       weeks.push({
         start: new Date(Math.max(ws.getTime(), start.getTime())),
         end: new Date(Math.min(we.getTime(), end.getTime())),
-        label: ws.toLocaleDateString(undefined, {
-          month: "numeric",
-          day: "numeric",
-        }),
+        label: formatTimelineText(
+          ws,
+          timelineFormatSettings,
+          false, // weeks are always bottom tier
+          timescaleTop,
+          timescaleBottom
+        ),
       });
       ws = we;
     }
@@ -399,10 +553,13 @@ export function GanttChart() {
           j += 1;
         }
         const segEnd = weeks[j].end;
-        const label = first.start.toLocaleString(undefined, {
-          month: "long",
-          year: "numeric",
-        });
+        const label = formatTimelineText(
+          first.start,
+          timelineFormatSettings,
+          timescaleTop === "month", // true if months are the top tier
+          timescaleTop,
+          timescaleBottom
+        );
         months.push({ start: segStart, end: segEnd, label });
         i = j + 1;
       }
@@ -422,7 +579,14 @@ export function GanttChart() {
           j += 1;
         }
         const segEnd = months[j].end;
-        years.push({ start: segStart, end: segEnd, label: String(y) });
+        const label = formatTimelineText(
+          new Date(y, 0, 1), // Create a date for the year
+          timelineFormatSettings,
+          true, // years are always top tier
+          timescaleTop,
+          timescaleBottom
+        );
+        years.push({ start: segStart, end: segEnd, label });
         i = j + 1;
       }
     }
@@ -430,7 +594,17 @@ export function GanttChart() {
     const top = tsTop === "year" ? years : months;
     const bottom = tsBottom === "month" ? months : weeks;
     return { top, bottom };
-  }, [viewStart, viewEnd, minDate, maxDate, tsTop, tsBottom]);
+  }, [
+    viewStart,
+    viewEnd,
+    minDate,
+    maxDate,
+    tsTop,
+    tsBottom,
+    timelineFormatSettings,
+    timescaleTop,
+    timescaleBottom,
+  ]);
 
   return (
     <Box
@@ -511,6 +685,37 @@ export function GanttChart() {
               const xStart = x(a.startDate);
               const xEnd = x(a.finishDate);
               const barWidth = Math.max(2, xEnd - xStart);
+              const isCritical = isActivityCritical(a, criticalPathSettings);
+
+              // Determine bar color based on critical path settings
+              let barColor = a.customColor || "#3498db";
+              if (
+                isCritical &&
+                criticalPathSettings.displayMethod === "color"
+              ) {
+                barColor = criticalPathSettings.criticalColor;
+              }
+
+              // Determine stroke properties
+              let strokeColor = "none";
+              let strokeWidth = 0;
+              let strokeDasharray = "none";
+
+              if (selectedActivityIds.includes(a.id)) {
+                strokeColor = "#2c3e50";
+                strokeWidth = 3;
+              } else if (a.barStyle === "dashed" || a.barStyle === "dotted") {
+                strokeColor = barColor;
+                strokeWidth = 2;
+                strokeDasharray = a.barStyle === "dashed" ? "5,5" : "2,2";
+              } else if (
+                isCritical &&
+                criticalPathSettings.displayMethod === "outline"
+              ) {
+                strokeColor = criticalPathSettings.outlineColor;
+                strokeWidth = criticalPathSettings.outlineWidth;
+              }
+
               return (
                 <g key={`${a.id}-${i}`}>
                   <rect
@@ -524,31 +729,10 @@ export function GanttChart() {
                     width={barWidth}
                     height={a.customBarHeight || settings.barHeight}
                     rx={4}
-                    fill={
-                      a.customColor || (a.isCritical ? "#e74c3c" : "#3498db")
-                    }
-                    stroke={
-                      selectedActivityIds.includes(a.id)
-                        ? "#2c3e50"
-                        : a.barStyle === "dashed" || a.barStyle === "dotted"
-                          ? a.customColor ||
-                            (a.isCritical ? "#e74c3c" : "#3498db")
-                          : "none"
-                    }
-                    strokeWidth={
-                      selectedActivityIds.includes(a.id)
-                        ? 3
-                        : a.barStyle === "dashed" || a.barStyle === "dotted"
-                          ? 2
-                          : 0
-                    }
-                    strokeDasharray={
-                      a.barStyle === "dashed"
-                        ? "5,5"
-                        : a.barStyle === "dotted"
-                          ? "2,2"
-                          : "none"
-                    }
+                    fill={barColor}
+                    stroke={strokeColor}
+                    strokeWidth={strokeWidth}
+                    strokeDasharray={strokeDasharray}
                     style={{ cursor: "pointer" }}
                     onClick={(e) => {
                       if (e.shiftKey) {

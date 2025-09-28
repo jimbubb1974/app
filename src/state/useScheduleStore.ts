@@ -45,6 +45,25 @@ type ScheduleState = {
     open: boolean;
     message: string;
   };
+  // Critical path settings
+  criticalPathOpen: boolean;
+  criticalPathSettings: {
+    enabled: boolean;
+    displayMethod: "color" | "outline";
+    criticalColor: string;
+    outlineColor: string;
+    outlineWidth: number;
+    criteria: "isCritical" | "totalFloat";
+    floatThreshold: number;
+  };
+  timelineFormatOpen: boolean;
+  timelineFormatSettings: {
+    enabled: boolean;
+    topTierFormat: "full" | "abbreviated" | "short" | "numeric" | "custom";
+    bottomTierFormat: "full" | "abbreviated" | "short" | "numeric" | "custom";
+    topTierCustomFormat: string;
+    bottomTierCustomFormat: string;
+  };
   // Setters
   setData: (data: ProjectData) => void;
   setStatus: (s: LoadStatus) => void;
@@ -96,6 +115,24 @@ type ScheduleState = {
     open: boolean;
     message: string;
   }) => void;
+  setCriticalPathOpen: (open: boolean) => void;
+  setCriticalPathSettings: (settings: {
+    enabled: boolean;
+    displayMethod: "color" | "outline";
+    criticalColor: string;
+    outlineColor: string;
+    outlineWidth: number;
+    criteria: "isCritical" | "totalFloat";
+    floatThreshold: number;
+  }) => void;
+  setTimelineFormatOpen: (open: boolean) => void;
+  setTimelineFormatSettings: (settings: {
+    enabled: boolean;
+    topTierFormat: "full" | "abbreviated" | "short" | "numeric" | "custom";
+    bottomTierFormat: "full" | "abbreviated" | "short" | "numeric" | "custom";
+    topTierCustomFormat: string;
+    bottomTierCustomFormat: string;
+  }) => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -129,6 +166,24 @@ export const useScheduleStore = create<ScheduleState>()(
       sourceFile: null,
       exportPath: "./export",
       successNotification: { open: false, message: "" },
+      criticalPathOpen: false,
+      criticalPathSettings: {
+        enabled: false,
+        displayMethod: "color",
+        criticalColor: "#e74c3c",
+        outlineColor: "#e74c3c",
+        outlineWidth: 3,
+        criteria: "isCritical",
+        floatThreshold: 0,
+      },
+      timelineFormatOpen: false,
+      timelineFormatSettings: {
+        enabled: false,
+        topTierFormat: "abbreviated",
+        bottomTierFormat: "short",
+        topTierCustomFormat: "",
+        bottomTierCustomFormat: "",
+      },
       setData: (data) => set({ data }),
       setStatus: (status) => set({ status }),
       setError: (error) => set({ error }),
@@ -237,6 +292,12 @@ export const useScheduleStore = create<ScheduleState>()(
       setExportPath: (path) => set({ exportPath: path }),
       setSuccessNotification: (notification) =>
         set({ successNotification: notification }),
+      setCriticalPathOpen: (open) => set({ criticalPathOpen: open }),
+      setCriticalPathSettings: (settings) =>
+        set({ criticalPathSettings: settings }),
+      setTimelineFormatOpen: (open) => set({ timelineFormatOpen: open }),
+      setTimelineFormatSettings: (settings) =>
+        set({ timelineFormatSettings: settings }),
     }),
     {
       name: "planworks-ui",
@@ -251,6 +312,8 @@ export const useScheduleStore = create<ScheduleState>()(
         settings: state.settings,
         sourceFile: state.sourceFile,
         exportPath: state.exportPath,
+        criticalPathSettings: state.criticalPathSettings,
+        timelineFormatSettings: state.timelineFormatSettings,
       }),
     }
   )
