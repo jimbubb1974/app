@@ -636,7 +636,7 @@ export function GanttChart() {
           minWidth: 0,
           boxSizing: "border-box",
           overflowX: "hidden",
-          overflowY: "hidden",
+          overflowY: "auto",
         }}
       >
         <svg
