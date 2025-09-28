@@ -230,6 +230,23 @@ function renderBar(
         />
       );
 
+    case "pill":
+      return (
+        <rect
+          x={xStart}
+          y={yPos}
+          width={barWidth}
+          height={barHeight}
+          rx={barHeight / 2}
+          ry={barHeight / 2}
+          fill={barColor}
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDasharray}
+          style={{ cursor: "pointer" }}
+        />
+      );
+
     case "dashed":
       return (
         <rect

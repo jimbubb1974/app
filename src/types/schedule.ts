@@ -13,7 +13,14 @@ export type Activity = {
   customBarHeight?: number;
   customFontSize?: number;
   customFontFamily?: string;
-  barStyle?: "solid" | "dashed" | "dotted" | "rounded" | "barbell" | "sharp";
+  barStyle?:
+    | "solid"
+    | "dashed"
+    | "dotted"
+    | "rounded"
+    | "barbell"
+    | "sharp"
+    | "pill";
   labelPosition?: "left" | "right" | "top" | "bottom" | "bar" | "none";
   // Relationship data (computed from relationships array)
   predecessors?: string[]; // Array of predecessor activity IDs

@@ -323,7 +323,14 @@ function ActivityProperties({
   };
 
   const handleBarStyleChange = (
-    style: "solid" | "dashed" | "dotted" | "rounded" | "barbell" | "sharp"
+    style:
+      | "solid"
+      | "dashed"
+      | "dotted"
+      | "rounded"
+      | "barbell"
+      | "sharp"
+      | "pill"
   ) => {
     onUpdate("barStyle", style);
   };
@@ -662,6 +669,7 @@ function ActivityProperties({
                           | "rounded"
                           | "barbell"
                           | "sharp"
+                          | "pill"
                       )
                     }
                   >
@@ -671,6 +679,7 @@ function ActivityProperties({
                     <MenuItem value="rounded">Rounded</MenuItem>
                     <MenuItem value="barbell">Barbell</MenuItem>
                     <MenuItem value="sharp">Sharp</MenuItem>
+                    <MenuItem value="pill">Pill</MenuItem>
                   </Select>
                 </FormControl>
               </Stack>
@@ -1070,7 +1079,14 @@ function MultiActivityProperties({
   };
 
   const handleBarStyleChange = (
-    style: "solid" | "dashed" | "dotted" | "rounded" | "barbell" | "sharp"
+    style:
+      | "solid"
+      | "dashed"
+      | "dotted"
+      | "rounded"
+      | "barbell"
+      | "sharp"
+      | "pill"
   ) => {
     onUpdate("barStyle", style);
   };
@@ -1227,6 +1243,7 @@ function MultiActivityProperties({
                           | "rounded"
                           | "barbell"
                           | "sharp"
+                          | "pill"
                       )
                     }
                   >
@@ -1236,6 +1253,7 @@ function MultiActivityProperties({
                     <MenuItem value="rounded">Rounded</MenuItem>
                     <MenuItem value="barbell">Barbell</MenuItem>
                     <MenuItem value="sharp">Sharp</MenuItem>
+                    <MenuItem value="pill">Pill</MenuItem>
                   </Select>
                 </FormControl>
               </Stack>
