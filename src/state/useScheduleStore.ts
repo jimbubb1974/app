@@ -1,7 +1,14 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import localforage from "localforage";
+import {
+  saveProject,
+  loadProject,
+  listProjects,
+  deleteProject,
+} from "../utils/projectStorage";
 import type { LoadStatus, ProjectData, Activity } from "../types/schedule";
-import { assignFloatPathNumbers } from "../utils/floatPath";
+import { assignFloatPathNumbers, computeMetrics } from "../utils/floatPath";
 
 type ScheduleState = {
   data: ProjectData | null;
@@ -24,6 +31,8 @@ type ScheduleState = {
   rangeOpen: boolean;
   exportOpen: boolean;
   settingsOpen: boolean;
+  openProjectOpen: boolean;
+  saveProjectOpen: boolean;
   settings: {
     activitySpacing: number;
     fontSize: number;
@@ -115,6 +124,8 @@ type ScheduleState = {
   setRangeOpen: (open: boolean) => void;
   setExportOpen: (open: boolean) => void;
   setSettingsOpen: (open: boolean) => void;
+  setOpenProjectOpen: (open: boolean) => void;
+  setSaveProjectOpen: (open: boolean) => void;
   setSettings: (settings: {
     activitySpacing: number;
     fontSize: number;
@@ -194,6 +205,14 @@ type ScheduleState = {
   }) => void;
   // Float path analysis
   computeFloatPaths: () => void;
+  computeMetrics: () => void;
+  recomputeSchedule: () => void; // fills calculatedStart/Finish; does not overwrite
+  applyCalculatedDates: () => void; // copy calculatedStart/Finish into start/finish
+  // Project persistence
+  saveCurrentProject: (name: string) => Promise<void>;
+  loadProjectByName: (name: string) => Promise<void>;
+  listSavedProjects: () => Promise<{ name: string; savedAt: string }[]>;
+  deleteSavedProject: (name: string) => Promise<void>;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -216,6 +235,8 @@ export const useScheduleStore = create<ScheduleState>()(
       rangeOpen: false,
       exportOpen: false,
       settingsOpen: false,
+      openProjectOpen: false,
+      saveProjectOpen: false,
       settings: {
         activitySpacing: 28,
         fontSize: 12,
@@ -311,6 +332,8 @@ export const useScheduleStore = create<ScheduleState>()(
       setRangeOpen: (open) => set({ rangeOpen: open }),
       setExportOpen: (open) => set({ exportOpen: open }),
       setSettingsOpen: (open) => set({ settingsOpen: open }),
+      setOpenProjectOpen: (open) => set({ openProjectOpen: open }),
+      setSaveProjectOpen: (open) => set({ saveProjectOpen: open }),
       setSettings: (settings) => set({ settings }),
       setSelectedActivity: (id) =>
         set({ selectedActivityId: id, selectedActivityIds: id ? [id] : [] }),
@@ -407,11 +430,126 @@ export const useScheduleStore = create<ScheduleState>()(
           successNotification: { open: true, message: "Float paths computed" },
         });
       },
+      computeMetrics: () => {
+        const state = get();
+        if (!state.data) return;
+        const result = computeMetrics(
+          state.data.activities,
+          state.data.relationships
+        );
+        const byId = new Map(result.map((r) => [r.activityId, r]));
+        const updated = state.data.activities.map((a) => {
+          const r = byId.get(a.id);
+          if (!r) return a;
+          return {
+            ...a,
+            durationDays: r.durationDays,
+            totalFloatDays: r.totalFloatDays,
+            freeFloatDays: r.freeFloatDays,
+            floatPathNumber: r.floatPathNumber,
+          };
+        });
+        set({ data: { ...state.data, activities: updated } });
+        set({
+          successNotification: { open: true, message: "Metrics computed" },
+        });
+      },
+      recomputeSchedule: () => {
+        const state = get();
+        if (!state.data) return;
+        const result = computeMetrics(
+          state.data.activities,
+          state.data.relationships
+        );
+        const byId = new Map(result.map((r) => [r.activityId, r]));
+        const updated = state.data.activities.map((a) => {
+          const r = byId.get(a.id);
+          if (!r) return a;
+          const startMs = r.es * 24 * 60 * 60;
+          const finishMs = r.ef * 24 * 60 * 60;
+          return {
+            ...a,
+            calculatedStart: new Date(startMs * 1000).toISOString(),
+            calculatedFinish: new Date(finishMs * 1000).toISOString(),
+            durationDays: r.durationDays,
+            totalFloatDays: r.totalFloatDays,
+            freeFloatDays: r.freeFloatDays,
+            floatPathNumber: r.floatPathNumber,
+          };
+        });
+        set({ data: { ...state.data, activities: updated } });
+        set({
+          successNotification: { open: true, message: "Schedule recalculated" },
+        });
+      },
+      applyCalculatedDates: () => {
+        const state = get();
+        if (!state.data) return;
+        const updated = state.data.activities.map((a) => {
+          if (!a.calculatedStart || !a.calculatedFinish) return a;
+          return {
+            ...a,
+            start: a.calculatedStart,
+            finish: a.calculatedFinish,
+          };
+        });
+        set({ data: { ...state.data, activities: updated } });
+        set({
+          successNotification: {
+            open: true,
+            message: "Applied calculated dates",
+          },
+        });
+      },
+      saveCurrentProject: async (name: string) => {
+        const state = get();
+        if (!state.data) return;
+        await saveProject(name, state.data);
+        set({
+          successNotification: {
+            open: true,
+            message: `Project saved: ${name}`,
+          },
+        });
+      },
+      loadProjectByName: async (name: string) => {
+        const data = await loadProject(name);
+        if (data) {
+          set({ data });
+          set({
+            successNotification: {
+              open: true,
+              message: `Project loaded: ${name}`,
+            },
+          });
+        }
+      },
+      listSavedProjects: async () => {
+        return await listProjects();
+      },
+      deleteSavedProject: async (name: string) => {
+        await deleteProject(name);
+        set({
+          successNotification: {
+            open: true,
+            message: `Project deleted: ${name}`,
+          },
+        });
+      },
     }),
     {
       name: "planworks-ui",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => {
+        // Use a dedicated IndexedDB store via localForage
+        const lf = localforage.createInstance({
+          name: "PlanWorks",
+          storeName: "ui",
+          description: "PlanWorks UI persistent state",
+        });
+        return lf as unknown as Storage;
+      }),
       partialize: (state) => ({
+        data: state.data,
         propertiesOpen: state.propertiesOpen,
         propertiesWidth: state.propertiesWidth,
         leftOpen: state.leftOpen,

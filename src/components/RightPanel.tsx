@@ -1205,11 +1205,18 @@ function MultiActivityProperties({
         </Stack>
         {/* Float Path Summary */}
         <Box mt={1}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="body2" sx={{ color: "#000000" }}>
               Float Path
             </Typography>
-            <Typography variant="body1" sx={{ fontWeight: "medium", color: "#000000" }}>
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "medium", color: "#000000" }}
+            >
               {(() => {
                 const paths = activities.map((a) => a.floatPathNumber ?? null);
                 const unique = [...new Set(paths)];

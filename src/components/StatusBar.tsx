@@ -22,7 +22,7 @@ export function StatusBar() {
       return count;
     }
 
-    return activities.filter((activity) => {
+    const filtered = activities.filter((activity) => {
       // Name filter
       if (
         filterSettings.nameFilter &&
@@ -65,8 +65,6 @@ export function StatusBar() {
       return true;
     });
 
-    // Apply sorting if enabled (for count calculation, we don't need to actually sort)
-    // The sorting is handled in the display components
     return filtered.length;
   }, [data?.activities, filterSettings, sortSettings, count]);
   return (

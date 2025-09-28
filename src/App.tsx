@@ -13,6 +13,8 @@ import { SettingsDialog } from "./components/SettingsDialog";
 import { CriticalPathDialog } from "./components/CriticalPathDialog";
 import { FilterDialog } from "./components/FilterDialog";
 import { SortDialog } from "./components/SortDialog";
+import { OpenProjectDialog } from "./components/OpenProjectDialog";
+import { SaveProjectDialog } from "./components/SaveProjectDialog";
 import { AutoLayoutTestDialog } from "./components/AutoLayoutTestDialog";
 import { useScheduleStore } from "./state/useScheduleStore";
 
@@ -43,6 +45,8 @@ function App() {
       <CriticalPathDialog />
       <FilterDialog />
       <SortDialog />
+      <OpenProjectDialog />
+      <SaveProjectDialog />
       <AutoLayoutTestDialog />
 
       {/* Global Success Notification */}

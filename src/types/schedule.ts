@@ -6,8 +6,12 @@ export type Activity = {
   finish: string; // ISO date string
   durationDays?: number;
   totalFloatDays?: number;
+  freeFloatDays?: number;
   isCritical?: boolean;
   percentComplete?: number;
+  // Calculated schedule fields (from CPM re-calculation)
+  calculatedStart?: string; // ISO
+  calculatedFinish?: string; // ISO
   // Visual customization properties
   customColor?: string;
   customBarHeight?: number;

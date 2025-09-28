@@ -53,8 +53,15 @@ export function Toolbar() {
   const setSortOpen = useScheduleStore((s) => s.setSortOpen);
   const setAutoLayoutOpen = useScheduleStore((s) => s.setAutoLayoutOpen);
   const computeFloatPaths = useScheduleStore((s) => s.computeFloatPaths);
+  const computeAllMetrics = useScheduleStore((s) => s.computeMetrics);
+  const recomputeSchedule = useScheduleStore((s) => s.recomputeSchedule);
+  const applyCalculatedDates = useScheduleStore((s) => s.applyCalculatedDates);
   const settings = useScheduleStore((s) => s.settings);
   const data = useScheduleStore((s) => s.data);
+  const saveCurrentProject = useScheduleStore((s) => s.saveCurrentProject);
+  const loadProjectByName = useScheduleStore((s) => s.loadProjectByName);
+  const listSavedProjects = useScheduleStore((s) => s.listSavedProjects);
+  const deleteSavedProject = useScheduleStore((s) => s.deleteSavedProject);
 
   // Menu state
   const [fileMenuAnchor, setFileMenuAnchor] = useState<null | HTMLElement>(
@@ -246,6 +253,29 @@ export function Toolbar() {
           </ListItemIcon>
           <ListItemText>Save Config</ListItemText>
         </MenuItem>
+        <Divider />
+        <MenuItem
+          onClick={() => {
+            useScheduleStore.getState().setSaveProjectOpen(true);
+            handleMenuClose(setFileMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Save fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Save Project</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            useScheduleStore.getState().setOpenProjectOpen(true);
+            handleMenuClose(setFileMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <FileOpen fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Load Project</ListItemText>
+        </MenuItem>
       </Menu>
 
       {/* View Menu */}
@@ -383,11 +413,55 @@ export function Toolbar() {
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
       >
-        <MenuItem onClick={() => handleMenuClose(setAnalysisMenuAnchor)}>
+        <MenuItem
+          onClick={() => {
+            blurActiveElement();
+            computeFloatPaths();
+            handleMenuClose(setAnalysisMenuAnchor);
+          }}
+        >
           <ListItemIcon>
             <Analytics fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Coming Soon</ListItemText>
+          <ListItemText>Compute Float Paths</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            blurActiveElement();
+            computeAllMetrics();
+            handleMenuClose(setAnalysisMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Analytics fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>
+            Calculate Metrics (Duration, Float, Paths)
+          </ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            blurActiveElement();
+            recomputeSchedule();
+            handleMenuClose(setAnalysisMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Analytics fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Recalculate Schedule (calculated dates)</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            blurActiveElement();
+            applyCalculatedDates();
+            handleMenuClose(setAnalysisMenuAnchor);
+          }}
+        >
+          <ListItemIcon>
+            <Analytics fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Apply Calculated Dates</ListItemText>
         </MenuItem>
       </Menu>
 
@@ -418,18 +492,6 @@ export function Toolbar() {
           <ListItemText>Auto Layout</ListItemText>
         </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            blurActiveElement();
-            computeFloatPaths();
-            handleMenuClose(setLayoutMenuAnchor);
-          }}
-        >
-          <ListItemIcon>
-            <Analytics fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Compute Float Paths</ListItemText>
-        </MenuItem>
         <MenuItem
           onClick={() => {
             toggleProperties();
