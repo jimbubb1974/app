@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { LoadStatus, ProjectData } from "../types/schedule";
+import type { LoadStatus, ProjectData, Activity } from "../types/schedule";
+import { assignFloatPathNumbers } from "../utils/floatPath";
 
 type ScheduleState = {
   data: ProjectData | null;
@@ -191,6 +192,8 @@ type ScheduleState = {
     sortBy: "name" | "startDate" | "finishDate" | "duration" | "totalFloat";
     sortOrder: "asc" | "desc";
   }) => void;
+  // Float path analysis
+  computeFloatPaths: () => void;
 };
 
 export const useScheduleStore = create<ScheduleState>()(
@@ -385,6 +388,21 @@ export const useScheduleStore = create<ScheduleState>()(
       setAutoLayoutOpen: (open) => set({ autoLayoutOpen: open }),
       setFilterSettings: (settings) => set({ filterSettings: settings }),
       setSortSettings: (settings) => set({ sortSettings: settings }),
+      computeFloatPaths: () => {
+        const state = get();
+        if (!state.data) return;
+        const assignments = assignFloatPathNumbers(
+          state.data.activities,
+          state.data.relationships
+        );
+        const byId = new Map(assignments.map((a) => [a.activityId, a.floatPathNumber]));
+        const updated = state.data.activities.map((a) => ({
+          ...a,
+          floatPathNumber: byId.get(a.id),
+        }));
+        set({ data: { ...state.data, activities: updated } });
+        set({ successNotification: { open: true, message: "Float paths computed" } });
+      },
     }),
     {
       name: "planworks-ui",

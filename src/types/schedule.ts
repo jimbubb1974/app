@@ -29,6 +29,8 @@ export type Activity = {
   optimizedRow?: number; // Row position after optimization
   originalRow?: number; // Original row position before optimization
   rowChange?: number; // Change in row position (optimizedRow - originalRow)
+  // Float path analysis
+  floatPathNumber?: number; // Rank of activity's float path (1 = lowest total float)
 };
 
 export type Relationship = {

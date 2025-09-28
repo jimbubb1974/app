@@ -52,6 +52,7 @@ export function Toolbar() {
   const setFilterOpen = useScheduleStore((s) => s.setFilterOpen);
   const setSortOpen = useScheduleStore((s) => s.setSortOpen);
   const setAutoLayoutOpen = useScheduleStore((s) => s.setAutoLayoutOpen);
+  const computeFloatPaths = useScheduleStore((s) => s.computeFloatPaths);
   const settings = useScheduleStore((s) => s.settings);
   const data = useScheduleStore((s) => s.data);
 
@@ -416,6 +417,19 @@ export function Toolbar() {
           </ListItemIcon>
           <ListItemText>Auto Layout</ListItemText>
         </MenuItem>
+
+      <MenuItem
+        onClick={() => {
+          blurActiveElement();
+          computeFloatPaths();
+          handleMenuClose(setLayoutMenuAnchor);
+        }}
+      >
+        <ListItemIcon>
+          <Analytics fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Compute Float Paths</ListItemText>
+      </MenuItem>
         <MenuItem
           onClick={() => {
             toggleProperties();
