@@ -568,9 +568,26 @@ export function GanttChart() {
 
   const headerHeight = 56; // two-tier header
   const monthRowHeight = 24; // upper row height to keep week lines below months
+
+  // Determine number of visual rows (distinct optimized rows if present)
+  const optimizedRows = useMemo(() => {
+    const hasOptimization = parsed.some(
+      (a) => (a as any).optimizedRow !== undefined
+    );
+    if (!hasOptimization) return null as number[] | null;
+    const rows = new Set<number>();
+    parsed.forEach((a) => {
+      const r = (a as any).optimizedRow ?? (a as any).originalRow ?? 0;
+      rows.add(Number(r));
+    });
+    return Array.from(rows).sort((a, b) => a - b);
+  }, [parsed]);
+
+  const numRows = optimizedRows ? optimizedRows.length : parsed.length;
+
   const height = Math.max(
     300,
-    parsed.length * settings.activitySpacing + headerHeight + 40
+    numRows * settings.activitySpacing + headerHeight + 40
   );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [vScroll, setVScroll] = useState<number>(0);
@@ -618,17 +635,51 @@ export function GanttChart() {
         Math.max(margin.left + 200, Math.floor(chartWidth) - margin.right),
       ]);
   }, [minDate, maxDate, viewStart, viewEnd, chartWidth]);
-  const y = useMemo(
-    () =>
-      scaleBand()
-        .domain(parsed.map((a) => a.id))
+  const rowKeyById = useMemo(() => {
+    const map = new Map<string, string>();
+    const hasOptimization = parsed.some(
+      (a) => (a as any).optimizedRow !== undefined
+    );
+    if (!hasOptimization) return map;
+    // Map each activity id to its row key (row-<optimizedRow>)
+    parsed.forEach((a) => {
+      const r = (a as any).optimizedRow ?? (a as any).originalRow ?? 0;
+      map.set(a.id, `row-${r}`);
+    });
+    return map;
+  }, [parsed]);
+
+  const y = useMemo(() => {
+    const hasOptimization = rowKeyById.size > 0;
+    if (hasOptimization) {
+      // Unique row keys ordered by numeric row value
+      const uniqueRowKeys = Array.from(
+        new Set(
+          Array.from(rowKeyById.values())
+            .map((k) => ({ k, n: Number(k.replace("row-", "")) }))
+            .sort((a, b) => a.n - b.n)
+            .map((x) => x.k)
+        )
+      );
+
+      return scaleBand()
+        .domain(uniqueRowKeys)
         .range([
           0,
           Math.max(0, height - margin.bottom - (margin.top + headerHeight)),
         ])
-        .padding(0.3),
-    [parsed, height, settings.activitySpacing]
-  );
+        .padding(0.3);
+    }
+
+    // Fallback: original per-activity rows
+    return scaleBand()
+      .domain(parsed.map((a) => a.id))
+      .range([
+        0,
+        Math.max(0, height - margin.bottom - (margin.top + headerHeight)),
+      ])
+      .padding(0.3);
+  }, [parsed, height, settings.activitySpacing, rowKeyById]);
 
   //
 
@@ -931,8 +982,16 @@ export function GanttChart() {
 
                 if (!predecessor || !successor) return null;
 
-                const predY = y(predecessor.id) ?? 0;
-                const succY = y(successor.id) ?? 0;
+                const hasOptRows = rowKeyById.size > 0;
+                const predRowKey = hasOptRows
+                  ? (rowKeyById.get(predecessor.id) ?? predecessor.id)
+                  : predecessor.id;
+                const succRowKey = hasOptRows
+                  ? (rowKeyById.get(successor.id) ?? successor.id)
+                  : successor.id;
+
+                const predY = y(predRowKey) ?? 0;
+                const succY = y(succRowKey) ?? 0;
                 const predFinishX = x(predecessor.finishDate);
                 const succStartX = x(successor.startDate);
 
@@ -974,7 +1033,12 @@ export function GanttChart() {
             style={{ pointerEvents: "auto" }}
           >
             {parsed.map((a, i) => {
-              const yPos = y(a.id) ?? 0;
+              const hasOpt = rowKeyById.size > 0;
+              const rowKey = hasOpt ? (rowKeyById.get(a.id) ?? a.id) : a.id;
+              const yPos = y(rowKey) ?? 0;
+              console.log(
+                `🎯 Activity ${a.id}: yPos = ${yPos}, optimizedRow = ${(a as any).optimizedRow}`
+              );
               const xStart = x(a.startDate);
               const xEnd = x(a.finishDate);
               const barWidth = Math.max(2, xEnd - xStart);

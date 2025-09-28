@@ -24,6 +24,7 @@ import {
   AccountTree,
   FilterList,
   Sort,
+  AutoFixHigh,
 } from "@mui/icons-material";
 import { useScheduleStore } from "../state/useScheduleStore";
 import { useRef, useState } from "react";
@@ -50,6 +51,7 @@ export function Toolbar() {
   const setLogicLinesEnabled = useScheduleStore((s) => s.setLogicLinesEnabled);
   const setFilterOpen = useScheduleStore((s) => s.setFilterOpen);
   const setSortOpen = useScheduleStore((s) => s.setSortOpen);
+  const setAutoLayoutOpen = useScheduleStore((s) => s.setAutoLayoutOpen);
 
   // Menu state
   const [fileMenuAnchor, setFileMenuAnchor] = useState<null | HTMLElement>(
@@ -381,9 +383,15 @@ export function Toolbar() {
           </ListItemIcon>
           <ListItemText>Manual Mode</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleMenuClose(setLayoutMenuAnchor)}>
+        <MenuItem
+          onClick={() => {
+            console.log("Auto Layout clicked, setting autoLayoutOpen to true");
+            setAutoLayoutOpen(true);
+            handleMenuClose(setLayoutMenuAnchor);
+          }}
+        >
           <ListItemIcon>
-            <Tune fontSize="small" />
+            <AutoFixHigh fontSize="small" />
           </ListItemIcon>
           <ListItemText>Auto Layout</ListItemText>
         </MenuItem>

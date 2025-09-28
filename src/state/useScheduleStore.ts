@@ -69,6 +69,8 @@ type ScheduleState = {
   // Filter and sort state
   filterOpen: boolean;
   sortOpen: boolean;
+  // Auto-layout state
+  autoLayoutOpen: boolean;
   filterSettings: {
     enabled: boolean;
     nameFilter: string;
@@ -157,6 +159,7 @@ type ScheduleState = {
   setLogicLinesEnabled: (enabled: boolean) => void;
   setFilterOpen: (open: boolean) => void;
   setSortOpen: (open: boolean) => void;
+  setAutoLayoutOpen: (open: boolean) => void;
   setFilterSettings: (settings: {
     enabled: boolean;
     nameFilter: string;
@@ -228,6 +231,8 @@ export const useScheduleStore = create<ScheduleState>()(
       // Filter and sort initial state
       filterOpen: false,
       sortOpen: false,
+      // Auto-layout initial state
+      autoLayoutOpen: false,
       filterSettings: {
         enabled: false,
         nameFilter: "",
@@ -360,6 +365,7 @@ export const useScheduleStore = create<ScheduleState>()(
       setLogicLinesEnabled: (enabled) => set({ logicLinesEnabled: enabled }),
       setFilterOpen: (open) => set({ filterOpen: open }),
       setSortOpen: (open) => set({ sortOpen: open }),
+      setAutoLayoutOpen: (open) => set({ autoLayoutOpen: open }),
       setFilterSettings: (settings) => set({ filterSettings: settings }),
       setSortSettings: (settings) => set({ sortSettings: settings }),
     }),

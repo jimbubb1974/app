@@ -25,6 +25,10 @@ export type Activity = {
   // Relationship data (computed from relationships array)
   predecessors?: string[]; // Array of predecessor activity IDs
   successors?: string[]; // Array of successor activity IDs
+  // Auto-layout optimization properties
+  optimizedRow?: number; // Row position after optimization
+  originalRow?: number; // Original row position before optimization
+  rowChange?: number; // Change in row position (optimizedRow - originalRow)
 };
 
 export type Relationship = {
