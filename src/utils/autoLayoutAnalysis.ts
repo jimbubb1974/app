@@ -49,7 +49,7 @@ export interface LayoutAnalysis {
  * Parse schedule data and identify all time gaps
  */
 export function analyzeTimeGaps(activities: any[]): TimeGap[] {
-  console.log("🔍 Analyzing time gaps...");
+        
   const gaps: TimeGap[] = [];
 
   // Sort activities by start date
@@ -80,7 +80,7 @@ export function analyzeTimeGaps(activities: any[]): TimeGap[] {
     }
   }
 
-  console.log(`📊 Found ${gaps.length} time gaps`);
+        
   return gaps;
 }
 
@@ -90,7 +90,7 @@ export function analyzeTimeGaps(activities: any[]): TimeGap[] {
 export function analyzeActivityCompatibility(
   activities: any[]
 ): ActivityCompatibility[] {
-  console.log("🔗 Analyzing activity compatibility...");
+        
   const compatibility: ActivityCompatibility[] = [];
 
   // Smart optimization: Only analyze activities that are close in time
@@ -158,9 +158,7 @@ export function analyzeActivityCompatibility(
     }
   }
 
-  console.log(
-    `🔗 Analyzed ${compatibility.length} activity pairs (${pairsAnalyzed} total checked)`
-  );
+  
   return compatibility;
 }
 
@@ -171,7 +169,7 @@ export function identifyOptimizationOpportunities(
   timeGaps: TimeGap[],
   compatibility: ActivityCompatibility[]
 ): OptimizationOpportunity[] {
-  console.log("💡 Identifying optimization opportunities...");
+  
   const opportunities: OptimizationOpportunity[] = [];
 
   // Row sharing opportunities (limit to prevent memory issues)
@@ -206,7 +204,7 @@ export function identifyOptimizationOpportunities(
 
   opportunities.push(...gapFilling);
 
-  console.log(`💡 Found ${opportunities.length} optimization opportunities`);
+  
   return opportunities;
 }
 
@@ -256,7 +254,7 @@ export function analyzeScheduleLayout(
   onProgress?: (step: string, progress: number) => void
 ): LayoutAnalysis {
   const startTime = Date.now();
-  console.log("🚀 Starting comprehensive auto-layout analysis...");
+  
 
   if (onProgress) onProgress("Initializing analysis...", 0);
 
@@ -290,10 +288,7 @@ export function analyzeScheduleLayout(
 
   if (onProgress) onProgress("Analysis complete!", 100);
 
-  console.log(`✅ Analysis complete in ${processingTime}ms`);
-  console.log(
-    `📊 Results: ${timeGaps.length} gaps, ${compatibility.length} pairs, ${opportunities.length} opportunities`
-  );
+  
 
   return {
     timeGaps,

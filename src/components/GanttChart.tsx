@@ -1036,9 +1036,6 @@ export function GanttChart() {
               const hasOpt = rowKeyById.size > 0;
               const rowKey = hasOpt ? (rowKeyById.get(a.id) ?? a.id) : a.id;
               const yPos = y(rowKey) ?? 0;
-              console.log(
-                `🎯 Activity ${a.id}: yPos = ${yPos}, optimizedRow = ${(a as any).optimizedRow}`
-              );
               const xStart = x(a.startDate);
               const xEnd = x(a.finishDate);
               const barWidth = Math.max(2, xEnd - xStart);

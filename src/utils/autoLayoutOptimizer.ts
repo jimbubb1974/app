@@ -51,7 +51,7 @@ export function generateLayoutCandidates(
     maxConcurrentActivities: 3,
   }
 ): OptimizationResult {
-  console.log("🚀 Generating layout candidates...");
+  
   const startTime = Date.now();
 
   const candidates: LayoutCandidate[] = [];
@@ -95,9 +95,7 @@ export function generateLayoutCandidates(
 
   const processingTime = Date.now() - startTime;
 
-  console.log(
-    `✅ Generated ${candidates.length} layout candidates in ${processingTime}ms`
-  );
+  
 
   return {
     candidates: scoredCandidates,
@@ -116,7 +114,7 @@ function generateMaximumCompressionLayout(
   opportunities: any[],
   constraints: OptimizationConstraints
 ): LayoutCandidate | null {
-  console.log("🔧 Generating maximum compression layout...");
+  
 
   const rowSharingOpportunities = opportunities.filter(
     (opp) => opp.type === "row_sharing"
@@ -181,7 +179,7 @@ function generateBalancedLayout(
   opportunities: any[],
   constraints: OptimizationConstraints
 ): LayoutCandidate | null {
-  console.log("⚖️ Generating balanced optimization layout...");
+  
 
   const rowSharingOpportunities = opportunities.filter(
     (opp) => opp.type === "row_sharing"
@@ -248,7 +246,7 @@ function generateStructurePreservingLayout(
   opportunities: any[],
   constraints: OptimizationConstraints
 ): LayoutCandidate | null {
-  console.log("🏗️ Generating structure preserving layout...");
+  
 
   // Group activities by WBS or similar structure
   const groupedActivities = groupActivitiesByStructure(activities);
@@ -320,7 +318,7 @@ function generateCriticalPathFocusLayout(
   opportunities: any[],
   constraints: OptimizationConstraints
 ): LayoutCandidate | null {
-  console.log("🎯 Generating critical path focus layout...");
+  
 
   const criticalActivities = activities.filter((a) => a.isCritical);
   const nonCriticalOpportunities = opportunities.filter(

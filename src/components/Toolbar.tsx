@@ -385,7 +385,6 @@ export function Toolbar() {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            console.log("Auto Layout clicked, setting autoLayoutOpen to true");
             setAutoLayoutOpen(true);
             handleMenuClose(setLayoutMenuAnchor);
           }}

@@ -126,28 +126,16 @@ export function ExportDialog() {
       let actualSaveLocation = "Downloads folder";
 
       if (options.format === "svg") {
-        console.log("Calling exportSVG...");
         actualSaveLocation = await exportSVG(options, exportPath);
-        console.log("exportSVG returned:", actualSaveLocation);
       } else if (options.format === "png") {
-        console.log("Calling exportPNG...");
         actualSaveLocation = await exportPNG(options, exportPath);
-        console.log("exportPNG returned:", actualSaveLocation);
       } else if (options.format === "pdf") {
-        console.log("Calling exportPDF...");
         actualSaveLocation = await exportPDF(options, exportPath);
-        console.log("exportPDF returned:", actualSaveLocation);
       } else if (options.format === "json") {
-        console.log("Calling exportJSON...");
         actualSaveLocation = await exportJSON(exportPath, options);
-        console.log("exportJSON returned:", actualSaveLocation);
       }
 
       // Show success notification with actual save location
-      console.log(
-        "Export completed, actual save location:",
-        actualSaveLocation
-      );
       setSuccessNotification({
         open: true,
         message: `File saved: ${fullFilename} in ${actualSaveLocation}`,
@@ -155,7 +143,7 @@ export function ExportDialog() {
 
       setOpen(false);
     } catch (error) {
-      console.error("Export failed:", error);
+      // Silently fail; UI will show nothing. Optionally you can wire to snackbar state.
     }
   };
 
@@ -508,20 +496,7 @@ async function exportSVG(
 
   const url = URL.createObjectURL(blob);
   // Try to save directly to selected directory using File System Access API
-  console.log(
-    "SVG Export - Checking for directory handle:",
-    (window as any).exportDirectoryHandle
-  );
-  console.log(
-    "Directory handle type:",
-    typeof (window as any).exportDirectoryHandle
-  );
-  console.log(
-    "Directory handle name:",
-    (window as any).exportDirectoryHandle?.name
-  );
   if ((window as any).exportDirectoryHandle) {
-    console.log("SVG Export: Directory handle exists, attempting to save...");
     try {
       const fileHandle = await (
         window as any
@@ -533,7 +508,6 @@ async function exportSVG(
       await writable.close();
       // File saved successfully - return the actual directory name
       const result = (window as any).exportDirectoryHandle.name || exportPath;
-      console.log("SVG Export: Successfully saved to directory:", result);
       return result;
     } catch (error) {
       console.error("Failed to save to directory:", error);
@@ -545,7 +519,6 @@ async function exportSVG(
       return "Downloads folder";
     }
   } else {
-    console.log("SVG Export: No directory handle, falling back to download");
     // Fallback to download
     const a = document.createElement("a");
     a.href = url;
@@ -747,8 +720,7 @@ async function exportPNG(
           // File saved successfully - return the actual directory name
           const result =
             (window as any).exportDirectoryHandle.name || exportPath;
-          console.log("PNG saved successfully to directory:", result);
-          resolve(result);
+          return result;
         } catch (error) {
           console.error("Failed to save to directory:", error);
           // Fallback to download
@@ -760,9 +732,6 @@ async function exportPNG(
           resolve("Downloads folder");
         }
       } else {
-        console.log(
-          "PNG Export: No directory handle, falling back to download"
-        );
         // Fallback to download
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);

@@ -89,23 +89,16 @@ export function AutoLayoutTestDialog() {
 
   useEffect(() => {
     if (autoLayoutOpen && data?.activities) {
-      console.log("🚀 Starting auto-layout analysis...");
       setIsAnalyzing(true);
 
       // Run analysis in a timeout to avoid blocking UI
       setTimeout(() => {
-        try {
-          const result = analyzeScheduleLayout(
-            data.activities,
-            (step, progress) => {
-              console.log(`📊 ${step} (${progress}%)`);
-            }
-          );
+          try {
+            const result = analyzeScheduleLayout(data.activities);
 
           setAnalysis(result);
           setIsAnalyzing(false);
-        } catch (error) {
-          console.error("❌ Analysis failed:", error);
+          } catch (error) {
           setIsAnalyzing(false);
         }
       }, 100);
@@ -118,22 +111,12 @@ export function AutoLayoutTestDialog() {
   };
 
   const handleRunOptimization = () => {
-    console.log("🚀 NEW: Running auto-layout optimization...");
-    console.log("🚀 NEW: Analysis available:", !!analysis);
-    console.log("🚀 NEW: Activities available:", !!data?.activities);
-
     if (analysis && data?.activities) {
-      console.log(
-        "🚀 NEW: Starting optimization with",
-        analysis.optimizationOpportunities.length,
-        "opportunities"
-      );
       setIsOptimizing(true);
 
       setTimeout(() => {
-        try {
-          console.log("🔧 NEW: Generating layout candidates...");
-          const result = generateLayoutCandidates(
+          try {
+            const result = generateLayoutCandidates(
             data.activities,
             analysis.optimizationOpportunities,
             {
@@ -145,27 +128,19 @@ export function AutoLayoutTestDialog() {
             }
           );
 
-          console.log("✅ NEW: Optimization complete!", result);
           setOptimizationResult(result);
           setIsOptimizing(false);
-        } catch (error) {
-          console.error("❌ NEW: Optimization failed:", error);
+          } catch (error) {
           setIsOptimizing(false);
         }
       }, 100);
     } else {
-      console.log("❌ NEW: Missing analysis or activities");
     }
   };
 
   const handleApplyOptimization = () => {
-    console.log("🚀 Applying best optimization...");
-
     if (optimizationResult?.bestCandidate) {
       const bestCandidate = optimizationResult.bestCandidate;
-      console.log("📊 Applying optimization:", bestCandidate.name);
-      console.log("📊 Activities to move:", bestCandidate.activities);
-      console.log("📊 Space savings:", bestCandidate.spaceSavings, "rows");
 
       // Apply the optimization by updating activity positions
       if (data?.activities) {
@@ -186,8 +161,8 @@ export function AutoLayoutTestDialog() {
             console.log(
               `📝 Moved ${activityChange.id} from row ${activityChange.originalRow} to row ${activityChange.optimizedRow}`
             );
-          }
-        });
+                }
+              });
 
         // Update the store with optimized activities
         const setData = useScheduleStore.getState().setData;
@@ -202,7 +177,6 @@ export function AutoLayoutTestDialog() {
           },
         });
 
-        console.log("✅ Optimization applied successfully!");
         alert(
           `Applied ${bestCandidate.name}: ${bestCandidate.spaceSavings} rows saved, ${bestCandidate.activities.length} activities moved`
         );

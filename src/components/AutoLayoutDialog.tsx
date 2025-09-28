@@ -34,20 +34,14 @@ export function AutoLayoutDialog() {
   const setAutoLayoutOpen = useScheduleStore((s) => s.setAutoLayoutOpen);
   const data = useScheduleStore((s) => s.data);
 
-  console.log("AutoLayoutDialog render - autoLayoutOpen:", autoLayoutOpen);
+  
 
   const [analysis, setAnalysis] = useState<SimpleAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
-    console.log(
-      "AutoLayoutDialog useEffect - autoLayoutOpen:",
-      autoLayoutOpen,
-      "data:",
-      !!data
-    );
     if (autoLayoutOpen && data?.activities && data?.relationships) {
-      console.log("Starting analysis...");
+      
       setIsAnalyzing(true);
 
       // Run analysis in a timeout to avoid blocking UI
@@ -57,7 +51,6 @@ export function AutoLayoutDialog() {
           setAnalysis(result);
           setIsAnalyzing(false);
         } catch (error) {
-          console.error("Analysis failed:", error);
           setIsAnalyzing(false);
         }
       }, 100);
@@ -71,10 +64,9 @@ export function AutoLayoutDialog() {
 
   const handleRunOptimization = () => {
     // TODO: Implement optimization engine
-    console.log("Running optimization...");
   };
 
-  console.log("Rendering AutoLayoutDialog with open:", autoLayoutOpen);
+  
 
   return (
     <Dialog
